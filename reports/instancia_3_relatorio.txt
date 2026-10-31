@@ -1,0 +1,65 @@
+========================================================================================
+ RELATÓRIO DIAGNÓSTICO DE ENSALAMENTO — instancia_3.xlsx
+========================================================================================
+
+[1] PRÉ-PROCESSAMENTO & QUALIDADE DOS DADOS
+----------------------------------------------------------------------------------------
+  Arquivo de entrada          : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\public\instancia_3.xlsx
+  Arquivo Excel gerado        : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\experiments\instancia_3.xlsx
+  Linhas lidas na aba Alunos  : 165 (Válidos em I: 165 | Inválidos retidos: 0 | Rodapés ignorados: 0)
+  Inconsistências detectadas  : 5 total (0 tratadas auto | 5 alertas duplicidade | 0 impeditivas)
+
+  Detalhamento das ocorrências:
+    • [ALERTA    ] Linha  12 | Benjamin de Freitas Mendes de Almeida: Nome 'Benjamin de Freitas Mendes de Almeida' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 12 (M/TARDE), linha 14 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  28 | Larissa Monteiro da Costa dos Santos: Nome 'Larissa Monteiro da Costa dos Santos' aparece 2 vezes (mesmo turno (MANHÃ): linha 28 (F/MANHÃ), linha 86 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  35 | Davi Pereira de Oliveira: Nome 'Davi Pereira de Oliveira' aparece 2 vezes (mesmo turno (MANHÃ): linha 35 (M/MANHÃ), linha 42 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  36 | Rafaela de Freitas Carvalho: Nome 'Rafaela de Freitas Carvalho' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 36 (F/MANHÃ), linha 96 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  43 | Gael Correia Cardoso Lima: Nome 'Gael Correia Cardoso Lima' aparece 2 vezes (mesmo turno (MANHÃ): linha 43 (M/MANHÃ), linha 62 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+
+[2] INFORMAÇÕES DO SOLVER MATEMÁTICO (MILP LEXICOGRÁFICO - PULP)
+----------------------------------------------------------------------------------------
+  Solver utilizado            : PULP_CBC_CMD
+  Pesos do modelo             : W_qtd=1.0, W_gen=1.0, epsilon=0.0001
+  Dimensão do modelo          : 787 variáveis (725 binárias x_ik, 18 inteiras y_k/z_kg, 44 contínuas)
+  Restrições lineares         : 285 (Fase 1) -> 286 (Fase 2 com trava lexicográfica)
+  Status Fase 1 (Min-Max)     : Optimal | Z1* = 2.0000
+  Status Fase 2 (Par-a-Par)   : Optimal | Z2* = 8.0000 (total c/ eps: 8.003200)
+  Tempos de execução          : Build = 5.2 ms | Fase 1 = 161.0 ms | Fase 2 = 731.4 ms | TOTAL = 899.8 ms (0.8998 s)
+  Diagnóstico de parada       : Solução ótima global alcançada nas Fases 1 e 2 (Otimização Lexicográfica).
+
+[3] DISTRIBUIÇÃO GERAL POR TURNO (MANHÃ vs. TARDE)
+----------------------------------------------------------------------------------------
+  • MANHÃ : 140 alunos ( 84.8% do total) | Vagas: 140/175 ( 80.0% ocup, 35 livres) | Gênero: 61 M (43.6%) / 79 F (56.4%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 0 | Masc (Delta_M): 1 | Fem (Delta_F): 1 | Máx |M-F| intra-sala: 4
+  • TARDE :  25 alunos ( 15.2% do total) | Vagas:  25/30  ( 83.3% ocup,  5 livres) | Gênero: 15 M (60.0%) / 10 F (40.0%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 0 | Masc (Delta_M): 0 | Fem (Delta_F): 0 | Máx |M-F| intra-sala: 5
+  • TOTAL : 165 alunos alocados em 6 salas | Capacidade Global: 165/205 ( 80.5% ocup) | 76 M / 89 F
+
+[4] DETALHAMENTO POR SALA (LOTAÇÃO E GÊNERO)
+----------------------------------------------------------------------------------------
+  Turma        | Turno  |   Lotação |   Ocup. | Livres |   Masc (M) |    Fem (F) | |M - F|
+  ----------------------------------------------------------------------------------------
+  MANHÃ - A    | MANHÃ  |  28/35    |   80.0% |      7 |  12 (  43%) |  16 (  57%) |       4
+  MANHÃ - B    | MANHÃ  |  28/35    |   80.0% |      7 |  12 (  43%) |  16 (  57%) |       4
+  MANHÃ - C    | MANHÃ  |  28/35    |   80.0% |      7 |  12 (  43%) |  16 (  57%) |       4
+  MANHÃ - D    | MANHÃ  |  28/35    |   80.0% |      7 |  12 (  43%) |  16 (  57%) |       4
+  MANHÃ - E    | MANHÃ  |  28/35    |   80.0% |      7 |  13 (  46%) |  15 (  54%) |       2
+  TARDE - F    | TARDE  |  25/30    |   83.3% |      5 |  15 (  60%) |  10 (  40%) |       5
+
+[5] ANÁLISE DE RECURSOS — EXISTE SOLUÇÃO COM SALAS VAZIAS?
+----------------------------------------------------------------------------------------
+  • MANHÃ : SIM! É matematicamente possível deixar até 1 sala(s) VAZIA(S) (usando 4 de 5 turmas).
+            Trade-off: economiza 1 sala(s)/professor(es), mas eleva a média de 28.0 alunos/sala (80.0% ocup.) para 35.0 alunos/sala (100.0% ocup.).
+            Nota: o modelo padrão ocupou todas as 5 salas porque a regra de Equilíbrio em Quantidade penaliza turmas vazias frente às cheias.
+  • TARDE : NÃO. Todas as 1 sala(s) são estritamente necessárias (mínimo teórico = ceil(25/30) = 1 salas).
+            Se 1 sala fosse fechada, restariam 0 vagas para 25 alunos (faltariam 25 vagas).
+  => Conclusão de Recursos: Há potencial para economizar até 1 sala(s) caso a ONG priorize redução de custos sobre turmas menores.
+
+[6] COMO MELHORAR O BALANCEAMENTO — DIAGNÓSTICO E RECOMENDAÇÕES
+----------------------------------------------------------------------------------------
+  1. [Ótimo Teórico - MANHÃ] O ensalamento atingiu equilíbrio perfeito de quantidade (28 alunos em cada sala) e o menor desvio inteiro possível de gênero entre salas (Delta_M=1, Delta_F=1).
+  2. [Paridade 50/50 - MANHÃ] A base de inscritos do turno tem mais Feminino (F) (79) do que Masculino (M) (61), gerando diferença média de ~3.6 por sala. Para aproximar cada sala do 50/50, seria necessário captar/migrar ~18 aluno(s) do gênero Masculino (M).
+  3. [Turno TARDE] Possui apenas 1 turma (25 alunos); não há variabilidade entre turmas neste período.
+  4. [Sinergia entre Turnos] Manhã e Tarde têm desvios de gênero em direções opostas (Manhã: 61M/79F vs. Tarde: 15M/10F). Caso alguns alunos tenham disponibilidade flexível (Integral), permutar até 2 par(es) entre turnos melhoraria simultaneamente a paridade 50/50 nos dois períodos.
+
+========================================================================================
