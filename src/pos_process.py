@@ -174,11 +174,14 @@ def write_excel_output(
             )
 
         for inc in all_inconsistencies:
-            status_label = (
-                "Tratada Automaticamente"
-                if inc.severidade == "TRATADA"
-                else ("Alerta (Alocado em Duplicidade)" if inc.severidade == "ALERTA" else "Pendente de Correção")
-            )
+            if inc.categoria == "Capacidade Insuficiente" and result.feasible:
+                status_label = "Tratada via Lista de Espera"
+            elif inc.severidade == "TRATADA":
+                status_label = "Tratada Automaticamente"
+            elif inc.severidade == "ALERTA":
+                status_label = "Alerta (Alocado em Duplicidade)"
+            else:
+                status_label = "Pendente de Correção"
             ws_inc.append(
                 [
                     inc.row_number if inc.row_number is not None else "-",
@@ -191,6 +194,26 @@ def write_excel_output(
                     inc.mensagem,
                 ]
             )
+
+        if result.feasible and result.unallocated_students:
+            unalloc_set = set(result.unallocated_students)
+            for st in instance.students:
+                if st.id in unalloc_set:
+                    ws_inc.append(
+                        [
+                            st.row_number,
+                            st.nome,
+                            st.sexo,
+                            st.disponibilidade,
+                            "Sem Turma (Lista de Espera)",
+                            "ALERTA",
+                            "Não Alocado (Excedente de Vagas)",
+                            (
+                                f"Excedente de capacidade para disponibilidade '{st.disponibilidade}'; "
+                                "aluno registrado na lista de espera otimizada."
+                            ),
+                        ]
+                    )
 
         if ws_inc.max_row == 1:
             ws_inc.append(
@@ -368,6 +391,64 @@ def build_diagnostic_report(
         f"{total_m} M / {total_f} F"
     )
 
+    if result.unallocated_students:
+        unalloc_set = set(result.unallocated_students)
+        unalloc_objs = [s for s in instance.students if s.id in unalloc_set]
+        u_m = sum(1 for s in unalloc_objs if s.sexo == GENERO_M)
+        u_f = sum(1 for s in unalloc_objs if s.sexo == GENERO_F)
+        u_manha = sum(1 for s in unalloc_objs if s.disponibilidade == TURNO_MANHA)
+        u_tarde = sum(1 for s in unalloc_objs if s.disponibilidade == TURNO_TARDE)
+        u_int = sum(1 for s in unalloc_objs if s.disponibilidade == "INTEGRAL")
+        lines.append(
+            f"  • LISTA DE ESPERA (SEM TURMA): {len(unalloc_objs)} de {len(instance.students)} "
+            f"alunos válidos não alocados ({100.0 * len(unalloc_objs) / len(instance.students):.1f}%) | "
+            f"Por turno: {u_manha} Manhã, {u_tarde} Tarde, {u_int} Integral | "
+            f"Gênero: {u_m} M / {u_f} F"
+        )
+        preview = ", ".join(f"{s.nome} ({s.sexo}/{s.disponibilidade})" for s in unalloc_objs[:6])
+        suffix = (
+            f" ... (+{len(unalloc_objs) - 6} listados na aba '{SHEET_INCONSISTENCIAS}')"
+            if len(unalloc_objs) > 6
+            else ""
+        )
+        lines.append(f"            Exemplos s/ turma -> {preview}{suffix}")
+
+    integral_students = [s for s in instance.students if s.disponibilidade == "INTEGRAL"]
+    if integral_students:
+        turma_turno_map = {t.id: t.turno for t in instance.turmas}
+        int_m_manha = sum(
+            1
+            for s in integral_students
+            if s.sexo == GENERO_M and turma_turno_map.get(result.student_to_turma.get(s.id, -1)) == TURNO_MANHA
+        )
+        int_f_manha = sum(
+            1
+            for s in integral_students
+            if s.sexo == GENERO_F and turma_turno_map.get(result.student_to_turma.get(s.id, -1)) == TURNO_MANHA
+        )
+        int_m_tarde = sum(
+            1
+            for s in integral_students
+            if s.sexo == GENERO_M and turma_turno_map.get(result.student_to_turma.get(s.id, -1)) == TURNO_TARDE
+        )
+        int_f_tarde = sum(
+            1
+            for s in integral_students
+            if s.sexo == GENERO_F and turma_turno_map.get(result.student_to_turma.get(s.id, -1)) == TURNO_TARDE
+        )
+        tot_int_manha = int_m_manha + int_f_manha
+        tot_int_tarde = int_m_tarde + int_f_tarde
+        tot_int_unalloc = len(integral_students) - tot_int_manha - tot_int_tarde
+        extra_unalloc_str = (
+            f" | {tot_int_unalloc} em lista de espera" if tot_int_unalloc > 0 else ""
+        )
+        lines.append(
+            f"  • DECISÃO DE ALUNOS INTEGRAIS ({len(integral_students)} flexíveis): "
+            f"{tot_int_manha} enviados p/ MANHÃ ({int_m_manha} M, {int_f_manha} F) | "
+            f"{tot_int_tarde} enviados p/ TARDE ({int_m_tarde} M, {int_f_tarde} F)"
+            f"{extra_unalloc_str}"
+        )
+
     # -------------------------------------------------------------------------
     # 4. Detalhamento por Sala (Quantidade e Gênero em Cada Sala)
     # -------------------------------------------------------------------------
@@ -541,7 +622,25 @@ def build_diagnostic_report(
             f"turmas/salas ou direcionamento de novas matrículas para o período da {turno_leve}."
         )
 
-    # 6.3 Impacto dos registros inválidos pendentes (quando existirem, ex.: instancia_4)
+    # 6.3 Impacto da lista de espera (quando allow_unallocated=True) e registros inválidos
+    if result.unallocated_students:
+        unalloc_set = set(result.unallocated_students)
+        unalloc_objs = [s for s in instance.students if s.id in unalloc_set]
+        u_manha = sum(1 for s in unalloc_objs if s.disponibilidade == TURNO_MANHA)
+        u_tarde = sum(1 for s in unalloc_objs if s.disponibilidade == TURNO_TARDE)
+        u_int = sum(1 for s in unalloc_objs if s.disponibilidade == "INTEGRAL")
+        cap_u_m = max(1, int(turno_stats[TURNO_MANHA]["cap_unit"]))
+        cap_u_t = max(1, int(turno_stats[TURNO_TARDE]["cap_unit"]))
+        livres_tot = int(turno_stats[TURNO_MANHA]["livres"] + turno_stats[TURNO_TARDE]["livres"])
+        salas_extra_m = math.ceil(u_manha / cap_u_m) if u_manha > 0 else 0
+        salas_extra_t = math.ceil((u_tarde + u_int) / cap_u_t) if (u_tarde + u_int) > 0 else 0
+        rec_items.append(
+            f"[Expansão de Vagas / Lista de Espera] {len(unalloc_objs)} aluno(s) ficaram sem turma "
+            f"por limite físico de capacidade ({u_manha} Manhã, {u_tarde} Tarde, {u_int} Integral; "
+            f"vagas ociosas incompatíveis restantes: {livres_tot}). Abrir +{salas_extra_m} turma(s) na "
+            f"Manhã e +{salas_extra_t} na Tarde (ou ampliar vagas/sala) absorveria 100% da fila."
+        )
+
     if n_invalid > 0:
         vagas_livres_totais = int(
             turno_stats[TURNO_MANHA]["livres"] + turno_stats[TURNO_TARDE]["livres"]

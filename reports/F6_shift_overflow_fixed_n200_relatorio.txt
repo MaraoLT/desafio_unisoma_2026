@@ -1,0 +1,68 @@
+========================================================================================
+ RELATÓRIO DIAGNÓSTICO DE ENSALAMENTO — F6_shift_overflow_fixed_n200.xlsx
+========================================================================================
+
+[1] PRÉ-PROCESSAMENTO & QUALIDADE DOS DADOS
+----------------------------------------------------------------------------------------
+  Arquivo de entrada          : instances\generated\F6_shift_overflow_fixed\F6_shift_overflow_fixed_n200.xlsx
+  Arquivo Excel gerado        : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\experiments\F6_shift_overflow_fixed_n200.xlsx
+  Linhas lidas na aba Alunos  : 200 (Válidos em I: 200 | Inválidos retidos: 0 | Rodapés ignorados: 0)
+  Inconsistências detectadas  : 3 total (0 tratadas auto | 2 alertas duplicidade | 1 impeditivas)
+
+  Detalhamento das ocorrências:
+    • [ALERTA    ] Linha  20 | Bernardo Gomes Barros: Nome 'Bernardo Gomes Barros' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 20 (M/TARDE), linha 133 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  73 | João Cavalcanti da Duarte: Nome 'João Cavalcanti da Duarte' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 73 (M/TARDE), linha 108 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [IMPEDITIVA] Global    | -: Turno MANHÃ possui 98 alunos válidos para apenas 84 vagas (3 turmas x 28 vagas). Déficit de 14 vaga(s).
+
+[2] INFORMAÇÕES DO SOLVER MATEMÁTICO (MILP LEXICOGRÁFICO - PULP)
+----------------------------------------------------------------------------------------
+  Solver utilizado            : PULP_CBC_CMD
+  Pesos do modelo             : W_qtd=1.0, W_gen=1.0, epsilon=0.0001
+  Dimensão do modelo          : 965 variáveis (902 binárias x_ik, 21 inteiras y_k/z_kg, 42 contínuas)
+  Restrições lineares         : 326 (Fase 1) -> 327 (Fase 2 com trava lexicográfica)
+  Status Fase 1 (Min-Max)     : Optimal | Z1* = 3.0000
+  Status Fase 2 (Par-a-Par)   : Optimal | Z2* = 10.0000 (total c/ eps: 10.001900)
+  Tempos de execução          : Build = 6.4 ms | Fase 1 = 138.9 ms | Fase 2 = 311.0 ms | TOTAL = 458.2 ms (0.4582 s)
+  Diagnóstico de parada       : Solução ótima global alcançada nas Fases 1 e 2 (Otimização Lexicográfica). Alocação parcial concluída: 186/200 ensalados e 14 em lista de espera (sem turma).
+
+[3] DISTRIBUIÇÃO GERAL POR TURNO (MANHÃ vs. TARDE)
+----------------------------------------------------------------------------------------
+  • MANHÃ :  84 alunos ( 45.2% do total) | Vagas:  84/84  (100.0% ocup,  0 livres) | Gênero: 45 M (53.6%) / 39 F (46.4%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 0 | Masc (Delta_M): 0 | Fem (Delta_F): 0 | Máx |M-F| intra-sala: 2
+  • TARDE : 102 alunos ( 54.8% do total) | Vagas: 102/124 ( 82.3% ocup, 22 livres) | Gênero: 47 M (46.1%) / 55 F (53.9%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 1 | Masc (Delta_M): 1 | Fem (Delta_F): 1 | Máx |M-F| intra-sala: 3
+  • TOTAL : 186 alunos alocados em 7 salas | Capacidade Global: 186/208 ( 89.4% ocup) | 92 M / 94 F
+  • LISTA DE ESPERA (SEM TURMA): 14 de 200 alunos válidos não alocados (7.0%) | Por turno: 14 Manhã, 0 Tarde, 0 Integral | Gênero: 12 M / 2 F
+            Exemplos s/ turma -> Kauã Raul Melo da Ribeiro (M/MANHÃ), Heitor Nascimento Batista (M/MANHÃ), Rodrigo Reis de Alves (M/MANHÃ), Carlos Silva de Mendes (M/MANHÃ), Diego Cunha do Borges (M/MANHÃ), João Cavalcanti da Duarte (M/MANHÃ) ... (+8 listados na aba 'Inconsistências')
+
+[4] DETALHAMENTO POR SALA (LOTAÇÃO E GÊNERO)
+----------------------------------------------------------------------------------------
+  Turma        | Turno  |   Lotação |   Ocup. | Livres |   Masc (M) |    Fem (F) | |M - F|
+  ----------------------------------------------------------------------------------------
+  MANHÃ - A    | MANHÃ  |  28/28    |  100.0% |      0 |  15 (  54%) |  13 (  46%) |       2
+  MANHÃ - B    | MANHÃ  |  28/28    |  100.0% |      0 |  15 (  54%) |  13 (  46%) |       2
+  MANHÃ - C    | MANHÃ  |  28/28    |  100.0% |      0 |  15 (  54%) |  13 (  46%) |       2
+  TARDE - D    | TARDE  |  26/31    |   83.9% |      5 |  12 (  46%) |  14 (  54%) |       2
+  TARDE - E    | TARDE  |  26/31    |   83.9% |      5 |  12 (  46%) |  14 (  54%) |       2
+  TARDE - F    | TARDE  |  25/31    |   80.6% |      6 |  12 (  48%) |  13 (  52%) |       1
+  TARDE - G    | TARDE  |  25/31    |   80.6% |      6 |  11 (  44%) |  14 (  56%) |       3
+
+[5] ANÁLISE DE RECURSOS — EXISTE SOLUÇÃO COM SALAS VAZIAS?
+----------------------------------------------------------------------------------------
+  • MANHÃ : NÃO. Todas as 3 sala(s) são estritamente necessárias (mínimo teórico = ceil(84/28) = 3 salas).
+            Se 1 sala fosse fechada, restariam 56 vagas para 84 alunos (faltariam 28 vagas).
+  • TARDE : NÃO. Todas as 4 sala(s) são estritamente necessárias (mínimo teórico = ceil(102/31) = 4 salas).
+            Se 1 sala fosse fechada, restariam 93 vagas para 102 alunos (faltariam 9 vagas).
+  => Conclusão de Recursos: A infraestrutura ofertada está enxuta; nenhuma sala pode ficar vazia sem violar o limite máximo de vagas.
+
+[6] COMO MELHORAR O BALANCEAMENTO — DIAGNÓSTICO E RECOMENDAÇÕES
+----------------------------------------------------------------------------------------
+  1. [Ótimo Teórico - MANHÃ] O ensalamento atingiu equilíbrio perfeito de quantidade (28 alunos em cada sala) e o menor desvio inteiro possível de gênero entre salas (Delta_M=0, Delta_F=0).
+  2. [Paridade 50/50 - MANHÃ] A base de inscritos do turno tem mais Masculino (M) (45) do que Feminino (F) (39), gerando diferença média de ~2.0 por sala. Para aproximar cada sala do 50/50, seria necessário captar/migrar ~6 aluno(s) do gênero Feminino (F).
+  3. [Indivisibilidade Inteira - TARDE] A diferença de 1 aluno entre salas (102 alunos / 4 salas deixa resto 2) é matematicamente irredutível; 2 nova(s) matrícula(s) igualariam todas as salas.
+  4. [Paridade 50/50 - TARDE] A base de inscritos do turno tem mais Feminino (F) (55) do que Masculino (M) (47), gerando diferença média de ~2.0 por sala. Para aproximar cada sala do 50/50, seria necessário captar/migrar ~8 aluno(s) do gênero Masculino (M).
+  5. [Sinergia entre Turnos] Manhã e Tarde têm desvios de gênero em direções opostas (Manhã: 45M/39F vs. Tarde: 47M/55F). Caso alguns alunos tenham disponibilidade flexível (Integral), permutar até 3 par(es) entre turnos melhoraria simultaneamente a paridade 50/50 nos dois períodos.
+  6. [Balanceamento de Infraestrutura] A taxa de ocupação de MANHÃ (100.0%) difere bastante de TARDE (82.3%). Avaliar remanejamento de turmas/salas ou direcionamento de novas matrículas para o período da TARDE.
+  7. [Expansão de Vagas / Lista de Espera] 14 aluno(s) ficaram sem turma por limite físico de capacidade (14 Manhã, 0 Tarde, 0 Integral; vagas ociosas incompatíveis restantes: 22). Abrir +1 turma(s) na Manhã e +0 na Tarde (ou ampliar vagas/sala) absorveria 100% da fila.
+
+========================================================================================

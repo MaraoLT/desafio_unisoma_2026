@@ -37,6 +37,9 @@ class SolverParameters:
     w_qtd: float = 1.0
     w_gen: float = 1.0
     epsilon: float = 1e-4
+    enable_phase2: bool = True
+    auto_skip_phase2: bool = False
+    allow_unallocated: bool = False
     time_limit_s: Optional[int] = 60
     msg: bool = False
 
@@ -63,6 +66,7 @@ class SolverMetrics:
     num_continuous_vars: int
     num_constraints_phase1: int
     num_constraints_phase2: int
+    num_unallocated: int = 0
 
 
 @dataclass
@@ -76,12 +80,37 @@ class SolverResult:
     metrics: SolverMetrics
     # Mapeamentos da solução (vazios se inviável)
     student_to_turma: dict[int, int] = field(default_factory=dict)  # student.id -> turma.id
+    unallocated_students: list[int] = field(default_factory=list)  # student.id sem turma
     y_turma: dict[int, int] = field(default_factory=dict)  # turma.id -> lotação total
     z_turma_gen: dict[tuple[int, str], int] = field(default_factory=dict)  # (turma.id, g) -> qtd
     delta_qtd: dict[str, float] = field(default_factory=dict)  # turno -> amplitude máx qtd
     delta_gen: dict[tuple[str, str], float] = field(default_factory=dict)  # (turno, g) -> amp máx
     delta_intra: dict[str, float] = field(default_factory=dict)  # turno -> máx |M - F|
     d_intra: dict[int, float] = field(default_factory=dict)  # turma.id -> |M - F|
+
+
+def compute_min_unallocated(instance: ProcessedInstance) -> int:
+    """Calcula analiticamente (Teorema de Hall) o mínimo exato de alunos sem vaga."""
+    cap_m = len(instance.turmas_por_turno[TURNO_MANHA]) * instance.capacidade_por_turno[TURNO_MANHA]
+    cap_t = len(instance.turmas_por_turno[TURNO_TARDE]) * instance.capacidade_por_turno[TURNO_TARDE]
+
+    only_m = sum(1 for s in instance.students if s.turnos_compativeis == (TURNO_MANHA,))
+    only_t = sum(1 for s in instance.students if s.turnos_compativeis == (TURNO_TARDE,))
+    both_mt = sum(
+        1
+        for s in instance.students
+        if TURNO_MANHA in s.turnos_compativeis and TURNO_TARDE in s.turnos_compativeis
+    )
+    none_t = len(instance.students) - only_m - only_t - both_mt
+
+    def_m = max(0, only_m - cap_m)
+    free_m = max(0, cap_m - only_m)
+
+    def_t = max(0, only_t - cap_t)
+    free_t = max(0, cap_t - only_t)
+
+    def_int = max(0, both_mt - (free_m + free_t))
+    return none_t + def_m + def_t + def_int
 
 
 def solve_ensalamento(
@@ -124,20 +153,88 @@ def solve_ensalamento(
             ),
         )
 
-    for st in instance.students:
-        if not instance.turmas_compativeis_por_aluno.get(st.id):
+    if not instance.turmas:
+        elapsed = time.perf_counter() - t_total_start
+        return SolverResult(
+            feasible=False,
+            optimal=False,
+            reason="Nenhuma turma ofertada no conjunto K para alocação.",
+            params=params,
+            metrics=SolverMetrics(
+                solver_name="PULP_CBC_CMD",
+                status_phase1="Infeasible (No Classes Offered)",
+                status_phase2="Not Solved",
+                z1_objective=None,
+                z2_objective=None,
+                z2_pairwise_pure=None,
+                build_time_s=elapsed,
+                phase1_wall_time_s=0.0,
+                phase1_solver_time_s=0.0,
+                phase2_wall_time_s=0.0,
+                phase2_solver_time_s=0.0,
+                total_time_s=elapsed,
+                num_variables=0,
+                num_binary_vars=0,
+                num_integer_vars=0,
+                num_continuous_vars=0,
+                num_constraints_phase1=0,
+                num_constraints_phase2=0,
+                num_unallocated=len(instance.students),
+            ),
+        )
+
+    min_unalloc_hall = compute_min_unallocated(instance)
+
+    if not params.allow_unallocated:
+        for st in instance.students:
+            if not instance.turmas_compativeis_por_aluno.get(st.id):
+                elapsed = time.perf_counter() - t_total_start
+                return SolverResult(
+                    feasible=False,
+                    optimal=False,
+                    reason=(
+                        f"Aluno '{st.nome}' (linha {st.row_number}) não possui nenhuma turma "
+                        f"compatível ofertada no turno '{st.disponibilidade}' "
+                        "(ative --allow-unallocated para alocação parcial)."
+                    ),
+                    params=params,
+                    metrics=SolverMetrics(
+                        solver_name="PULP_CBC_CMD",
+                        status_phase1="Infeasible (No Compatible Classes)",
+                        status_phase2="Not Solved",
+                        z1_objective=None,
+                        z2_objective=None,
+                        z2_pairwise_pure=None,
+                        build_time_s=elapsed,
+                        phase1_wall_time_s=0.0,
+                        phase1_solver_time_s=0.0,
+                        phase2_wall_time_s=0.0,
+                        phase2_solver_time_s=0.0,
+                        total_time_s=elapsed,
+                        num_variables=0,
+                        num_binary_vars=0,
+                        num_integer_vars=0,
+                        num_continuous_vars=0,
+                        num_constraints_phase1=0,
+                        num_constraints_phase2=0,
+                        num_unallocated=min_unalloc_hall,
+                    ),
+                )
+
+        if min_unalloc_hall > 0:
             elapsed = time.perf_counter() - t_total_start
             return SolverResult(
                 feasible=False,
                 optimal=False,
                 reason=(
-                    f"Aluno '{st.nome}' (linha {st.row_number}) não possui nenhuma turma "
-                    f"compatível ofertada no turno '{st.disponibilidade}'."
+                    f"Capacidade insuficiente: pelo menos {min_unalloc_hall} aluno(s) não possui(em) "
+                    "vaga compatível disponível (ative --allow-unallocated para ensalar o máximo "
+                    "possível e gerar lista de espera)."
                 ),
                 params=params,
                 metrics=SolverMetrics(
                     solver_name="PULP_CBC_CMD",
-                    status_phase1="Infeasible (No Compatible Classes)",
+                    status_phase1="Infeasible (Capacity Deficit)",
                     status_phase2="Not Solved",
                     z1_objective=None,
                     z2_objective=None,
@@ -154,6 +251,7 @@ def solve_ensalamento(
                     num_continuous_vars=0,
                     num_constraints_phase1=0,
                     num_constraints_phase2=0,
+                    num_unallocated=min_unalloc_hall,
                 ),
             )
 
@@ -183,6 +281,15 @@ def solve_ensalamento(
     for st in students:
         for k in K_i[st.id]:
             x[(st.id, k)] = pulp.LpVariable(f"x_{st.id}_{k}", cat=pulp.LpBinary)
+
+    # u_i in {0, 1}: indicador de lista de espera (sem turma) quando allow_unallocated=True
+    u: dict[int, pulp.LpVariable] = {}
+    if params.allow_unallocated:
+        for st in students:
+            u[st.id] = pulp.LpVariable(f"u_{st.id}", cat=pulp.LpBinary)
+
+    u_star = min_unalloc_hall if params.allow_unallocated else 0
+    expected_allocated = len(students) - u_star
 
     # y_k in Z_>=0: lotação total da turma k
     y: dict[int, pulp.LpVariable] = {
@@ -240,12 +347,33 @@ def solve_ensalamento(
     }
 
     # --- Restrições ---
-    # 1. Alocação Obrigatória e Respeito à Disponibilidade (Eq. 3)
-    for st in students:
+    # 1. Alocação Obrigatória (ou Parcial c/ Folga Mínima Exata) e Disponibilidade (Eq. 3)
+    if params.allow_unallocated:
+        for st in students:
+            prob += (
+                pulp.lpSum(x[(st.id, k)] for k in K_i[st.id]) + u[st.id] == 1,
+                f"R1_aloc_aluno_{st.id}",
+            )
+        # Trava Prioridade 0 lexicográfica: maximizar o total de alunos alocados (sum u_i == U*)
         prob += (
-            pulp.lpSum(x[(st.id, k)] for k in K_i[st.id]) == 1,
-            f"R1_aloc_aluno_{st.id}",
+            pulp.lpSum(u[st.id] for st in students) == u_star,
+            "R0_min_unallocated_exact",
         )
+        for s_fixed in (TURNO_MANHA, TURNO_TARDE):
+            cap_tot_s = len(instance.turmas_por_turno[s_fixed]) * C_s[s_fixed]
+            only_s_ids = [s.id for s in students if s.turnos_compativeis == (s_fixed,)]
+            def_s = len(only_s_ids) - cap_tot_s
+            if def_s > 0:
+                prob += (
+                    pulp.lpSum(u[i_id] for i_id in only_s_ids) >= def_s,
+                    f"R0_deficit_{_ascii_turno(s_fixed)}",
+                )
+    else:
+        for st in students:
+            prob += (
+                pulp.lpSum(x[(st.id, k)] for k in K_i[st.id]) == 1,
+                f"R1_aloc_aluno_{st.id}",
+            )
 
     # 2. Contabilização de Alunos por Gênero (Eq. 4)
     for k in K_ids:
@@ -269,14 +397,21 @@ def solve_ensalamento(
         for k in K_s[s]:
             prob += (y[k] <= cap, f"R4_cap_max_{k}")
 
-    # 5. Quebra de Simetria - Ordenação Decrescente Intra-Turno (Eq. 7)
+    # 5. Quebra de Simetria - Ordenação Decrescente Intra-Turno (Eq. 7 + desempate lexicográfico em M)
     for s in S_active:
         ks_list = K_s[s]
+        cap = C_s[s]
         for idx in range(len(ks_list) - 1):
             k_curr, k_next = ks_list[idx], ks_list[idx + 1]
             prob += (
                 y[k_curr] - y[k_next] >= 0,
                 f"R5_simetria_{_ascii_turno(s)}_{k_curr}_{k_next}",
+            )
+            prob += (
+                (cap + 1) * (y[k_curr] - y[k_next])
+                + (z[(k_curr, GENERO_M)] - z[(k_next, GENERO_M)])
+                >= 0,
+                f"R5_simetria_lex_{_ascii_turno(s)}_{k_curr}_{k_next}",
             )
 
     # 6. Equilíbrio em Quantidade - Amplitude Máxima e Par-a-Par (Eqs. 8 e 9)
@@ -337,7 +472,7 @@ def solve_ensalamento(
                             f"R8_amp_gen_{_ascii_turno(s)}_{k}_{kp}_{g}",
                         )
 
-    num_binary = len(x)
+    num_binary = len(x) + len(u)
     num_integer = len(y) + len(z)
     num_continuous = (
         len(delta_qtd) + len(d_qtd) + len(delta_gen) + len(d_gen) + len(d_intra) + len(delta_intra)
@@ -364,12 +499,21 @@ def solve_ensalamento(
     phase1_solver_s = float(getattr(prob, "solutionTime", phase1_wall_s))
     status_p1_str = pulp.LpStatus.get(status_code_p1, str(status_code_p1))
 
-    if status_code_p1 != pulp.LpStatusOptimal:
+    has_incumbent_p1 = (
+        status_code_p1 == pulp.LpStatusOptimal
+        or (
+            status_code_p1 == pulp.LpStatusNotSolved
+            and all(pulp.value(y[k]) is not None for k in K_ids)
+            and sum(int(round(pulp.value(y[k]) or 0.0)) for k in K_ids) == expected_allocated
+        )
+    )
+
+    if not has_incumbent_p1:
         total_elapsed = time.perf_counter() - t_total_start
         return SolverResult(
             feasible=False,
             optimal=False,
-            reason=f"Fase 1 encerrou sem solução ótima (Status: {status_p1_str}).",
+            reason=f"Fase 1 encerrou sem solução inteira viável (Status: {status_p1_str}).",
             params=params,
             metrics=SolverMetrics(
                 solver_name="PULP_CBC_CMD",
@@ -390,8 +534,13 @@ def solve_ensalamento(
                 num_continuous_vars=num_continuous,
                 num_constraints_phase1=num_constraints_p1,
                 num_constraints_phase2=num_constraints_p1,
+                num_unallocated=u_star,
             ),
         )
+
+    p1_optimal = status_code_p1 == pulp.LpStatusOptimal
+    if not p1_optimal:
+        status_p1_str = "Feasible (Time Limit)"
 
     z1_star = float(pulp.value(custo_fase1_expr))
 
@@ -408,10 +557,6 @@ def solve_ensalamento(
     # =========================================================================
     # 3. FASE 2: SUAVIZAÇÃO INTERNA PAR-A-PAR (Eq. 2) + TERMO SECUNDÁRIO EPSILON
     # =========================================================================
-    # Trava o limite de qualidade ótimo encontrado na Fase 1 (Custo Fase 1 <= Z1*)
-    prob += (custo_fase1_expr <= z1_star + 1e-5, "Lock_Custo_Fase_1")
-    num_constraints_p2 = len(prob.constraints)
-
     pairwise_pure_expr = pulp.lpSum(
         params.w_qtd
         * pulp.lpSum(
@@ -435,45 +580,129 @@ def solve_ensalamento(
     )
 
     custo_fase2_expr = pairwise_pure_expr + params.epsilon * intra_smoothing_expr
-    prob.setObjective(custo_fase2_expr)
 
-    cbc_phase2 = pulp.PULP_CBC_CMD(
-        msg=params.msg,
-        timeLimit=params.time_limit_s,
+    has_flexible_students = any(
+        not any(K_i_sets[st.id] == set(K_s[s]) for s in S_active) for st in students
     )
-    t_p2_start = time.perf_counter()
-    status_code_p2 = prob.solve(cbc_phase2)
-    phase2_wall_s = time.perf_counter() - t_p2_start
-    phase2_solver_s = float(getattr(prob, "solutionTime", phase2_wall_s))
-    status_p2_str = pulp.LpStatus.get(status_code_p2, str(status_code_p2))
+    unit_amplitudes = all(
+        (max(p1_y[k] for k in K_s[s]) - min(p1_y[k] for k in K_s[s]) <= 1)
+        and all(
+            max(p1_z[(k, g)] for k in K_s[s]) - min(p1_z[(k, g)] for k in K_s[s]) <= 1
+            for g in GENEROS
+        )
+        for s in S_active
+    )
+    can_auto_skip_p2 = (
+        params.auto_skip_phase2
+        and p1_optimal
+        and u_star == 0
+        and params.w_qtd > 0
+        and params.w_gen > 0
+        and not has_flexible_students
+        and unit_amplitudes
+    )
 
-    # Extração da solução final (usa Fase 2 se ótima, caso contrário preserva Fase 1 ótima)
-    if status_code_p2 == pulp.LpStatusOptimal:
-        student_to_turma = {
-            st.id: k
-            for st in students
-            for k in K_i[st.id]
-            if (pulp.value(x[(st.id, k)]) or 0.0) > 0.5
-        }
-        y_vals = {k: int(round(pulp.value(y[k]) or 0.0)) for k in K_ids}
-        z_vals = {
-            (k, g): int(round(pulp.value(z[(k, g)]) or 0.0)) for k in K_ids for g in GENEROS
-        }
-        z2_obj = float(pulp.value(custo_fase2_expr) or 0.0)
-        z2_pure = float(pulp.value(pairwise_pure_expr) or 0.0)
-        is_opt = True
-        reason_msg = "Solução ótima global alcançada nas Fases 1 e 2 (Otimização Lexicográfica)."
-    else:
+    if (not params.enable_phase2) or can_auto_skip_p2:
+        # Calcula o valor equivalente de Z2 a partir dos inteiros y/z da Fase 1 para comparação justa
+        p1_z2_pure = 0.0
+        p1_intra_sum = 0.0
+        for s in S_active:
+            ks_list = K_s[s]
+            for i in range(len(ks_list)):
+                for j in range(i + 1, len(ks_list)):
+                    ka, kb = ks_list[i], ks_list[j]
+                    p1_z2_pure += params.w_qtd * abs(p1_y[ka] - p1_y[kb])
+                    for g in GENEROS:
+                        p1_z2_pure += params.w_gen * abs(p1_z[(ka, g)] - p1_z[(kb, g)])
+            max_intra_s = 0.0
+            for k in ks_list:
+                di = float(abs(p1_z[(k, GENERO_M)] - p1_z[(k, GENERO_F)]))
+                p1_intra_sum += di
+                if di > max_intra_s:
+                    max_intra_s = di
+            p1_intra_sum += max_intra_s
+
         student_to_turma = p1_student_to_turma
         y_vals = p1_y
         z_vals = p1_z
-        z2_obj = None
-        z2_pure = None
-        is_opt = True
-        reason_msg = (
-            f"Fase 1 ótima alcançada; Fase 2 retornou '{status_p2_str}', "
-            "mantendo alocação ótima da Fase 1."
+        z2_pure = p1_z2_pure
+        z2_obj = p1_z2_pure + params.epsilon * p1_intra_sum
+        is_opt = p1_optimal
+        status_p2_str = (
+            "Auto-Skipped (Unique Optimal)" if can_auto_skip_p2 else "Disabled (Phase 1 Only)"
         )
+        phase2_wall_s = 0.0
+        phase2_solver_s = 0.0
+        num_constraints_p2 = num_constraints_p1
+        if can_auto_skip_p2:
+            reason_msg = (
+                "Solução ótima global obtida na Fase 1 (Fase 2 omitida automaticamente por "
+                "unicidade matemática do perfil ótimo de turmas)."
+            )
+        else:
+            reason_msg = (
+                "Solução ótima da Fase 1 obtida (Fase 2 desativada)."
+                if p1_optimal
+                else f"Solução inteira viável da Fase 1 obtida no limite de tempo ({status_p1_str}; Fase 2 desativada)."
+            )
+    else:
+        # Trava o limite de qualidade ótimo encontrado na Fase 1 (Custo Fase 1 <= Z1*)
+        prob += (custo_fase1_expr <= z1_star + 1e-5, "Lock_Custo_Fase_1")
+        num_constraints_p2 = len(prob.constraints)
+        prob.setObjective(custo_fase2_expr)
+
+        cbc_phase2 = pulp.PULP_CBC_CMD(
+            msg=params.msg,
+            timeLimit=params.time_limit_s,
+        )
+        t_p2_start = time.perf_counter()
+        status_code_p2 = prob.solve(cbc_phase2)
+        phase2_wall_s = time.perf_counter() - t_p2_start
+        phase2_solver_s = float(getattr(prob, "solutionTime", phase2_wall_s))
+        status_p2_str = pulp.LpStatus.get(status_code_p2, str(status_code_p2))
+
+        has_incumbent_p2 = (
+            status_code_p2 == pulp.LpStatusOptimal
+            or (
+                status_code_p2 == pulp.LpStatusNotSolved
+                and all(pulp.value(y[k]) is not None for k in K_ids)
+                and sum(int(round(pulp.value(y[k]) or 0.0)) for k in K_ids) == expected_allocated
+            )
+        )
+        if status_code_p2 != pulp.LpStatusOptimal and has_incumbent_p2:
+            status_p2_str = "Feasible (Time Limit)"
+
+        # Extração da solução final (usa Fase 2 se viável/ótima, caso contrário preserva Fase 1)
+        if has_incumbent_p2:
+            student_to_turma = {
+                st.id: k
+                for st in students
+                for k in K_i[st.id]
+                if (pulp.value(x[(st.id, k)]) or 0.0) > 0.5
+            }
+            y_vals = {k: int(round(pulp.value(y[k]) or 0.0)) for k in K_ids}
+            z_vals = {
+                (k, g): int(round(pulp.value(z[(k, g)]) or 0.0)) for k in K_ids for g in GENEROS
+            }
+            z2_obj = float(pulp.value(custo_fase2_expr) or 0.0)
+            z2_pure = float(pulp.value(pairwise_pure_expr) or 0.0)
+            is_opt = p1_optimal and (status_code_p2 == pulp.LpStatusOptimal)
+            reason_msg = (
+                "Solução ótima global alcançada nas Fases 1 e 2 (Otimização Lexicográfica)."
+                if is_opt
+                else f"Solução inteira viável obtida no limite de tempo ({status_p1_str} / {status_p2_str})."
+            )
+        else:
+            student_to_turma = p1_student_to_turma
+            y_vals = p1_y
+            z_vals = p1_z
+            z2_obj = None
+            z2_pure = None
+            is_opt = False
+            reason_msg = (
+                f"Fase 1 concluída ({status_p1_str}); Fase 2 retornou '{status_p2_str}', "
+                "mantendo alocação da Fase 1."
+            )
 
     # Recalcula desvios exatos a partir dos inteiros y_vals e z_vals
     res_delta_qtd: dict[str, float] = {}
@@ -492,6 +721,13 @@ def solve_ensalamento(
             g_counts = [z_vals[(k, g)] for k in ks_list]
             res_delta_gen[(s, g)] = float(max(g_counts) - min(g_counts)) if g_counts else 0.0
         res_delta_intra[s] = max((res_d_intra[k] for k in ks_list), default=0.0)
+
+    unallocated_ids = [st.id for st in students if st.id not in student_to_turma]
+    if unallocated_ids:
+        reason_msg = (
+            f"{reason_msg} Alocação parcial concluída: {len(student_to_turma)}/{len(students)} "
+            f"ensalados e {len(unallocated_ids)} em lista de espera (sem turma)."
+        )
 
     total_elapsed = time.perf_counter() - t_total_start
 
@@ -519,8 +755,10 @@ def solve_ensalamento(
             num_continuous_vars=num_continuous,
             num_constraints_phase1=num_constraints_p1,
             num_constraints_phase2=num_constraints_p2,
+            num_unallocated=len(unallocated_ids),
         ),
         student_to_turma=student_to_turma,
+        unallocated_students=unallocated_ids,
         y_turma=y_vals,
         z_turma_gen=z_vals,
         delta_qtd=res_delta_qtd,

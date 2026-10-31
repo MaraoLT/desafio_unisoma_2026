@@ -106,6 +106,14 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
         help="Trata disponibilidade 'Integral'/'Ambos' como flexível entre Manhã e Tarde.",
     )
     parser.add_argument(
+        "--allow-unallocated",
+        action="store_true",
+        help=(
+            "Permite alocação parcial quando faltar vaga (sum x_ik + u_i = 1), "
+            "maximizando os ensalados de forma equilibrada e gerando lista de espera."
+        ),
+    )
+    parser.add_argument(
         "--w-qtd",
         type=float,
         default=1.0,
@@ -122,6 +130,19 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
         type=float,
         default=1e-4,
         help="Peso secundário epsilon para suavização intra-turma 50/50 (padrão: 1e-4).",
+    )
+    parser.add_argument(
+        "--no-phase2",
+        action="store_true",
+        help="Desativa a Fase 2 (resolve apenas a Fase 1 Min-Max).",
+    )
+    parser.add_argument(
+        "--auto-phase2",
+        action="store_true",
+        help=(
+            "Pula a Fase 2 automaticamente quando a solução ótima da Fase 1 já possui "
+            "perfil de turmas matematicamente único (ex.: turnos fixos com amplitude <= 1)."
+        ),
     )
     parser.add_argument(
         "--time-limit",
@@ -158,6 +179,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         w_qtd=args.w_qtd,
         w_gen=args.w_gen,
         epsilon=args.epsilon,
+        enable_phase2=not args.no_phase2,
+        auto_skip_phase2=args.auto_phase2,
+        allow_unallocated=args.allow_unallocated,
         time_limit_s=args.time_limit,
         msg=args.solver_verbose,
     )

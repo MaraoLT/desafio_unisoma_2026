@@ -183,9 +183,10 @@ def _parse_disponibilidade(
 
     if tok in {"integral", "ambos", "manha/tarde", "manha e tarde", "qualquer", "livre"}:
         if allow_integral:
-            notes.append(
-                f"Disponibilidade '{stripped}' tratada como flexível (compatível com Manhã e Tarde)."
-            )
+            if stripped not in {"Integral", "INTEGRAL"}:
+                notes.append(
+                    f"Disponibilidade '{stripped}' padronizada para 'INTEGRAL' (compatível com Manhã e Tarde)."
+                )
             return "INTEGRAL", (TURNO_MANHA, TURNO_TARDE), notes, None
         return (
             None,
@@ -498,7 +499,7 @@ def pre_process(raw: RawInstance, allow_integral: bool = False) -> ProcessedInst
             )
         )
 
-    if capacity_feasible and (fixed_manha + fixed_tarde + flex_count) > (cap_manha + cap_tarde):
+    if (fixed_manha + fixed_tarde + flex_count) > (cap_manha + cap_tarde):
         capacity_feasible = False
         excesso = (fixed_manha + fixed_tarde + flex_count) - (cap_manha + cap_tarde)
         inconsistencies.append(
