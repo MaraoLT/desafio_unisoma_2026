@@ -1,0 +1,757 @@
+/* Interface Minimalista Estilo Planilha + Painel Lateral — Desafio UniSoma 2026 */
+
+:root {
+  --green: #107C41;
+  --green-hover: #0C5E31;
+  --green-soft: #ECFDF5;
+  --blue-sel: #1A73E8;
+  --blue-soft: #E8F0FE;
+  --bg-page: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --border: #E2E8F0;
+  --border-grid: #E5E7EB;
+  --text: #1E293B;
+  --text-muted: #64748B;
+  --danger: #DC2626;
+  --danger-bg: #FEF2F2;
+  --warn: #B45309;
+  --warn-bg: #FFFBEB;
+  --font: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg-page);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Barra Superior Minimalista */
+.topbar {
+  height: 54px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  user-select: none;
+}
+
+.brand-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.sheet-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: var(--green);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.file-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.file-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0F172A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+
+.save-pill {
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #F1F5F9;
+  color: var(--text-muted);
+}
+
+.save-pill.dirty {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+
+.file-path {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 360px;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.opt-toggles {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px;
+  background: #F8FAFC;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  color: #334155;
+}
+
+.opt-toggles label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.opt-toggles input[type="checkbox"] {
+  accent-color: var(--green);
+  cursor: pointer;
+}
+
+.btn {
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 6px;
+  border: 1px solid #CBD5E1;
+  background: #FFFFFF;
+  color: #1E293B;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.btn:hover {
+  background: #F1F5F9;
+  border-color: #94A3B8;
+}
+
+.btn-primary {
+  background: var(--green);
+  border-color: var(--green);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: var(--green-hover);
+  border-color: var(--green-hover);
+}
+
+.btn-sm {
+  height: 27px;
+  padding: 0 9px;
+  font-size: 11.5px;
+}
+
+/* Workspace: Planilha à esquerda + Divisor + Painel Lateral à direita */
+.workspace {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  padding: 8px;
+  gap: 0;
+  position: relative;
+}
+
+/* Divisor Redimensionável entre a Planilha e o Painel Lateral */
+.pane-resizer {
+  width: 8px;
+  cursor: col-resize;
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  z-index: 10;
+  margin: 0 2px;
+}
+
+.pane-resizer::after {
+  content: "";
+  width: 2px;
+  height: 36px;
+  border-radius: 2px;
+  background: #CBD5E1;
+  transition: all 0.15s;
+}
+
+.pane-resizer:hover::after,
+.pane-resizer.dragging::after {
+  background: var(--green);
+  width: 3px;
+  height: 52px;
+}
+
+.pane-resizer:hover,
+.pane-resizer.dragging {
+  background: rgba(16, 124, 65, 0.08);
+  border-radius: 4px;
+}
+
+/* Lado Esquerdo: Planilha Estilo Excel / Sheets */
+.spreadsheet-pane {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.formula-strip {
+  height: 38px;
+  border-bottom: 1px solid var(--border);
+  background: #F8FAFC;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cell-ref {
+  min-width: 52px;
+  height: 26px;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fx-label {
+  font-style: italic;
+  font-weight: 600;
+  font-size: 12px;
+  color: #94A3B8;
+  user-select: none;
+}
+
+.formula-input {
+  flex: 1;
+  height: 26px;
+  border: 1px solid #CBD5E1;
+  border-radius: 4px;
+  padding: 0 8px;
+  font-size: 12.5px;
+  color: var(--text);
+  outline: none;
+  background: #FFFFFF;
+}
+
+.formula-input:focus {
+  border-color: var(--blue-sel);
+}
+
+.search-input {
+  width: 175px;
+  height: 26px;
+  border: 1px solid #CBD5E1;
+  border-radius: 4px;
+  padding: 0 8px;
+  font-size: 12px;
+  outline: none;
+  background: #FFFFFF;
+}
+
+.search-input:focus {
+  border-color: var(--blue-sel);
+}
+
+/* Grid de Células */
+.grid-scroll {
+  flex: 1;
+  overflow: auto;
+  background: #FFFFFF;
+}
+
+.sheet-grid {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 12.5px;
+  table-layout: auto;
+}
+
+.sheet-grid th,
+.sheet-grid td {
+  border: 1px solid var(--border-grid);
+  height: 27px;
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+
+.sheet-grid thead th {
+  position: sticky;
+  top: 0;
+  background: #F1F5F9;
+  color: #475569;
+  font-weight: 600;
+  font-size: 11.5px;
+  text-align: center;
+  z-index: 10;
+  user-select: none;
+}
+
+.sheet-grid thead th.corner {
+  left: 0;
+  z-index: 12;
+  width: 44px;
+  min-width: 44px;
+}
+
+.sheet-grid tbody th.row-num {
+  position: sticky;
+  left: 0;
+  background: #F8FAFC;
+  color: #64748B;
+  font-weight: 500;
+  font-size: 11.5px;
+  text-align: center;
+  width: 44px;
+  min-width: 44px;
+  z-index: 5;
+  user-select: none;
+}
+
+.sheet-grid tr.sheet-header-row td {
+  background: #F0FDF4;
+  color: #065F46;
+  font-weight: 600;
+}
+
+.sheet-grid tr.flag-impeditiva td {
+  background: #FEF2F2;
+}
+
+.sheet-grid tr.flag-alerta td {
+  background: #FFFBEB;
+}
+
+.sheet-grid tr.jump-highlight td {
+  animation: pulseRow 1.8s ease;
+}
+
+@keyframes pulseRow {
+  0% { background-color: #BFDBFE; }
+  100% { background-color: transparent; }
+}
+
+.sheet-grid td {
+  color: #0F172A;
+  cursor: cell;
+  outline: none;
+  max-width: 380px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sheet-grid td.selected-cell {
+  box-shadow: inset 0 0 0 2px var(--blue-sel);
+  background: #F8FBFF !important;
+}
+
+/* Barra Inferior de Abas Estilo Planilha */
+.bottom-bar {
+  height: 36px;
+  background: #F1F5F9;
+  border-top: 1px solid var(--border);
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+
+.tabs-list {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  gap: 3px;
+}
+
+.sheet-tab {
+  height: 30px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #475569;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-bottom: none;
+}
+
+.sheet-tab:hover {
+  background: #E2E8F0;
+}
+
+.sheet-tab.active {
+  background: #FFFFFF;
+  color: var(--green);
+  font-weight: 600;
+  border-color: var(--border);
+  box-shadow: inset 0 2px 0 var(--green);
+}
+
+.pager-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* Lado Direito: Painel Lateral (Relatório Enxuto + Chat Assistente) */
+.side-pane {
+  width: 390px;
+  min-width: 220px;
+  max-width: 80vw;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.side-header {
+  height: 42px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  padding: 4px;
+  gap: 4px;
+  background: #F8FAFC;
+}
+
+.side-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.side-tab.active {
+  background: #FFFFFF;
+  color: #0F172A;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.side-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.side-body.active {
+  display: flex;
+}
+
+/* Cards Minimalistas do Relatório */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.kpi-box {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #FAFAFA;
+}
+
+.kpi-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+}
+
+.kpi-num {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.kpi-num.green { color: var(--green); }
+.kpi-num.warn { color: var(--warn); }
+.kpi-num.danger { color: var(--danger); }
+
+.section-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  background: #FFFFFF;
+}
+
+.section-card.issues-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.shift-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid #F1F5F9;
+  font-size: 12px;
+}
+
+.shift-row:last-child {
+  border-bottom: none;
+}
+
+.issue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  max-height: calc(100vh - 350px);
+  min-height: 240px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.issue-item {
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: transform 0.08s;
+}
+
+.issue-item:hover {
+  filter: brightness(0.97);
+}
+
+.issue-item.IMPEDITIVA {
+  background: var(--danger-bg);
+  border-color: #FECACA;
+  color: #991B1B;
+}
+
+.issue-item.ALERTA {
+  background: var(--warn-bg);
+  border-color: #FDE68A;
+  color: #92400E;
+}
+
+.issue-item.TRATADA {
+  background: #F0FDF4;
+  border-color: #BBF7D0;
+  color: #166534;
+}
+
+/* Chat Estilo Painel Gemini / Sheets */
+.chat-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 2px;
+}
+
+.msg {
+  max-width: 92%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.msg.bot {
+  align-self: flex-start;
+  background: #F1F5F9;
+  color: #1E293B;
+  border-bottom-left-radius: 3px;
+}
+
+.msg.user {
+  align-self: flex-end;
+  background: var(--green);
+  color: #FFFFFF;
+  border-bottom-right-radius: 3px;
+}
+
+.quick-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 0 8px;
+}
+
+.chip {
+  border: 1px solid #CBD5E1;
+  background: #F8FAFC;
+  color: #334155;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  cursor: pointer;
+}
+
+.chip:hover {
+  background: var(--blue-soft);
+  border-color: #93C5FD;
+  color: #1D4ED8;
+}
+
+.chat-box {
+  display: flex;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.chat-box input {
+  flex: 1;
+  height: 36px;
+  border: 1px solid #CBD5E1;
+  border-radius: 18px;
+  padding: 0 14px;
+  font-size: 12.5px;
+  outline: none;
+}
+
+.chat-box input:focus {
+  border-color: var(--green);
+}
+
+.chat-send {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--green);
+  color: #FFFFFF;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-send:hover {
+  background: var(--green-hover);
+}
+
+/* Loading & Toast */
+.busy-mask {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.78);
+  z-index: 40;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
+}
+
+.busy-mask.show {
+  display: flex;
+}
+
+.toast {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  background: #0F172A;
+  color: #FFFFFF;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 100;
+  max-width: 420px;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}

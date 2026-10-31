@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>UniSoma — Ensalamento</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <!-- Barra Superior Minimalista Estilo Planilha -->
+  <header class="topbar">
+    <div class="brand-area">
+      <div class="sheet-logo">XLS</div>
+      <div class="file-meta">
+        <div class="file-title-row">
+          <span class="file-title" id="fileTitle">Carregando planilha...</span>
+          <span class="save-pill" id="savePill">Pronto</span>
+        </div>
+        <span class="file-path" id="filePath">Abra um arquivo .xlsx ou edite os dados diretamente abaixo</span>
+      </div>
+    </div>
+
+    <div class="toolbar-right">
+      <div class="opt-toggles" title="Opções de flexibilização do ensalamento">
+        <label>
+          <input type="checkbox" id="chkIntegral" checked>
+          Aceitar Integral
+        </label>
+        <label>
+          <input type="checkbox" id="chkUnalloc" checked>
+          Permitir Lista de Espera
+        </label>
+      </div>
+
+      <button class="btn" onclick="openExcel()">Abrir Excel</button>
+      <button class="btn" onclick="saveExcel(false)">Salvar</button>
+      <button class="btn btn-primary" onclick="runOptimization()">Otimizar Turmas</button>
+      <button class="btn" onclick="exportStudentPdf()">PDF p/ Alunos</button>
+    </div>
+  </header>
+
+  <!-- Área Principal: Planilha à Esquerda + Relatório/Assistente à Direita -->
+  <main class="workspace">
+
+    <!-- Lado Esquerdo: Planilha Modificável -->
+    <section class="spreadsheet-pane">
+      <div class="formula-strip">
+        <div class="cell-ref" id="cellRef">A1</div>
+        <span class="fx-label">fx</span>
+        <input
+          type="text"
+          class="formula-input"
+          id="formulaInput"
+          placeholder="Clique em uma célula para editar..."
+          oninput="onFormulaInput(event)"
+          onkeydown="onFormulaKeyDown(event)"
+        >
+        <button class="btn btn-sm" onclick="addRow()" title="Inserir nova linha no final da aba">+ Linha</button>
+        <button class="btn btn-sm" onclick="deleteSelectedRow()" title="Excluir linha selecionada">Excluir Linha</button>
+        <input
+          type="text"
+          class="search-input"
+          id="searchBox"
+          placeholder="Filtrar nome / turma..."
+          oninput="onSearchChange()"
+        >
+      </div>
+
+      <div class="grid-scroll" id="gridScroll">
+        <table class="sheet-grid">
+          <thead id="gridHead"></thead>
+          <tbody id="gridBody"></tbody>
+        </table>
+      </div>
+
+      <footer class="bottom-bar">
+        <div class="tabs-list" id="sheetTabs"></div>
+        <div class="pager-box" id="pagerBox"></div>
+      </footer>
+
+      <div class="busy-mask" id="busyMask">Processando...</div>
+    </section>
+
+    <!-- Divisor Redimensionável (Splitter) -->
+    <div class="pane-resizer" id="paneResizer" title="Arraste para redimensionar ou duplo-clique para resetar"></div>
+
+    <!-- Lado Direito: Relatório Enxuto + Assistente Local -->
+    <aside class="side-pane" id="sidePane">
+      <div class="side-header">
+        <button class="side-tab active" id="btnSideReport" onclick="setSideTab('report')">Relatório &amp; Alertas</button>
+        <button class="side-tab" id="btnSideChat" onclick="setSideTab('chat')">Assistente</button>
+      </div>
+
+      <!-- Visão 1: Resumo Amigável e Erros Clicáveis -->
+      <div class="side-body active" id="paneReport">
+        <div class="kpi-grid">
+          <div class="kpi-box">
+            <div class="kpi-label">Alunos Alocados</div>
+            <div class="kpi-num green" id="kpiAloc">—</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-label">Salas Ofertadas</div>
+            <div class="kpi-num" id="kpiSalas">—</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-label">Lista de Espera</div>
+            <div class="kpi-num warn" id="kpiEspera">—</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-label">Alertas / Erros</div>
+            <div class="kpi-num" id="kpiErros">—</div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-title">
+            <span>Ocupação por Período</span>
+            <span id="solverBadge" style="font-size:11px; color:#107C41; font-weight:600;"></span>
+          </div>
+          <div id="shiftsBox" style="font-size:12px; color:#64748B;">
+            Clique em <b>Otimizar Turmas</b> para gerar a divisão equilibrada.
+          </div>
+        </div>
+
+        <div class="section-card issues-section">
+          <div class="section-title">
+            <span>Erros e Alertas Cadastrais</span>
+            <span style="font-size:11px; color:#64748B; font-weight:400;">Clique p/ ir à linha</span>
+          </div>
+          <div class="issue-list" id="issuesBox">
+            <span style="font-size:12px; color:#64748B;">Nenhum erro verificado ainda.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visão 2: Chat Assistente Local (100% Offline, Zero Alucinação) -->
+      <div class="side-body" id="paneChat">
+        <div class="chat-wrap">
+          <div class="chat-messages" id="chatMessages">
+            <div class="msg bot">
+              Olá! Consulto diretamente os números exatos da sua planilha, <b>100% offline e sem erros</b>.<br><br>
+              Pergunte sobre vagas, erros cadastrais, turmas ou digite o <b>nome de um aluno</b> para achar a sala dele.
+            </div>
+          </div>
+
+          <div class="quick-chips">
+            <button class="chip" onclick="askQuick('Resumo das vagas')">Resumo das vagas</button>
+            <button class="chip" onclick="askQuick('Quais erros tem na planilha?')">Ver erros</button>
+            <button class="chip" onclick="askQuick('Equilíbrio de gênero')">Meninos vs Meninas</button>
+            <button class="chip" onclick="askQuick('Quem ficou na Manhã - A?')">Turma Manhã - A</button>
+            <button class="chip" onclick="askQuick('Como gerar PDF para os alunos?')">PDF p/ Alunos</button>
+          </div>
+
+          <div class="chat-box">
+            <input
+              type="text"
+              id="chatInput"
+              placeholder="Pergunte ou digite o nome de um aluno..."
+              onkeydown="if(event.key==='Enter') sendChat()"
+            >
+            <button class="chat-send" onclick="sendChat()" title="Enviar">&#8593;</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let state = {
+      activeSheet: "Alunos",
+      sheetNames: ["Alunos"],
+      numCols: 3,
+      header: [],
+      rows: [],
+      page: 1,
+      totalPages: 1,
+      totalRows: 0,
+      searchQuery: "",
+      selectedMatIdx: 0,
+      selectedExcelRow: 1,
+      selectedCol: 0,
+      dirty: false
+    };
+
+    let searchTimer = null;
+    let toastTimer = null;
+
+    async function apiPost(path, body = {}) {
+      const resp = await fetch(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      return await resp.json();
+    }
+
+    function showBusy(text) {
+      const m = document.getElementById("busyMask");
+      m.textContent = text || "Processando...";
+      m.classList.add("show");
+    }
+
+    function hideBusy() {
+      document.getElementById("busyMask").classList.remove("show");
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove("show"), 3600);
+    }
+
+    function colLetter(idx) {
+      let n = idx + 1, s = "";
+      while (n > 0) {
+        const rem = (n - 1) % 26;
+        s = String.fromCharCode(65 + rem) + s;
+        n = Math.floor((n - 1) / 26);
+      }
+      return s;
+    }
+
+    function updateDirtyIndicator(isDirty) {
+      state.dirty = !!isDirty;
+      const pill = document.getElementById("savePill");
+      if (state.dirty) {
+        pill.textContent = "Modificado (não salvo)";
+        pill.classList.add("dirty");
+      } else {
+        pill.textContent = "Salvo";
+        pill.classList.remove("dirty");
+      }
+    }
+
+    function applyPagePayload(res) {
+      if (res.filename) document.getElementById("fileTitle").textContent = res.filename;
+      if (res.filepath) document.getElementById("filePath").textContent = res.filepath;
+
+      state.activeSheet = res.active_sheet;
+      state.sheetNames = res.sheet_names || state.sheetNames;
+      state.numCols = res.num_cols || 3;
+      state.header = res.header || [];
+      state.rows = res.rows || [];
+      state.page = res.page || 1;
+      state.totalPages = res.total_pages || 1;
+      state.totalRows = res.total_rows || 0;
+      updateDirtyIndicator(res.dirty);
+
+      renderTabs();
+      renderGrid(res.highlight_excel_row || null);
+      renderPager();
+    }
+
+    function renderTabs() {
+      const wrap = document.getElementById("sheetTabs");
+      wrap.innerHTML = "";
+      state.sheetNames.forEach(name => {
+        const div = document.createElement("div");
+        div.className = "sheet-tab" + (name === state.activeSheet ? " active" : "");
+        div.textContent = name;
+        div.onclick = () => switchSheet(name);
+        wrap.appendChild(div);
+      });
+    }
+
+    function renderPager() {
+      const box = document.getElementById("pagerBox");
+      if (state.totalPages <= 1) {
+        box.innerHTML = `<span>${state.totalRows} registro(s)</span>`;
+        return;
+      }
+      box.innerHTML = `
+        <span>${state.totalRows} registros • Pág. ${state.page}/${state.totalPages}</span>
+        <button class="btn btn-sm" ${state.page <= 1 ? "disabled" : ""} onclick="changePage(${state.page - 1})">&#9664;</button>
+        <button class="btn btn-sm" ${state.page >= state.totalPages ? "disabled" : ""} onclick="changePage(${state.page + 1})">&#9654;</button>
+      `;
+    }
+
+    function renderGrid(highlightExcelRow = null) {
+      const thead = document.getElementById("gridHead");
+      const tbody = document.getElementById("gridBody");
+      thead.innerHTML = "";
+      tbody.innerHTML = "";
+
+      // Cabeçalho das colunas A, B, C...
+      const trAlpha = document.createElement("tr");
+      const thCorner = document.createElement("th");
+      thCorner.className = "corner";
+      thCorner.textContent = "";
+      trAlpha.appendChild(thCorner);
+
+      for (let c = 0; c < state.numCols; c++) {
+        const th = document.createElement("th");
+        th.textContent = colLetter(c);
+        trAlpha.appendChild(th);
+      }
+      thead.appendChild(trAlpha);
+
+      // Linha 1 (cabeçalho da planilha)
+      const trHeader = document.createElement("tr");
+      trHeader.className = "sheet-header-row";
+      const thRow1 = document.createElement("th");
+      thRow1.className = "row-num";
+      thRow1.textContent = "1";
+      trHeader.appendChild(thRow1);
+
+      for (let c = 0; c < state.numCols; c++) {
+        const td = document.createElement("td");
+        td.contentEditable = "true";
+        td.dataset.matIdx = "0";
+        td.dataset.excelRow = "1";
+        td.dataset.col = String(c);
+        td.textContent = state.header[c] || "";
+        bindCellEvents(td, 0, 1, c);
+        trHeader.appendChild(td);
+      }
+      tbody.appendChild(trHeader);
+
+      // Linhas de dados (2..N)
+      let rowToScroll = null;
+      state.rows.forEach(rObj => {
+        const tr = document.createElement("tr");
+        if (rObj.flag === "IMPEDITIVA") tr.classList.add("flag-impeditiva");
+        else if (rObj.flag === "ALERTA") tr.classList.add("flag-alerta");
+
+        if (highlightExcelRow && rObj.excel_row === highlightExcelRow) {
+          tr.classList.add("jump-highlight");
+          rowToScroll = tr;
+        }
+
+        const thNum = document.createElement("th");
+        thNum.className = "row-num";
+        thNum.textContent = String(rObj.excel_row);
+        tr.appendChild(thNum);
+
+        for (let c = 0; c < state.numCols; c++) {
+          const td = document.createElement("td");
+          td.contentEditable = "true";
+          td.dataset.matIdx = String(rObj.mat_idx);
+          td.dataset.excelRow = String(rObj.excel_row);
+          td.dataset.col = String(c);
+          td.textContent = rObj.cells[c] || "";
+          bindCellEvents(td, rObj.mat_idx, rObj.excel_row, c);
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      });
+
+      if (rowToScroll) {
+        rowToScroll.scrollIntoView({ behavior: "smooth", block: "center" });
+        const firstTd = rowToScroll.querySelector("td");
+        if (firstTd) firstTd.focus();
+      } else {
+        const firstDataTd = tbody.querySelector('tr:nth-child(2) td') || tbody.querySelector('td');
+        if (firstDataTd) setActiveCellElement(firstDataTd, false);
+      }
+    }
+
+    function bindCellEvents(td, matIdx, excelRow, col) {
+      td.addEventListener("focus", () => setActiveCellElement(td, true));
+      td.addEventListener("blur", () => commitCellChange(matIdx, excelRow, col, td.textContent));
+      td.addEventListener("keydown", (ev) => {
+        if (ev.key === "Enter") {
+          ev.preventDefault();
+          td.blur();
+          moveSelection(td, 1, 0);
+        } else if (ev.key === "Tab") {
+          ev.preventDefault();
+          td.blur();
+          moveSelection(td, 0, ev.shiftKey ? -1 : 1);
+        }
+      });
+    }
+
+    function setActiveCellElement(td, updateFormula) {
+      document.querySelectorAll(".sheet-grid td.selected-cell").forEach(el => el.classList.remove("selected-cell"));
+      td.classList.add("selected-cell");
+      state.selectedMatIdx = parseInt(td.dataset.matIdx, 10);
+      state.selectedExcelRow = parseInt(td.dataset.excelRow, 10);
+      state.selectedCol = parseInt(td.dataset.col, 10);
+      document.getElementById("cellRef").textContent = `${colLetter(state.selectedCol)}${state.selectedExcelRow}`;
+      if (updateFormula !== false) {
+        document.getElementById("formulaInput").value = td.textContent;
+      }
+    }
+
+    function moveSelection(currentTd, dRow, dCol) {
+      const tr = currentTd.parentElement;
+      const tbody = tr.parentElement;
+      const rows = Array.from(tbody.children);
+      const rPos = rows.indexOf(tr);
+      const targetR = rPos + dRow;
+      const targetC = state.selectedCol + dCol;
+      if (targetR >= 0 && targetR < rows.length && targetC >= 0 && targetC < state.numCols) {
+        const nextTd = rows[targetR].querySelectorAll("td")[targetC];
+        if (nextTd) nextTd.focus();
+      }
+    }
+
+    async function commitCellChange(matIdx, excelRow, col, newVal) {
+      if (matIdx === 0) {
+        if (state.header[col] === newVal) return;
+        state.header[col] = newVal;
+      } else {
+        const rObj = state.rows.find(r => r.mat_idx === matIdx);
+        if (rObj && rObj.cells[col] === newVal) return;
+        if (rObj) rObj.cells[col] = newVal;
+      }
+      if (state.selectedMatIdx === matIdx && state.selectedCol === col) {
+        document.getElementById("formulaInput").value = newVal;
+      }
+      const res = await apiPost("/api/update_cell", {
+        sheet_name: state.activeSheet,
+        mat_idx: matIdx,
+        col: col,
+        value: newVal
+      });
+      if (res.success) {
+        updateDirtyIndicator(res.dirty);
+        if (res.summary) renderSummary(res.summary);
+      }
+    }
+
+    function onFormulaInput(ev) {
+      const val = ev.target.value;
+      const sel = document.querySelector(".sheet-grid td.selected-cell");
+      if (sel) sel.textContent = val;
+    }
+
+    async function onFormulaKeyDown(ev) {
+      if (ev.key === "Enter") {
+        ev.preventDefault();
+        await commitCellChange(
+          state.selectedMatIdx,
+          state.selectedExcelRow,
+          state.selectedCol,
+          ev.target.value
+        );
+        showToast(`Célula ${colLetter(state.selectedCol)}${state.selectedExcelRow} atualizada.`);
+      }
+    }
+
+    async function switchSheet(name) {
+      document.getElementById("searchBox").value = "";
+      state.searchQuery = "";
+      showBusy("Abrindo aba...");
+      const res = await apiPost("/api/get_page", { sheet_name: name, page: 1, search_query: "" });
+      hideBusy();
+      if (res.success) applyPagePayload(res);
+    }
+
+    async function changePage(p) {
+      showBusy("Carregando página...");
+      const res = await apiPost("/api/get_page", {
+        sheet_name: state.activeSheet,
+        page: p,
+        search_query: state.searchQuery
+      });
+      hideBusy();
+      if (res.success) applyPagePayload(res);
+    }
+
+    function onSearchChange() {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(async () => {
+        state.searchQuery = document.getElementById("searchBox").value;
+        const res = await apiPost("/api/get_page", {
+          sheet_name: state.activeSheet,
+          page: 1,
+          search_query: state.searchQuery
+        });
+        if (res.success) applyPagePayload(res);
+      }, 220);
+    }
+
+    async function addRow() {
+      const res = await apiPost("/api/add_row", { sheet_name: state.activeSheet });
+      if (res.success) {
+        document.getElementById("searchBox").value = "";
+        state.searchQuery = "";
+        applyPagePayload(res);
+        if (res.summary) renderSummary(res.summary);
+        showToast("Nova linha adicionada ao final da aba.");
+      }
+    }
+
+    async function deleteSelectedRow() {
+      if (state.selectedMatIdx <= 0) {
+        showToast("Selecione uma linha de dados (abaixo da linha 1) para excluir.");
+        return;
+      }
+      const res = await apiPost("/api/delete_row", {
+        sheet_name: state.activeSheet,
+        mat_idx: state.selectedMatIdx,
+        page: state.page,
+        search_query: state.searchQuery
+      });
+      if (res.success) {
+        applyPagePayload(res);
+        if (res.summary) renderSummary(res.summary);
+        showToast(`Linha ${state.selectedExcelRow} removida.`);
+      } else {
+        showToast(res.error || "Não foi possível excluir a linha.");
+      }
+    }
+
+    async function openExcel() {
+      showBusy("Selecionando planilha...");
+      const res = await apiPost("/api/open_dialog");
+      hideBusy();
+      if (res.cancelled) return;
+      if (res.success) {
+        document.getElementById("searchBox").value = "";
+        state.searchQuery = "";
+        applyPagePayload(res);
+        if (res.summary) {
+          renderSummary(res.summary);
+        } else {
+          resetSummaryCards();
+        }
+        showToast(`Planilha '${res.filename}' carregada.`);
+      } else {
+        showToast(res.error || "Erro ao abrir arquivo.");
+      }
+    }
+
+    async function saveExcel(saveAs = false) {
+      showBusy("Salvando alterações no Excel...");
+      const res = await apiPost("/api/save_excel", { save_as: saveAs });
+      hideBusy();
+      if (res.cancelled) return;
+      if (res.success) {
+        document.getElementById("fileTitle").textContent = res.filename;
+        document.getElementById("filePath").textContent = res.filepath;
+        updateDirtyIndicator(false);
+        if (res.summary) renderSummary(res.summary);
+        showToast(`Salvo com sucesso em ${res.filename}!`);
+      } else {
+        showToast(res.error || "Falha ao salvar Excel.");
+      }
+    }
+
+    async function runOptimization() {
+      const allowIntegral = document.getElementById("chkIntegral").checked;
+      const allowUnallocated = document.getElementById("chkUnalloc").checked;
+      showBusy("Otimizando turmas matematicamente...");
+      const res = await apiPost("/api/run_ensalamento", {
+        allow_integral: allowIntegral,
+        allow_unallocated: allowUnallocated
+      });
+      hideBusy();
+      if (res.success) {
+        document.getElementById("searchBox").value = "";
+        state.searchQuery = "";
+        applyPagePayload(res);
+        renderSummary(res.summary);
+        setSideTab("report");
+        showToast(
+          res.summary.feasible
+            ? `Ensalamento concluído em ${res.summary.tempo_ms} ms!`
+            : "Atenção: verifique os impedimentos indicados no painel."
+        );
+      } else {
+        showToast(res.error || "Erro na otimização.");
+      }
+    }
+
+    async function exportStudentPdf() {
+      showBusy("Gerando PDF das turmas...");
+      const res = await apiPost("/api/export_pdf_dialog");
+      hideBusy();
+      if (res.cancelled) return;
+      if (res.success) {
+        showToast(`PDF das turmas salvo em: ${res.pdf_path}`);
+      } else {
+        showToast(res.error || "Erro ao gerar PDF.");
+      }
+    }
+
+    function resetSummaryCards() {
+      document.getElementById("kpiAloc").textContent = "—";
+      document.getElementById("kpiSalas").textContent = "—";
+      document.getElementById("kpiEspera").textContent = "—";
+      document.getElementById("kpiErros").textContent = "—";
+      document.getElementById("solverBadge").textContent = "";
+      document.getElementById("shiftsBox").innerHTML = "Pré-visualização da capacidade por período.";
+      document.getElementById("issuesBox").innerHTML = "<span style='font-size:12px; color:#64748B;'>Nenhum erro verificado ainda.</span>";
+    }
+
+    function renderSummary(s) {
+      if (!s) return;
+      document.getElementById("kpiAloc").textContent = `${s.total_alocados}/${s.total_validos}`;
+      document.getElementById("kpiSalas").textContent = String(s.total_salas);
+      document.getElementById("kpiEspera").textContent = String(s.total_espera);
+
+      const errEl = document.getElementById("kpiErros");
+      errEl.textContent = String(s.incons_counts.total);
+      errEl.className = "kpi-num " + (s.incons_counts.impeditivas > 0 ? "danger" : (s.incons_counts.total > 0 ? "warn" : "green"));
+
+      const badge = document.getElementById("solverBadge");
+      if (s.tempo_ms > 0) {
+        badge.textContent = s.feasible ? `Ótimo (${s.tempo_ms} ms)` : "Requer Correção";
+        badge.style.color = s.feasible ? "#107C41" : "#DC2626";
+      } else {
+        badge.textContent = s.incons_counts.impeditivas === 0 ? "Cadastro Válido" : "Erros Detectados";
+        badge.style.color = s.incons_counts.impeditivas === 0 ? "#107C41" : "#DC2626";
+      }
+
+      // Turnos
+      const sb = document.getElementById("shiftsBox");
+      sb.innerHTML = "";
+      ["MANHÃ", "TARDE"].forEach(tk => {
+        const st = s.stats_turnos[tk];
+        if (!st) return;
+        const div = document.createElement("div");
+        div.className = "shift-row";
+        div.innerHTML = `
+          <div>
+            <b style="color:#0F172A;">${tk}</b>
+            <div style="font-size:11px; color:#64748B;">${st.salas} salas • ${st.masculino} M / ${st.feminino} F</div>
+          </div>
+          <div style="text-align:right;">
+            <b style="color:#0F172A;">${st.alocados} / ${st.capacidade_total}</b>
+            <div style="font-size:11px; color:#107C41;">${st.ocupacao_pct}% ocup.</div>
+          </div>
+        `;
+        sb.appendChild(div);
+      });
+
+      // Alertas e Erros Clicáveis
+      const ib = document.getElementById("issuesBox");
+      ib.innerHTML = "";
+      if (!s.inconsistencias || s.inconsistencias.length === 0) {
+        ib.innerHTML = "<span style='font-size:12px; color:#107C41; font-weight:500;'>Nenhum erro ou inconsistência encontrado!</span>";
+      } else {
+        s.inconsistencias.forEach(inc => {
+          const card = document.createElement("div");
+          card.className = `issue-item ${inc.severidade}`;
+          const linhaTxt = inc.linha ? `Linha ${inc.linha}` : "Geral";
+          card.innerHTML = `<b>[${inc.severidade}] ${linhaTxt} — ${inc.nome}</b><br>${inc.mensagem}`;
+          if (inc.linha) {
+            card.onclick = () => jumpToStudentRow(inc.linha);
+          }
+          ib.appendChild(card);
+        });
+      }
+    }
+
+    async function jumpToStudentRow(excelRow) {
+      document.getElementById("searchBox").value = "";
+      state.searchQuery = "";
+      const res = await apiPost("/api/jump_row", { sheet_name: "Alunos", excel_row: excelRow });
+      if (res.success) {
+        applyPagePayload(res);
+        showToast(`Navegado para a Linha ${excelRow} da aba Alunos.`);
+      }
+    }
+
+    function setSideTab(which) {
+      document.getElementById("btnSideReport").classList.toggle("active", which === "report");
+      document.getElementById("btnSideChat").classList.toggle("active", which === "chat");
+      document.getElementById("paneReport").classList.toggle("active", which === "report");
+      document.getElementById("paneChat").classList.toggle("active", which === "chat");
+      if (which === "chat") document.getElementById("chatInput").focus();
+    }
+
+    function formatMd(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+        .replace(/\*(.*?)\*/g, "<i>$1</i>")
+        .replace(/\n/g, "<br>");
+    }
+
+    function addChatMsg(role, text) {
+      const box = document.getElementById("chatMessages");
+      const div = document.createElement("div");
+      div.className = `msg ${role}`;
+      div.innerHTML = formatMd(text);
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    async function sendChat() {
+      const inp = document.getElementById("chatInput");
+      const q = inp.value.trim();
+      if (!q) return;
+      inp.value = "";
+      addChatMsg("user", q);
+      const res = await apiPost("/api/ask", { prompt: q });
+      addChatMsg("bot", res.answer || "Sem resposta.");
+    }
+
+    function askQuick(q) {
+      setSideTab("chat");
+      document.getElementById("chatInput").value = q;
+      sendChat();
+    }
+
+    // Inicializa carregando a planilha padrão
+    window.addEventListener("DOMContentLoaded", async () => {
+      initResizer();
+      const res = await apiPost("/api/init");
+      if (res.success) {
+        applyPagePayload(res);
+        if (res.summary) renderSummary(res.summary);
+      } else {
+        document.getElementById("fileTitle").textContent = "Sem planilha aberta";
+      }
+    });
+
+    function initResizer() {
+      const resizer = document.getElementById("paneResizer");
+      const sidePane = document.getElementById("sidePane");
+      const workspace = document.querySelector(".workspace");
+      if (!resizer || !sidePane || !workspace) return;
+
+      const savedWidth = localStorage.getItem("unisoma_side_width");
+      if (savedWidth) {
+        const parsed = parseInt(savedWidth, 10);
+        if (!isNaN(parsed) && parsed >= 220 && parsed <= 900) {
+          sidePane.style.width = `${parsed}px`;
+        }
+      }
+
+      let isDragging = false;
+      let startX = 0;
+      let startWidth = 0;
+
+      resizer.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        startX = e.clientX;
+        startWidth = sidePane.getBoundingClientRect().width;
+        resizer.classList.add("dragging");
+        document.body.style.cursor = "col-resize";
+        document.body.style.userSelect = "none";
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        const delta = startX - e.clientX;
+        const maxW = Math.max(260, workspace.clientWidth - 320);
+        const newW = Math.min(Math.max(220, startWidth + delta), maxW);
+        sidePane.style.width = `${newW}px`;
+      });
+
+      window.addEventListener("mouseup", () => {
+        if (!isDragging) return;
+        isDragging = false;
+        resizer.classList.remove("dragging");
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+        localStorage.setItem("unisoma_side_width", parseInt(sidePane.style.width, 10));
+      });
+
+      resizer.addEventListener("dblclick", () => {
+        sidePane.style.width = "390px";
+        localStorage.setItem("unisoma_side_width", 390);
+        showToast("Proporção restaurada para o padrão (390px).");
+      });
+    }
+  </script>
+</body>
+</html>
