@@ -1,0 +1,78 @@
+========================================================================================
+ RELATÓRIO DIAGNÓSTICO DE ENSALAMENTO — F3_bottleneck_integral_n500.xlsx
+========================================================================================
+
+[1] PRÉ-PROCESSAMENTO & QUALIDADE DOS DADOS
+----------------------------------------------------------------------------------------
+  Arquivo de entrada          : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\generated\F3_bottleneck_integral\F3_bottleneck_integral_n500.xlsx
+  Arquivo Excel gerado        : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\experiments\F3_bottleneck_integral_n500.xlsx
+  Linhas lidas na aba Alunos  : 500 (Válidos em I: 500 | Inválidos retidos: 0 | Rodapés ignorados: 0)
+  Inconsistências detectadas  : 5 total (0 tratadas auto | 5 alertas duplicidade | 0 impeditivas)
+
+  Detalhamento das ocorrências:
+    • [ALERTA    ] Linha  19 | Nathan Moura Garcia: Nome 'Nathan Moura Garcia' aparece 2 vezes (turnos distintos (INTEGRAL, TARDE): linha 19 (M/TARDE), linha 341 (M/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  93 | Gael Vitor Moraes de Alves da Gomes: Nome 'Gael Vitor Moraes de Alves da Gomes' aparece 2 vezes (mesmo turno (INTEGRAL): linha 93 (M/INTEGRAL), linha 208 (M/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 136 | Heloísa Soares Nascimento Teixeira: Nome 'Heloísa Soares Nascimento Teixeira' aparece 2 vezes (mesmo turno (MANHÃ): linha 136 (F/MANHÃ), linha 215 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 152 | Vitor Gonçalves Pereira de Ferreira: Nome 'Vitor Gonçalves Pereira de Ferreira' aparece 2 vezes (mesmo turno (MANHÃ): linha 152 (M/MANHÃ), linha 287 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 263 | Diego Cunha da Lima: Nome 'Diego Cunha da Lima' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 263 (M/INTEGRAL), linha 471 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+
+[2] INFORMAÇÕES DO SOLVER MATEMÁTICO (MILP LEXICOGRÁFICO - PULP)
+----------------------------------------------------------------------------------------
+  Solver utilizado            : PULP_CBC_CMD (Decomp. Hierárquica + Perfis)
+  Pesos do modelo             : W_qtd=1.0, W_gen=1.0, epsilon=0.0001
+  Dimensão do modelo          : 228 variáveis (56 binárias, 162 inteiras de fluxo/perfil, 10 contínuas)
+  Restrições lineares         : 231 (Fase 1) -> 232 (Fase 2 com trava lexicográfica)
+  Status Fase 1 (Min-Max)     : Optimal | Z1* = 2.0000
+  Status Fase 2 (Par-a-Par)   : Optimal | Z2* = 40.0000 (total c/ eps: 40.009600)
+  Tempos de execução          : Build = 4.5 ms | Fase 1 = 130.6 ms | Fase 2 = 43.8 ms | TOTAL = 181.2 ms (0.1812 s)
+  Diagnóstico de parada       : Solução ótima global alcançada via Agregação por Perfis + Decomposição Hierárquica em 2 Etapas.
+
+[3] DISTRIBUIÇÃO GERAL POR TURNO (MANHÃ vs. TARDE)
+----------------------------------------------------------------------------------------
+  • MANHÃ : 225 alunos ( 45.0% do total) | Vagas: 225/225 (100.0% ocup,  0 livres) | Gênero: 81 M (36.0%) / 144 F (64.0%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 0 | Masc (Delta_M): 0 | Fem (Delta_F): 0 | Máx |M-F| intra-sala: 7
+  • TARDE : 275 alunos ( 55.0% do total) | Vagas: 275/288 ( 95.5% ocup, 13 livres) | Gênero: 149 M (54.2%) / 126 F (45.8%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 1 | Masc (Delta_M): 1 | Fem (Delta_F): 0 | Máx |M-F| intra-sala: 3
+  • TOTAL : 500 alunos alocados em 18 salas | Capacidade Global: 500/513 ( 97.5% ocup) | 230 M / 270 F
+  • DECISÃO DE ALUNOS INTEGRAIS (200 flexíveis): 16 enviados p/ MANHÃ (14 M, 2 F) | 184 enviados p/ TARDE (96 M, 88 F)
+
+[4] DETALHAMENTO POR SALA (LOTAÇÃO E GÊNERO)
+----------------------------------------------------------------------------------------
+  Turma        | Turno  |   Lotação |   Ocup. | Livres |   Masc (M) |    Fem (F) | |M - F|
+  ----------------------------------------------------------------------------------------
+  MANHÃ - A    | MANHÃ  |  25/25    |  100.0% |      0 |   9 (  36%) |  16 (  64%) |       7
+  MANHÃ - B    | MANHÃ  |  25/25    |  100.0% |      0 |   9 (  36%) |  16 (  64%) |       7
+  MANHÃ - C    | MANHÃ  |  25/25    |  100.0% |      0 |   9 (  36%) |  16 (  64%) |       7
+  MANHÃ - D    | MANHÃ  |  25/25    |  100.0% |      0 |   9 (  36%) |  16 (  64%) |       7
+  MANHÃ - E    | MANHÃ  |  25/25    |  100.0% |      0 |   9 (  36%) |  16 (  64%) |       7
+  MANHÃ - F    | MANHÃ  |  25/25    |  100.0% |      0 |   9 (  36%) |  16 (  64%) |       7
+  MANHÃ - G    | MANHÃ  |  25/25    |  100.0% |      0 |   9 (  36%) |  16 (  64%) |       7
+  MANHÃ - H    | MANHÃ  |  25/25    |  100.0% |      0 |   9 (  36%) |  16 (  64%) |       7
+  MANHÃ - I    | MANHÃ  |  25/25    |  100.0% |      0 |   9 (  36%) |  16 (  64%) |       7
+  TARDE - J    | TARDE  |  31/32    |   96.9% |      1 |  17 (  55%) |  14 (  45%) |       3
+  TARDE - K    | TARDE  |  31/32    |   96.9% |      1 |  17 (  55%) |  14 (  45%) |       3
+  TARDE - L    | TARDE  |  31/32    |   96.9% |      1 |  17 (  55%) |  14 (  45%) |       3
+  TARDE - M    | TARDE  |  31/32    |   96.9% |      1 |  17 (  55%) |  14 (  45%) |       3
+  TARDE - N    | TARDE  |  31/32    |   96.9% |      1 |  17 (  55%) |  14 (  45%) |       3
+  TARDE - O    | TARDE  |  30/32    |   93.8% |      2 |  16 (  53%) |  14 (  47%) |       2
+  TARDE - P    | TARDE  |  30/32    |   93.8% |      2 |  16 (  53%) |  14 (  47%) |       2
+  TARDE - Q    | TARDE  |  30/32    |   93.8% |      2 |  16 (  53%) |  14 (  47%) |       2
+  TARDE - R    | TARDE  |  30/32    |   93.8% |      2 |  16 (  53%) |  14 (  47%) |       2
+
+[5] ANÁLISE DE RECURSOS — EXISTE SOLUÇÃO COM SALAS VAZIAS?
+----------------------------------------------------------------------------------------
+  • MANHÃ : NÃO. Todas as 9 sala(s) são estritamente necessárias (mínimo teórico = ceil(225/25) = 9 salas).
+            Se 1 sala fosse fechada, restariam 200 vagas para 225 alunos (faltariam 25 vagas).
+  • TARDE : NÃO. Todas as 9 sala(s) são estritamente necessárias (mínimo teórico = ceil(275/32) = 9 salas).
+            Se 1 sala fosse fechada, restariam 256 vagas para 275 alunos (faltariam 19 vagas).
+  => Conclusão de Recursos: A infraestrutura ofertada está enxuta; nenhuma sala pode ficar vazia sem violar o limite máximo de vagas.
+
+[6] COMO MELHORAR O BALANCEAMENTO — DIAGNÓSTICO E RECOMENDAÇÕES
+----------------------------------------------------------------------------------------
+  1. [Ótimo Teórico - MANHÃ] O ensalamento atingiu equilíbrio perfeito de quantidade (25 alunos em cada sala) e o menor desvio inteiro possível de gênero entre salas (Delta_M=0, Delta_F=0).
+  2. [Paridade 50/50 - MANHÃ] A base de inscritos do turno tem mais Feminino (F) (144) do que Masculino (M) (81), gerando diferença média de ~7.0 por sala. Para aproximar cada sala do 50/50, seria necessário captar/migrar ~63 aluno(s) do gênero Masculino (M).
+  3. [Indivisibilidade Inteira - TARDE] A diferença de 1 aluno entre salas (275 alunos / 9 salas deixa resto 5) é matematicamente irredutível; 4 nova(s) matrícula(s) igualariam todas as salas.
+  4. [Paridade 50/50 - TARDE] A base de inscritos do turno tem mais Masculino (M) (149) do que Feminino (F) (126), gerando diferença média de ~2.6 por sala. Para aproximar cada sala do 50/50, seria necessário captar/migrar ~23 aluno(s) do gênero Feminino (F).
+  5. [Sinergia entre Turnos] Manhã e Tarde têm desvios de gênero em direções opostas (Manhã: 81M/144F vs. Tarde: 149M/126F). Caso alguns alunos tenham disponibilidade flexível (Integral), permutar até 11 par(es) entre turnos melhoraria simultaneamente a paridade 50/50 nos dois períodos.
+
+========================================================================================

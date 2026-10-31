@@ -430,6 +430,7 @@ def pre_process(raw: RawInstance, allow_integral: bool = False) -> ProcessedInst
     students: list[Student] = []
     turmas_compativeis_por_aluno: dict[int, list[int]] = {}
     alunos_por_genero: dict[str, list[int]] = {GENERO_M: [], GENERO_F: []}
+    shared_comp_cache: dict[tuple[str, ...], list[int]] = {}
 
     for idx, (row_num, nome, sexo, disp, turnos_comp) in enumerate(prelim_students, start=1):
         is_dup = normalize_token(nome) in duplicate_keys
@@ -445,9 +446,12 @@ def pre_process(raw: RawInstance, allow_integral: bool = False) -> ProcessedInst
         students.append(st)
         alunos_por_genero[sexo].append(st.id)
 
-        comp_ids: list[int] = []
-        for t_turno in turnos_comp:
-            comp_ids.extend(t.id for t in turmas_por_turno.get(t_turno, []))
+        comp_ids = shared_comp_cache.get(turnos_comp)
+        if comp_ids is None:
+            comp_ids = []
+            for t_turno in turnos_comp:
+                comp_ids.extend(t.id for t in turmas_por_turno.get(t_turno, []))
+            shared_comp_cache[turnos_comp] = comp_ids
         turmas_compativeis_por_aluno[st.id] = comp_ids
 
     # 6. Verificação Global de Capacidade por Turno

@@ -4,7 +4,7 @@
 
 [1] PRÉ-PROCESSAMENTO & QUALIDADE DOS DADOS
 ----------------------------------------------------------------------------------------
-  Arquivo de entrada          : instances\generated\F6_shift_overflow_fixed\F6_shift_overflow_fixed_n200.xlsx
+  Arquivo de entrada          : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\generated\F6_shift_overflow_fixed\F6_shift_overflow_fixed_n200.xlsx
   Arquivo Excel gerado        : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\experiments\F6_shift_overflow_fixed_n200.xlsx
   Linhas lidas na aba Alunos  : 200 (Válidos em I: 200 | Inválidos retidos: 0 | Rodapés ignorados: 0)
   Inconsistências detectadas  : 3 total (0 tratadas auto | 2 alertas duplicidade | 1 impeditivas)
@@ -16,14 +16,14 @@
 
 [2] INFORMAÇÕES DO SOLVER MATEMÁTICO (MILP LEXICOGRÁFICO - PULP)
 ----------------------------------------------------------------------------------------
-  Solver utilizado            : PULP_CBC_CMD
+  Solver utilizado            : PULP_CBC_CMD (Decomp. Hierárquica + Perfis)
   Pesos do modelo             : W_qtd=1.0, W_gen=1.0, epsilon=0.0001
-  Dimensão do modelo          : 965 variáveis (902 binárias x_ik, 21 inteiras y_k/z_kg, 42 contínuas)
-  Restrições lineares         : 326 (Fase 1) -> 327 (Fase 2 com trava lexicográfica)
+  Dimensão do modelo          : 98 variáveis (23 binárias, 65 inteiras de fluxo/perfil, 10 contínuas)
+  Restrições lineares         : 115 (Fase 1) -> 116 (Fase 2 com trava lexicográfica)
   Status Fase 1 (Min-Max)     : Optimal | Z1* = 3.0000
   Status Fase 2 (Par-a-Par)   : Optimal | Z2* = 10.0000 (total c/ eps: 10.001900)
-  Tempos de execução          : Build = 6.4 ms | Fase 1 = 138.9 ms | Fase 2 = 311.0 ms | TOTAL = 458.2 ms (0.4582 s)
-  Diagnóstico de parada       : Solução ótima global alcançada nas Fases 1 e 2 (Otimização Lexicográfica). Alocação parcial concluída: 186/200 ensalados e 14 em lista de espera (sem turma).
+  Tempos de execução          : Build = 1.9 ms | Fase 1 = 81.2 ms | Fase 2 = 34.5 ms | TOTAL = 119.1 ms (0.1191 s)
+  Diagnóstico de parada       : Solução ótima global alcançada via Agregação por Perfis + Decomposição Hierárquica em 2 Etapas. Alocação parcial concluída: 186/200 ensalados e 14 em lista de espera (sem turma).
 
 [3] DISTRIBUIÇÃO GERAL POR TURNO (MANHÃ vs. TARDE)
 ----------------------------------------------------------------------------------------
@@ -33,7 +33,7 @@
             Amplitudes máx no turno -> Qtd (Delta_qtd): 1 | Masc (Delta_M): 1 | Fem (Delta_F): 1 | Máx |M-F| intra-sala: 3
   • TOTAL : 186 alunos alocados em 7 salas | Capacidade Global: 186/208 ( 89.4% ocup) | 92 M / 94 F
   • LISTA DE ESPERA (SEM TURMA): 14 de 200 alunos válidos não alocados (7.0%) | Por turno: 14 Manhã, 0 Tarde, 0 Integral | Gênero: 12 M / 2 F
-            Exemplos s/ turma -> Kauã Raul Melo da Ribeiro (M/MANHÃ), Heitor Nascimento Batista (M/MANHÃ), Rodrigo Reis de Alves (M/MANHÃ), Carlos Silva de Mendes (M/MANHÃ), Diego Cunha do Borges (M/MANHÃ), João Cavalcanti da Duarte (M/MANHÃ) ... (+8 listados na aba 'Inconsistências')
+            Exemplos s/ turma -> Breno Melo dos Campos Nunes (M/MANHÃ), Pedro Benício Soares da Ramos (M/MANHÃ), Caio Thiago Oliveira da Marques Pereira (M/MANHÃ), Vinícius Hugo Teixeira Fernandes (M/MANHÃ), João Lima Souza (M/MANHÃ), Henrique Lucas Nunes do Machado Castro (M/MANHÃ) ... (+8 listados na aba 'Inconsistências')
 
 [4] DETALHAMENTO POR SALA (LOTAÇÃO E GÊNERO)
 ----------------------------------------------------------------------------------------

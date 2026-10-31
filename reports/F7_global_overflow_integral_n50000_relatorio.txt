@@ -1,0 +1,115 @@
+========================================================================================
+ RELATÓRIO DIAGNÓSTICO DE ENSALAMENTO — F7_global_overflow_integral_n50000.xlsx
+========================================================================================
+
+[1] PRÉ-PROCESSAMENTO & QUALIDADE DOS DADOS
+----------------------------------------------------------------------------------------
+  Arquivo de entrada          : instances\generated\F7_global_overflow_integral\F7_global_overflow_integral_n50000.xlsx
+  Arquivo Excel gerado        : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\experiments\F7_global_overflow_integral_n50000.xlsx
+  Linhas lidas na aba Alunos  : 50000 (Válidos em I: 50000 | Inválidos retidos: 0 | Rodapés ignorados: 0)
+  Inconsistências detectadas  : 497 total (0 tratadas auto | 495 alertas duplicidade | 2 impeditivas)
+
+  Detalhamento das ocorrências:
+    • [ALERTA    ] Linha  21 | Henrique Enzo Batista de Teixeira Souza: Nome 'Henrique Enzo Batista de Teixeira Souza' aparece 2 vezes (mesmo turno (INTEGRAL): linha 21 (M/INTEGRAL), linha 3589 (M/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  34 | Marcela Ramos Mendes Campos: Nome 'Marcela Ramos Mendes Campos' aparece 2 vezes (mesmo turno (TARDE): linha 34 (F/TARDE), linha 8953 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  62 | Vinícius Heitor Marques de Santos: Nome 'Vinícius Heitor Marques de Santos' aparece 2 vezes (mesmo turno (TARDE): linha 62 (M/TARDE), linha 417 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  72 | Daniel Vitor Alves da Medeiros de Castro: Nome 'Daniel Vitor Alves da Medeiros de Castro' aparece 2 vezes (turnos distintos (INTEGRAL, TARDE): linha 72 (M/INTEGRAL), linha 1067 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  90 | Miguel Martins Batista de Cunha: Nome 'Miguel Martins Batista de Cunha' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 90 (M/INTEGRAL), linha 44062 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  91 | Laura Cavalcanti do Nascimento: Nome 'Laura Cavalcanti do Nascimento' aparece 2 vezes (mesmo turno (TARDE): linha 91 (F/TARDE), linha 222 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  98 | Pedro Correia de Souza: Nome 'Pedro Correia de Souza' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 98 (M/MANHÃ), linha 19943 (M/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 100 | Bernardo Borges da Almeida: Nome 'Bernardo Borges da Almeida' aparece 2 vezes (mesmo turno (MANHÃ): linha 100 (M/MANHÃ), linha 294 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 122 | Rafael Carvalho da Ribeiro: Nome 'Rafael Carvalho da Ribeiro' aparece 2 vezes (mesmo turno (MANHÃ): linha 122 (M/MANHÃ), linha 287 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 136 | Rebeca Pereira da Vieira: Nome 'Rebeca Pereira da Vieira' aparece 2 vezes (mesmo turno (TARDE): linha 136 (F/TARDE), linha 565 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 156 | Isadora Rocha da Gonçalves Monteiro: Nome 'Isadora Rocha da Gonçalves Monteiro' aparece 2 vezes (turnos distintos (INTEGRAL, TARDE): linha 156 (F/TARDE), linha 261 (F/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 157 | Rafael Vieira da Correia: Nome 'Rafael Vieira da Correia' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 157 (M/MANHÃ), linha 10746 (M/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 177 | Sophia Isabela Machado de Pereira Almeida: Nome 'Sophia Isabela Machado de Pereira Almeida' aparece 2 vezes (mesmo turno (TARDE): linha 177 (F/TARDE), linha 4074 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 198 | Murilo Mendes dos Campos: Nome 'Murilo Mendes dos Campos' aparece 2 vezes (mesmo turno (INTEGRAL): linha 198 (M/INTEGRAL), linha 4019 (M/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 206 | Lorena Teixeira da Correia: Nome 'Lorena Teixeira da Correia' aparece 2 vezes (mesmo turno (TARDE): linha 206 (F/TARDE), linha 15055 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 240 | Daniel Barbosa do Rodrigues: Nome 'Daniel Barbosa do Rodrigues' aparece 3 vezes (turnos distintos (INTEGRAL, MANHÃ, TARDE): linha 240 (M/TARDE), linha 266 (M/MANHÃ), linha 486 (M/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 290 | Leonardo Freitas Moura do Barbosa: Nome 'Leonardo Freitas Moura do Barbosa' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 290 (M/MANHÃ), linha 901 (M/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 317 | Miguel Ribeiro Costa: Nome 'Miguel Ribeiro Costa' aparece 2 vezes (mesmo turno (MANHÃ): linha 317 (M/MANHÃ), linha 8143 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 321 | Bruna Nicole Monteiro de Alves: Nome 'Bruna Nicole Monteiro de Alves' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 321 (F/MANHÃ), linha 705 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 338 | Gustavo Nogueira Costa: Nome 'Gustavo Nogueira Costa' aparece 2 vezes (mesmo turno (INTEGRAL): linha 338 (M/INTEGRAL), linha 16146 (M/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 343 | Marcela Lopes Ferreira do Duarte: Nome 'Marcela Lopes Ferreira do Duarte' aparece 2 vezes (mesmo turno (TARDE): linha 343 (F/TARDE), linha 6604 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 345 | Rafaela Moreira do Campos: Nome 'Rafaela Moreira do Campos' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 345 (F/MANHÃ), linha 976 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 372 | Pietro Miguel Moreira de Lima: Nome 'Pietro Miguel Moreira de Lima' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 372 (M/INTEGRAL), linha 4562 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 385 | Giovanna Santana dos Ramos: Nome 'Giovanna Santana dos Ramos' aparece 2 vezes (mesmo turno (MANHÃ): linha 385 (F/MANHÃ), linha 1527 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 388 | Rebeca Monteiro de Teixeira Barbosa: Nome 'Rebeca Monteiro de Teixeira Barbosa' aparece 2 vezes (mesmo turno (TARDE): linha 388 (F/TARDE), linha 30714 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    ... (+472 ocorrências adicionais registradas integralmente na aba 'Inconsistências')
+
+[2] INFORMAÇÕES DO SOLVER MATEMÁTICO (MILP LEXICOGRÁFICO - PULP)
+----------------------------------------------------------------------------------------
+  Solver utilizado            : PULP_CBC_CMD (Decomp. Hierárquica + Perfis)
+  Pesos do modelo             : W_qtd=1.0, W_gen=1.0, epsilon=0.0001
+  Dimensão do modelo          : 58 variáveis (12 binárias, 42 inteiras de fluxo/perfil, 4 contínuas)
+  Restrições lineares         : 57 (Fase 1) -> 58 (Fase 2 com trava lexicográfica)
+  Status Fase 1 (Min-Max)     : Optimal | Z1* = 0.0000
+  Status Fase 2 (Par-a-Par)   : Optimal | Z2* = 0.0000 (total c/ eps: 0.518400)
+  Tempos de execução          : Build = 12.5 ms | Fase 1 = 71.2 ms | Fase 2 = 40.3 ms | TOTAL = 160.5 ms (0.1605 s)
+  Diagnóstico de parada       : Solução ótima global alcançada via Agregação por Perfis + Decomposição Hierárquica em 2 Etapas. Alocação parcial concluída: 45014/50000 ensalados e 4986 em lista de espera (sem turma).
+
+[3] DISTRIBUIÇÃO GERAL POR TURNO (MANHÃ vs. TARDE)
+----------------------------------------------------------------------------------------
+  • MANHÃ : 19124 alunos ( 42.5% do total) | Vagas: 19124/19124 (100.0% ocup,  0 livres) | Gênero: 9562 M (50.0%) / 9562 F (50.0%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 0 | Masc (Delta_M): 0 | Fem (Delta_F): 0 | Máx |M-F| intra-sala: 0
+  • TARDE : 25890 alunos ( 57.5% do total) | Vagas: 25890/25890 (100.0% ocup,  0 livres) | Gênero: 10356 M (40.0%) / 15534 F (60.0%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 0 | Masc (Delta_M): 0 | Fem (Delta_F): 0 | Máx |M-F| intra-sala: 6
+  • TOTAL : 45014 alunos alocados em 1546 salas | Capacidade Global: 45014/45014 (100.0% ocup) | 19918 M / 25096 F
+  • LISTA DE ESPERA (SEM TURMA): 4986 de 50000 alunos válidos não alocados (10.0%) | Por turno: 4986 Manhã, 0 Tarde, 0 Integral | Gênero: 4961 M / 25 F
+            Exemplos s/ turma -> Caio Freitas do Rodrigues (M/MANHÃ), Leonardo Santana Medeiros Correia (M/MANHÃ), Nathan Bruno Nogueira Moura (M/MANHÃ), Daniel Moura Fernandes de Santos (M/MANHÃ), André Miguel Santana do Medeiros Lima (M/MANHÃ), Bernardo Ferreira da Campos dos Gomes (M/MANHÃ) ... (+4980 listados na aba 'Inconsistências')
+  • DECISÃO DE ALUNOS INTEGRAIS (12500 flexíveis): 4160 enviados p/ MANHÃ (558 M, 3602 F) | 8340 enviados p/ TARDE (5442 M, 2898 F)
+
+[4] DETALHAMENTO POR SALA (LOTAÇÃO E GÊNERO)
+----------------------------------------------------------------------------------------
+  Resumo Agrupado por Perfil de Sala (1546 salas no total):
+  Turno  | Qtd Salas |    Lotação |   Ocup. |  Masc (M) |   Fem (F) | |M - F|
+  ---------------------------------------------------------------------------
+  MANHÃ  |       683 |   28/28    |  100.0% |        14 |        14 |       0
+  TARDE  |       863 |   30/30    |  100.0% |        12 |        18 |       6
+
+  Amostra nominal de salas (primeiras 15 e últimas 10):
+  Turma        | Turno  |    Lotação |   Ocup. | Livres |    Masc (M) |     Fem (F) | |M - F|
+  -------------------------------------------------------------------------------------------
+  MANHÃ - A    | MANHÃ  |   28/28    |  100.0% |      0 |   14 ( 50%) |   14 ( 50%) |       0
+  MANHÃ - B    | MANHÃ  |   28/28    |  100.0% |      0 |   14 ( 50%) |   14 ( 50%) |       0
+  MANHÃ - C    | MANHÃ  |   28/28    |  100.0% |      0 |   14 ( 50%) |   14 ( 50%) |       0
+  MANHÃ - D    | MANHÃ  |   28/28    |  100.0% |      0 |   14 ( 50%) |   14 ( 50%) |       0
+  MANHÃ - E    | MANHÃ  |   28/28    |  100.0% |      0 |   14 ( 50%) |   14 ( 50%) |       0
+  MANHÃ - F    | MANHÃ  |   28/28    |  100.0% |      0 |   14 ( 50%) |   14 ( 50%) |       0
+  MANHÃ - G    | MANHÃ  |   28/28    |  100.0% |      0 |   14 ( 50%) |   14 ( 50%) |       0
+  MANHÃ - H    | MANHÃ  |   28/28    |  100.0% |      0 |   14 ( 50%) |   14 ( 50%) |       0
+  MANHÃ - I    | MANHÃ  |   28/28    |  100.0% |      0 |   14 ( 50%) |   14 ( 50%) |       0
+  MANHÃ - J    | MANHÃ  |   28/28    |  100.0% |      0 |   14 ( 50%) |   14 ( 50%) |       0
+  MANHÃ - K    | MANHÃ  |   28/28    |  100.0% |      0 |   14 ( 50%) |   14 ( 50%) |       0
+  MANHÃ - L    | MANHÃ  |   28/28    |  100.0% |      0 |   14 ( 50%) |   14 ( 50%) |       0
+  MANHÃ - M    | MANHÃ  |   28/28    |  100.0% |      0 |   14 ( 50%) |   14 ( 50%) |       0
+  MANHÃ - N    | MANHÃ  |   28/28    |  100.0% |      0 |   14 ( 50%) |   14 ( 50%) |       0
+  MANHÃ - O    | MANHÃ  |   28/28    |  100.0% |      0 |   14 ( 50%) |   14 ( 50%) |       0
+  ... (+1521 salas intermediárias omitidas no resumo; alocação completa disponível na aba 'Ensalamento')
+  TARDE - BGC  | TARDE  |   30/30    |  100.0% |      0 |   12 ( 40%) |   18 ( 60%) |       6
+  TARDE - BGD  | TARDE  |   30/30    |  100.0% |      0 |   12 ( 40%) |   18 ( 60%) |       6
+  TARDE - BGE  | TARDE  |   30/30    |  100.0% |      0 |   12 ( 40%) |   18 ( 60%) |       6
+  TARDE - BGF  | TARDE  |   30/30    |  100.0% |      0 |   12 ( 40%) |   18 ( 60%) |       6
+  TARDE - BGG  | TARDE  |   30/30    |  100.0% |      0 |   12 ( 40%) |   18 ( 60%) |       6
+  TARDE - BGH  | TARDE  |   30/30    |  100.0% |      0 |   12 ( 40%) |   18 ( 60%) |       6
+  TARDE - BGI  | TARDE  |   30/30    |  100.0% |      0 |   12 ( 40%) |   18 ( 60%) |       6
+  TARDE - BGJ  | TARDE  |   30/30    |  100.0% |      0 |   12 ( 40%) |   18 ( 60%) |       6
+  TARDE - BGK  | TARDE  |   30/30    |  100.0% |      0 |   12 ( 40%) |   18 ( 60%) |       6
+  TARDE - BGL  | TARDE  |   30/30    |  100.0% |      0 |   12 ( 40%) |   18 ( 60%) |       6
+
+[5] ANÁLISE DE RECURSOS — EXISTE SOLUÇÃO COM SALAS VAZIAS?
+----------------------------------------------------------------------------------------
+  • MANHÃ : NÃO. Todas as 683 sala(s) são estritamente necessárias (mínimo teórico = ceil(19124/28) = 683 salas).
+            Se 1 sala fosse fechada, restariam 19096 vagas para 19124 alunos (faltariam 28 vagas).
+  • TARDE : NÃO. Todas as 863 sala(s) são estritamente necessárias (mínimo teórico = ceil(25890/30) = 863 salas).
+            Se 1 sala fosse fechada, restariam 25860 vagas para 25890 alunos (faltariam 30 vagas).
+  => Conclusão de Recursos: A infraestrutura ofertada está enxuta; nenhuma sala pode ficar vazia sem violar o limite máximo de vagas.
+
+[6] COMO MELHORAR O BALANCEAMENTO — DIAGNÓSTICO E RECOMENDAÇÕES
+----------------------------------------------------------------------------------------
+  1. [Ótimo Teórico - MANHÃ] O ensalamento atingiu equilíbrio perfeito de quantidade (28 alunos em cada sala) e o menor desvio inteiro possível de gênero entre salas (Delta_M=0, Delta_F=0).
+  2. [Ótimo Teórico - TARDE] O ensalamento atingiu equilíbrio perfeito de quantidade (30 alunos em cada sala) e o menor desvio inteiro possível de gênero entre salas (Delta_M=0, Delta_F=0).
+  3. [Paridade 50/50 - TARDE] A base de inscritos do turno tem mais Feminino (F) (15534) do que Masculino (M) (10356), gerando diferença média de ~6.0 por sala. Para aproximar cada sala do 50/50, seria necessário captar/migrar ~5178 aluno(s) do gênero Masculino (M).
+  4. [Expansão de Vagas / Lista de Espera] 4986 aluno(s) ficaram sem turma por limite físico de capacidade (4986 Manhã, 0 Tarde, 0 Integral; vagas ociosas incompatíveis restantes: 0). Abrir +179 turma(s) na Manhã e +0 na Tarde (ou ampliar vagas/sala) absorveria 100% da fila.
+
+========================================================================================

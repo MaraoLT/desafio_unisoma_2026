@@ -1,0 +1,67 @@
+========================================================================================
+ RELATÓRIO DIAGNÓSTICO DE ENSALAMENTO — F2_gender_cross_integral_n200.xlsx
+========================================================================================
+
+[1] PRÉ-PROCESSAMENTO & QUALIDADE DOS DADOS
+----------------------------------------------------------------------------------------
+  Arquivo de entrada          : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\generated\F2_gender_cross_integral\F2_gender_cross_integral_n200.xlsx
+  Arquivo Excel gerado        : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\experiments\F2_gender_cross_integral_n200.xlsx
+  Linhas lidas na aba Alunos  : 200 (Válidos em I: 200 | Inválidos retidos: 0 | Rodapés ignorados: 0)
+  Inconsistências detectadas  : 2 total (0 tratadas auto | 2 alertas duplicidade | 0 impeditivas)
+
+  Detalhamento das ocorrências:
+    • [ALERTA    ] Linha   2 | Kauã Moura da Gomes: Nome 'Kauã Moura da Gomes' aparece 2 vezes (turnos distintos (INTEGRAL, TARDE): linha 2 (M/TARDE), linha 3 (M/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha   4 | Miguel Soares de Nogueira de Barros: Nome 'Miguel Soares de Nogueira de Barros' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 4 (M/MANHÃ), linha 31 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+
+[2] INFORMAÇÕES DO SOLVER MATEMÁTICO (MILP LEXICOGRÁFICO - PULP)
+----------------------------------------------------------------------------------------
+  Solver utilizado            : PULP_CBC_CMD (Decomp. Hierárquica + Perfis)
+  Pesos do modelo             : W_qtd=1.0, W_gen=1.0, epsilon=0.0001
+  Dimensão do modelo          : 138 variáveis (29 binárias, 99 inteiras de fluxo/perfil, 10 contínuas)
+  Restrições lineares         : 141 (Fase 1) -> 142 (Fase 2 com trava lexicográfica)
+  Status Fase 1 (Min-Max)     : Optimal | Z1* = 0.0000
+  Status Fase 2 (Par-a-Par)   : Optimal | Z2* = 0.0000 (total c/ eps: 0.013200)
+  Tempos de execução          : Build = 2.4 ms | Fase 1 = 115.2 ms | Fase 2 = 34.0 ms | TOTAL = 153.5 ms (0.1535 s)
+  Diagnóstico de parada       : Solução ótima global alcançada via Agregação por Perfis + Decomposição Hierárquica em 2 Etapas.
+
+[3] DISTRIBUIÇÃO GERAL POR TURNO (MANHÃ vs. TARDE)
+----------------------------------------------------------------------------------------
+  • MANHÃ :  80 alunos ( 40.0% do total) | Vagas:  80/96  ( 83.3% ocup, 16 livres) | Gênero: 16 M (20.0%) / 64 F (80.0%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 0 | Masc (Delta_M): 0 | Fem (Delta_F): 0 | Máx |M-F| intra-sala: 12
+  • TARDE : 120 alunos ( 60.0% do total) | Vagas: 120/120 (100.0% ocup,  0 livres) | Gênero: 90 M (75.0%) / 30 F (25.0%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 0 | Masc (Delta_M): 0 | Fem (Delta_F): 0 | Máx |M-F| intra-sala: 12
+  • TOTAL : 200 alunos alocados em 9 salas | Capacidade Global: 200/216 ( 92.6% ocup) | 106 M / 94 F
+  • DECISÃO DE ALUNOS INTEGRAIS (60 flexíveis): 18 enviados p/ MANHÃ (2 M, 16 F) | 42 enviados p/ TARDE (29 M, 13 F)
+
+[4] DETALHAMENTO POR SALA (LOTAÇÃO E GÊNERO)
+----------------------------------------------------------------------------------------
+  Turma        | Turno  |   Lotação |   Ocup. | Livres |   Masc (M) |    Fem (F) | |M - F|
+  ----------------------------------------------------------------------------------------
+  MANHÃ - A    | MANHÃ  |  20/24    |   83.3% |      4 |   4 (  20%) |  16 (  80%) |      12
+  MANHÃ - B    | MANHÃ  |  20/24    |   83.3% |      4 |   4 (  20%) |  16 (  80%) |      12
+  MANHÃ - C    | MANHÃ  |  20/24    |   83.3% |      4 |   4 (  20%) |  16 (  80%) |      12
+  MANHÃ - D    | MANHÃ  |  20/24    |   83.3% |      4 |   4 (  20%) |  16 (  80%) |      12
+  TARDE - E    | TARDE  |  24/24    |  100.0% |      0 |  18 (  75%) |   6 (  25%) |      12
+  TARDE - F    | TARDE  |  24/24    |  100.0% |      0 |  18 (  75%) |   6 (  25%) |      12
+  TARDE - G    | TARDE  |  24/24    |  100.0% |      0 |  18 (  75%) |   6 (  25%) |      12
+  TARDE - H    | TARDE  |  24/24    |  100.0% |      0 |  18 (  75%) |   6 (  25%) |      12
+  TARDE - I    | TARDE  |  24/24    |  100.0% |      0 |  18 (  75%) |   6 (  25%) |      12
+
+[5] ANÁLISE DE RECURSOS — EXISTE SOLUÇÃO COM SALAS VAZIAS?
+----------------------------------------------------------------------------------------
+  • MANHÃ : NÃO. Todas as 4 sala(s) são estritamente necessárias (mínimo teórico = ceil(80/24) = 4 salas).
+            Se 1 sala fosse fechada, restariam 72 vagas para 80 alunos (faltariam 8 vagas).
+  • TARDE : NÃO. Todas as 5 sala(s) são estritamente necessárias (mínimo teórico = ceil(120/24) = 5 salas).
+            Se 1 sala fosse fechada, restariam 96 vagas para 120 alunos (faltariam 24 vagas).
+  => Conclusão de Recursos: A infraestrutura ofertada está enxuta; nenhuma sala pode ficar vazia sem violar o limite máximo de vagas.
+
+[6] COMO MELHORAR O BALANCEAMENTO — DIAGNÓSTICO E RECOMENDAÇÕES
+----------------------------------------------------------------------------------------
+  1. [Ótimo Teórico - MANHÃ] O ensalamento atingiu equilíbrio perfeito de quantidade (20 alunos em cada sala) e o menor desvio inteiro possível de gênero entre salas (Delta_M=0, Delta_F=0).
+  2. [Paridade 50/50 - MANHÃ] A base de inscritos do turno tem mais Feminino (F) (64) do que Masculino (M) (16), gerando diferença média de ~12.0 por sala. Para aproximar cada sala do 50/50, seria necessário captar/migrar ~48 aluno(s) do gênero Masculino (M).
+  3. [Ótimo Teórico - TARDE] O ensalamento atingiu equilíbrio perfeito de quantidade (24 alunos em cada sala) e o menor desvio inteiro possível de gênero entre salas (Delta_M=0, Delta_F=0).
+  4. [Paridade 50/50 - TARDE] A base de inscritos do turno tem mais Masculino (M) (90) do que Feminino (F) (30), gerando diferença média de ~12.0 por sala. Para aproximar cada sala do 50/50, seria necessário captar/migrar ~60 aluno(s) do gênero Feminino (F).
+  5. [Sinergia entre Turnos] Manhã e Tarde têm desvios de gênero em direções opostas (Manhã: 16M/64F vs. Tarde: 90M/30F). Caso alguns alunos tenham disponibilidade flexível (Integral), permutar até 24 par(es) entre turnos melhoraria simultaneamente a paridade 50/50 nos dois períodos.
+  6. [Balanceamento de Infraestrutura] A taxa de ocupação de TARDE (100.0%) difere bastante de MANHÃ (83.3%). Avaliar remanejamento de turmas/salas ou direcionamento de novas matrículas para o período da MANHÃ.
+
+========================================================================================

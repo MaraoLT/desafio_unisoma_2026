@@ -1,0 +1,98 @@
+========================================================================================
+ RELATÓRIO DIAGNÓSTICO DE ENSALAMENTO — F7_global_overflow_integral_n1000.xlsx
+========================================================================================
+
+[1] PRÉ-PROCESSAMENTO & QUALIDADE DOS DADOS
+----------------------------------------------------------------------------------------
+  Arquivo de entrada          : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\generated\F7_global_overflow_integral\F7_global_overflow_integral_n1000.xlsx
+  Arquivo Excel gerado        : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\experiments\F7_global_overflow_integral_n1000.xlsx
+  Linhas lidas na aba Alunos  : 1000 (Válidos em I: 1000 | Inválidos retidos: 0 | Rodapés ignorados: 0)
+  Inconsistências detectadas  : 11 total (0 tratadas auto | 9 alertas duplicidade | 2 impeditivas)
+
+  Detalhamento das ocorrências:
+    • [ALERTA    ] Linha   2 | Pietro Barbosa dos Dias de Silva: Nome 'Pietro Barbosa dos Dias de Silva' aparece 3 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 2 (M/INTEGRAL), linha 6 (M/MANHÃ), linha 1001 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  10 | Manuela Luana Ramos Souza: Nome 'Manuela Luana Ramos Souza' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 10 (F/MANHÃ), linha 468 (F/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 104 | Vinícius Cunha dos Oliveira: Nome 'Vinícius Cunha dos Oliveira' aparece 2 vezes (mesmo turno (MANHÃ): linha 104 (M/MANHÃ), linha 175 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 140 | Isadora Antonella Monteiro Gonçalves: Nome 'Isadora Antonella Monteiro Gonçalves' aparece 2 vezes (turnos distintos (INTEGRAL, TARDE): linha 140 (F/TARDE), linha 259 (F/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 161 | Esther Moraes Borges da Rocha: Nome 'Esther Moraes Borges da Rocha' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 161 (F/TARDE), linha 294 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 306 | Júlia Barbosa Barros: Nome 'Júlia Barbosa Barros' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 306 (F/TARDE), linha 892 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 498 | Eduardo Davi Moreira do Costa: Nome 'Eduardo Davi Moreira do Costa' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 498 (M/INTEGRAL), linha 640 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 740 | Mirella Moraes dos Rocha: Nome 'Mirella Moraes dos Rocha' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 740 (F/TARDE), linha 954 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 836 | Breno Garcia Mendes de Barros: Nome 'Breno Garcia Mendes de Barros' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 836 (M/TARDE), linha 858 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [IMPEDITIVA] Global    | -: Turno MANHÃ possui 384 alunos válidos para apenas 364 vagas (13 turmas x 28 vagas). Déficit de 20 vaga(s).
+    • [IMPEDITIVA] Global    | -: Total de alunos válidos (1000) excede a soma total de vagas da instituição (904). Déficit global de 96 vaga(s).
+
+[2] INFORMAÇÕES DO SOLVER MATEMÁTICO (MILP LEXICOGRÁFICO - PULP)
+----------------------------------------------------------------------------------------
+  Solver utilizado            : PULP_CBC_CMD (Decomp. Hierárquica + Perfis)
+  Pesos do modelo             : W_qtd=1.0, W_gen=1.0, epsilon=0.0001
+  Dimensão do modelo          : 345 variáveis (95 binárias, 240 inteiras de fluxo/perfil, 10 contínuas)
+  Restrições lineares         : 360 (Fase 1) -> 361 (Fase 2 com trava lexicográfica)
+  Status Fase 1 (Min-Max)     : Optimal | Z1* = 0.0000
+  Status Fase 2 (Par-a-Par)   : Optimal | Z2* = 0.0000 (total c/ eps: 0.011400)
+  Tempos de execução          : Build = 7.5 ms | Fase 1 = 110.6 ms | Fase 2 = 31.9 ms | TOTAL = 152.3 ms (0.1523 s)
+  Diagnóstico de parada       : Solução ótima global alcançada via Agregação por Perfis + Decomposição Hierárquica em 2 Etapas. Alocação parcial concluída: 904/1000 ensalados e 96 em lista de espera (sem turma).
+
+[3] DISTRIBUIÇÃO GERAL POR TURNO (MANHÃ vs. TARDE)
+----------------------------------------------------------------------------------------
+  • MANHÃ : 364 alunos ( 40.3% do total) | Vagas: 364/364 (100.0% ocup,  0 livres) | Gênero: 182 M (50.0%) / 182 F (50.0%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 0 | Masc (Delta_M): 0 | Fem (Delta_F): 0 | Máx |M-F| intra-sala: 0
+  • TARDE : 540 alunos ( 59.7% do total) | Vagas: 540/540 (100.0% ocup,  0 livres) | Gênero: 216 M (40.0%) / 324 F (60.0%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 0 | Masc (Delta_M): 0 | Fem (Delta_F): 0 | Máx |M-F| intra-sala: 6
+  • TOTAL : 904 alunos alocados em 31 salas | Capacidade Global: 904/904 (100.0% ocup) | 398 M / 506 F
+  • LISTA DE ESPERA (SEM TURMA): 96 de 1000 alunos válidos não alocados (9.6%) | Por turno: 90 Manhã, 6 Tarde, 0 Integral | Gênero: 93 M / 3 F
+            Exemplos s/ turma -> Isaac Correia Pereira (M/MANHÃ), Hugo Antônio Correia Carvalho (M/MANHÃ), Raul André Teixeira Correia (M/MANHÃ), Heitor Santos Pinto dos Almeida (M/MANHÃ), Gustavo Pinto Ramos (M/MANHÃ), Joaquim Santos de Santana (M/MANHÃ) ... (+90 listados na aba 'Inconsistências')
+  • DECISÃO DE ALUNOS INTEGRAIS (250 flexíveis): 70 enviados p/ MANHÃ (0 M, 70 F) | 180 enviados p/ TARDE (120 M, 60 F)
+
+[4] DETALHAMENTO POR SALA (LOTAÇÃO E GÊNERO)
+----------------------------------------------------------------------------------------
+  Turma        | Turno  |   Lotação |   Ocup. | Livres |   Masc (M) |    Fem (F) | |M - F|
+  ----------------------------------------------------------------------------------------
+  MANHÃ - A    | MANHÃ  |  28/28    |  100.0% |      0 |  14 (  50%) |  14 (  50%) |       0
+  MANHÃ - B    | MANHÃ  |  28/28    |  100.0% |      0 |  14 (  50%) |  14 (  50%) |       0
+  MANHÃ - C    | MANHÃ  |  28/28    |  100.0% |      0 |  14 (  50%) |  14 (  50%) |       0
+  MANHÃ - D    | MANHÃ  |  28/28    |  100.0% |      0 |  14 (  50%) |  14 (  50%) |       0
+  MANHÃ - E    | MANHÃ  |  28/28    |  100.0% |      0 |  14 (  50%) |  14 (  50%) |       0
+  MANHÃ - F    | MANHÃ  |  28/28    |  100.0% |      0 |  14 (  50%) |  14 (  50%) |       0
+  MANHÃ - G    | MANHÃ  |  28/28    |  100.0% |      0 |  14 (  50%) |  14 (  50%) |       0
+  MANHÃ - H    | MANHÃ  |  28/28    |  100.0% |      0 |  14 (  50%) |  14 (  50%) |       0
+  MANHÃ - I    | MANHÃ  |  28/28    |  100.0% |      0 |  14 (  50%) |  14 (  50%) |       0
+  MANHÃ - J    | MANHÃ  |  28/28    |  100.0% |      0 |  14 (  50%) |  14 (  50%) |       0
+  MANHÃ - K    | MANHÃ  |  28/28    |  100.0% |      0 |  14 (  50%) |  14 (  50%) |       0
+  MANHÃ - L    | MANHÃ  |  28/28    |  100.0% |      0 |  14 (  50%) |  14 (  50%) |       0
+  MANHÃ - M    | MANHÃ  |  28/28    |  100.0% |      0 |  14 (  50%) |  14 (  50%) |       0
+  TARDE - N    | TARDE  |  30/30    |  100.0% |      0 |  12 (  40%) |  18 (  60%) |       6
+  TARDE - O    | TARDE  |  30/30    |  100.0% |      0 |  12 (  40%) |  18 (  60%) |       6
+  TARDE - P    | TARDE  |  30/30    |  100.0% |      0 |  12 (  40%) |  18 (  60%) |       6
+  TARDE - Q    | TARDE  |  30/30    |  100.0% |      0 |  12 (  40%) |  18 (  60%) |       6
+  TARDE - R    | TARDE  |  30/30    |  100.0% |      0 |  12 (  40%) |  18 (  60%) |       6
+  TARDE - S    | TARDE  |  30/30    |  100.0% |      0 |  12 (  40%) |  18 (  60%) |       6
+  TARDE - T    | TARDE  |  30/30    |  100.0% |      0 |  12 (  40%) |  18 (  60%) |       6
+  TARDE - U    | TARDE  |  30/30    |  100.0% |      0 |  12 (  40%) |  18 (  60%) |       6
+  TARDE - V    | TARDE  |  30/30    |  100.0% |      0 |  12 (  40%) |  18 (  60%) |       6
+  TARDE - W    | TARDE  |  30/30    |  100.0% |      0 |  12 (  40%) |  18 (  60%) |       6
+  TARDE - X    | TARDE  |  30/30    |  100.0% |      0 |  12 (  40%) |  18 (  60%) |       6
+  TARDE - Y    | TARDE  |  30/30    |  100.0% |      0 |  12 (  40%) |  18 (  60%) |       6
+  TARDE - Z    | TARDE  |  30/30    |  100.0% |      0 |  12 (  40%) |  18 (  60%) |       6
+  TARDE - AA   | TARDE  |  30/30    |  100.0% |      0 |  12 (  40%) |  18 (  60%) |       6
+  TARDE - AB   | TARDE  |  30/30    |  100.0% |      0 |  12 (  40%) |  18 (  60%) |       6
+  TARDE - AC   | TARDE  |  30/30    |  100.0% |      0 |  12 (  40%) |  18 (  60%) |       6
+  TARDE - AD   | TARDE  |  30/30    |  100.0% |      0 |  12 (  40%) |  18 (  60%) |       6
+  TARDE - AE   | TARDE  |  30/30    |  100.0% |      0 |  12 (  40%) |  18 (  60%) |       6
+
+[5] ANÁLISE DE RECURSOS — EXISTE SOLUÇÃO COM SALAS VAZIAS?
+----------------------------------------------------------------------------------------
+  • MANHÃ : NÃO. Todas as 13 sala(s) são estritamente necessárias (mínimo teórico = ceil(364/28) = 13 salas).
+            Se 1 sala fosse fechada, restariam 336 vagas para 364 alunos (faltariam 28 vagas).
+  • TARDE : NÃO. Todas as 18 sala(s) são estritamente necessárias (mínimo teórico = ceil(540/30) = 18 salas).
+            Se 1 sala fosse fechada, restariam 510 vagas para 540 alunos (faltariam 30 vagas).
+  => Conclusão de Recursos: A infraestrutura ofertada está enxuta; nenhuma sala pode ficar vazia sem violar o limite máximo de vagas.
+
+[6] COMO MELHORAR O BALANCEAMENTO — DIAGNÓSTICO E RECOMENDAÇÕES
+----------------------------------------------------------------------------------------
+  1. [Ótimo Teórico - MANHÃ] O ensalamento atingiu equilíbrio perfeito de quantidade (28 alunos em cada sala) e o menor desvio inteiro possível de gênero entre salas (Delta_M=0, Delta_F=0).
+  2. [Ótimo Teórico - TARDE] O ensalamento atingiu equilíbrio perfeito de quantidade (30 alunos em cada sala) e o menor desvio inteiro possível de gênero entre salas (Delta_M=0, Delta_F=0).
+  3. [Paridade 50/50 - TARDE] A base de inscritos do turno tem mais Feminino (F) (324) do que Masculino (M) (216), gerando diferença média de ~6.0 por sala. Para aproximar cada sala do 50/50, seria necessário captar/migrar ~108 aluno(s) do gênero Masculino (M).
+  4. [Expansão de Vagas / Lista de Espera] 96 aluno(s) ficaram sem turma por limite físico de capacidade (90 Manhã, 6 Tarde, 0 Integral; vagas ociosas incompatíveis restantes: 0). Abrir +4 turma(s) na Manhã e +1 na Tarde (ou ampliar vagas/sala) absorveria 100% da fila.
+
+========================================================================================

@@ -1,0 +1,77 @@
+========================================================================================
+ RELATÓRIO DIAGNÓSTICO DE ENSALAMENTO — F4_extreme_minority_integral_n500.xlsx
+========================================================================================
+
+[1] PRÉ-PROCESSAMENTO & QUALIDADE DOS DADOS
+----------------------------------------------------------------------------------------
+  Arquivo de entrada          : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\generated\F4_extreme_minority_integral\F4_extreme_minority_integral_n500.xlsx
+  Arquivo Excel gerado        : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\experiments\F4_extreme_minority_integral_n500.xlsx
+  Linhas lidas na aba Alunos  : 500 (Válidos em I: 500 | Inválidos retidos: 0 | Rodapés ignorados: 0)
+  Inconsistências detectadas  : 5 total (0 tratadas auto | 5 alertas duplicidade | 0 impeditivas)
+
+  Detalhamento das ocorrências:
+    • [ALERTA    ] Linha  13 | Helena Antonella Lopes Correia Medeiros: Nome 'Helena Antonella Lopes Correia Medeiros' aparece 2 vezes (mesmo turno (INTEGRAL): linha 13 (F/INTEGRAL), linha 79 (F/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  22 | Júlia Borges Santana Soares: Nome 'Júlia Borges Santana Soares' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 22 (F/INTEGRAL), linha 27 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  40 | Clara Lorena Soares Costa: Nome 'Clara Lorena Soares Costa' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 40 (F/MANHÃ), linha 102 (F/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  72 | Ana Andrade dos Nunes da Alves: Nome 'Ana Andrade dos Nunes da Alves' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 72 (F/TARDE), linha 94 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 248 | Yasmin Fernanda Dias Borges dos Duarte: Nome 'Yasmin Fernanda Dias Borges dos Duarte' aparece 2 vezes (mesmo turno (TARDE): linha 248 (F/TARDE), linha 358 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+
+[2] INFORMAÇÕES DO SOLVER MATEMÁTICO (MILP LEXICOGRÁFICO - PULP)
+----------------------------------------------------------------------------------------
+  Solver utilizado            : PULP_CBC_CMD (Decomp. Hierárquica + Perfis)
+  Pesos do modelo             : W_qtd=1.0, W_gen=1.0, epsilon=0.0001
+  Dimensão do modelo          : 228 variáveis (56 binárias, 162 inteiras de fluxo/perfil, 10 contínuas)
+  Restrições lineares         : 231 (Fase 1) -> 232 (Fase 2 com trava lexicográfica)
+  Status Fase 1 (Min-Max)     : Optimal | Z1* = 2.0000
+  Status Fase 2 (Par-a-Par)   : Optimal | Z2* = 12.0000 (total c/ eps: 12.035400)
+  Tempos de execução          : Build = 4.2 ms | Fase 1 = 110.9 ms | Fase 2 = 71.1 ms | TOTAL = 188.1 ms (0.1881 s)
+  Diagnóstico de parada       : Solução ótima global alcançada via Agregação por Perfis + Decomposição Hierárquica em 2 Etapas.
+
+[3] DISTRIBUIÇÃO GERAL POR TURNO (MANHÃ vs. TARDE)
+----------------------------------------------------------------------------------------
+  • MANHÃ : 297 alunos ( 59.4% do total) | Vagas: 297/319 ( 93.1% ocup, 22 livres) | Gênero: 55 M (18.5%) / 242 F (81.5%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 0 | Masc (Delta_M): 0 | Fem (Delta_F): 0 | Máx |M-F| intra-sala: 17
+  • TARDE : 203 alunos ( 40.6% do total) | Vagas: 203/203 (100.0% ocup,  0 livres) | Gênero: 36 M (17.7%) / 167 F (82.3%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 0 | Masc (Delta_M): 1 | Fem (Delta_F): 1 | Máx |M-F| intra-sala: 19
+  • TOTAL : 500 alunos alocados em 18 salas | Capacidade Global: 500/522 ( 95.8% ocup) | 91 M / 409 F
+  • DECISÃO DE ALUNOS INTEGRAIS (125 flexíveis): 68 enviados p/ MANHÃ (18 M, 50 F) | 57 enviados p/ TARDE (8 M, 49 F)
+
+[4] DETALHAMENTO POR SALA (LOTAÇÃO E GÊNERO)
+----------------------------------------------------------------------------------------
+  Turma        | Turno  |   Lotação |   Ocup. | Livres |   Masc (M) |    Fem (F) | |M - F|
+  ----------------------------------------------------------------------------------------
+  MANHÃ - A    | MANHÃ  |  27/29    |   93.1% |      2 |   5 (  19%) |  22 (  81%) |      17
+  MANHÃ - B    | MANHÃ  |  27/29    |   93.1% |      2 |   5 (  19%) |  22 (  81%) |      17
+  MANHÃ - C    | MANHÃ  |  27/29    |   93.1% |      2 |   5 (  19%) |  22 (  81%) |      17
+  MANHÃ - D    | MANHÃ  |  27/29    |   93.1% |      2 |   5 (  19%) |  22 (  81%) |      17
+  MANHÃ - E    | MANHÃ  |  27/29    |   93.1% |      2 |   5 (  19%) |  22 (  81%) |      17
+  MANHÃ - F    | MANHÃ  |  27/29    |   93.1% |      2 |   5 (  19%) |  22 (  81%) |      17
+  MANHÃ - G    | MANHÃ  |  27/29    |   93.1% |      2 |   5 (  19%) |  22 (  81%) |      17
+  MANHÃ - H    | MANHÃ  |  27/29    |   93.1% |      2 |   5 (  19%) |  22 (  81%) |      17
+  MANHÃ - I    | MANHÃ  |  27/29    |   93.1% |      2 |   5 (  19%) |  22 (  81%) |      17
+  MANHÃ - J    | MANHÃ  |  27/29    |   93.1% |      2 |   5 (  19%) |  22 (  81%) |      17
+  MANHÃ - K    | MANHÃ  |  27/29    |   93.1% |      2 |   5 (  19%) |  22 (  81%) |      17
+  TARDE - L    | TARDE  |  29/29    |  100.0% |      0 |   6 (  21%) |  23 (  79%) |      17
+  TARDE - M    | TARDE  |  29/29    |  100.0% |      0 |   5 (  17%) |  24 (  83%) |      19
+  TARDE - N    | TARDE  |  29/29    |  100.0% |      0 |   5 (  17%) |  24 (  83%) |      19
+  TARDE - O    | TARDE  |  29/29    |  100.0% |      0 |   5 (  17%) |  24 (  83%) |      19
+  TARDE - P    | TARDE  |  29/29    |  100.0% |      0 |   5 (  17%) |  24 (  83%) |      19
+  TARDE - Q    | TARDE  |  29/29    |  100.0% |      0 |   5 (  17%) |  24 (  83%) |      19
+  TARDE - R    | TARDE  |  29/29    |  100.0% |      0 |   5 (  17%) |  24 (  83%) |      19
+
+[5] ANÁLISE DE RECURSOS — EXISTE SOLUÇÃO COM SALAS VAZIAS?
+----------------------------------------------------------------------------------------
+  • MANHÃ : NÃO. Todas as 11 sala(s) são estritamente necessárias (mínimo teórico = ceil(297/29) = 11 salas).
+            Se 1 sala fosse fechada, restariam 290 vagas para 297 alunos (faltariam 7 vagas).
+  • TARDE : NÃO. Todas as 7 sala(s) são estritamente necessárias (mínimo teórico = ceil(203/29) = 7 salas).
+            Se 1 sala fosse fechada, restariam 174 vagas para 203 alunos (faltariam 29 vagas).
+  => Conclusão de Recursos: A infraestrutura ofertada está enxuta; nenhuma sala pode ficar vazia sem violar o limite máximo de vagas.
+
+[6] COMO MELHORAR O BALANCEAMENTO — DIAGNÓSTICO E RECOMENDAÇÕES
+----------------------------------------------------------------------------------------
+  1. [Ótimo Teórico - MANHÃ] O ensalamento atingiu equilíbrio perfeito de quantidade (27 alunos em cada sala) e o menor desvio inteiro possível de gênero entre salas (Delta_M=0, Delta_F=0).
+  2. [Paridade 50/50 - MANHÃ] A base de inscritos do turno tem mais Feminino (F) (242) do que Masculino (M) (55), gerando diferença média de ~17.0 por sala. Para aproximar cada sala do 50/50, seria necessário captar/migrar ~187 aluno(s) do gênero Masculino (M).
+  3. [Ótimo Teórico - TARDE] O ensalamento atingiu equilíbrio perfeito de quantidade (29 alunos em cada sala) e o menor desvio inteiro possível de gênero entre salas (Delta_M=1, Delta_F=1).
+  4. [Paridade 50/50 - TARDE] A base de inscritos do turno tem mais Feminino (F) (167) do que Masculino (M) (36), gerando diferença média de ~18.7 por sala. Para aproximar cada sala do 50/50, seria necessário captar/migrar ~131 aluno(s) do gênero Masculino (M).
+
+========================================================================================

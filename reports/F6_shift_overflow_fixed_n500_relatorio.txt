@@ -1,0 +1,81 @@
+========================================================================================
+ RELATÓRIO DIAGNÓSTICO DE ENSALAMENTO — F6_shift_overflow_fixed_n500.xlsx
+========================================================================================
+
+[1] PRÉ-PROCESSAMENTO & QUALIDADE DOS DADOS
+----------------------------------------------------------------------------------------
+  Arquivo de entrada          : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\generated\F6_shift_overflow_fixed\F6_shift_overflow_fixed_n500.xlsx
+  Arquivo Excel gerado        : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\experiments\F6_shift_overflow_fixed_n500.xlsx
+  Linhas lidas na aba Alunos  : 500 (Válidos em I: 500 | Inválidos retidos: 0 | Rodapés ignorados: 0)
+  Inconsistências detectadas  : 6 total (0 tratadas auto | 5 alertas duplicidade | 1 impeditivas)
+
+  Detalhamento das ocorrências:
+    • [ALERTA    ] Linha   2 | Breno Pedro Miranda do Cardoso: Nome 'Breno Pedro Miranda do Cardoso' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 2 (M/TARDE), linha 15 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha   5 | Pietro Ferreira Melo: Nome 'Pietro Ferreira Melo' aparece 2 vezes (mesmo turno (MANHÃ): linha 5 (M/MANHÃ), linha 57 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  75 | Gustavo Marques Andrade: Nome 'Gustavo Marques Andrade' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 75 (M/MANHÃ), linha 79 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 104 | Vitória Correia de Duarte: Nome 'Vitória Correia de Duarte' aparece 2 vezes (mesmo turno (TARDE): linha 104 (F/TARDE), linha 418 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 241 | Isadora Moreira dos Lima: Nome 'Isadora Moreira dos Lima' aparece 2 vezes (mesmo turno (TARDE): linha 241 (F/TARDE), linha 481 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [IMPEDITIVA] Global    | -: Turno MANHÃ possui 235 alunos válidos para apenas 203 vagas (7 turmas x 29 vagas). Déficit de 32 vaga(s).
+
+[2] INFORMAÇÕES DO SOLVER MATEMÁTICO (MILP LEXICOGRÁFICO - PULP)
+----------------------------------------------------------------------------------------
+  Solver utilizado            : PULP_CBC_CMD (Decomp. Hierárquica + Perfis)
+  Pesos do modelo             : W_qtd=1.0, W_gen=1.0, epsilon=0.0001
+  Dimensão do modelo          : 170 variáveis (50 binárias, 110 inteiras de fluxo/perfil, 10 contínuas)
+  Restrições lineares         : 205 (Fase 1) -> 206 (Fase 2 com trava lexicográfica)
+  Status Fase 1 (Min-Max)     : Optimal | Z1* = 3.0000
+  Status Fase 2 (Par-a-Par)   : Optimal | Z2* = 48.0000 (total c/ eps: 48.004600)
+  Tempos de execução          : Build = 3.7 ms | Fase 1 = 101.1 ms | Fase 2 = 38.8 ms | TOTAL = 145.3 ms (0.1453 s)
+  Diagnóstico de parada       : Solução ótima global alcançada via Agregação por Perfis + Decomposição Hierárquica em 2 Etapas. Alocação parcial concluída: 468/500 ensalados e 32 em lista de espera (sem turma).
+
+[3] DISTRIBUIÇÃO GERAL POR TURNO (MANHÃ vs. TARDE)
+----------------------------------------------------------------------------------------
+  • MANHÃ : 203 alunos ( 43.4% do total) | Vagas: 203/203 (100.0% ocup,  0 livres) | Gênero: 105 M (51.7%) / 98 F (48.3%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 0 | Masc (Delta_M): 0 | Fem (Delta_F): 0 | Máx |M-F| intra-sala: 1
+  • TARDE : 265 alunos ( 56.6% do total) | Vagas: 265/315 ( 84.1% ocup, 50 livres) | Gênero: 116 M (43.8%) / 149 F (56.2%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 1 | Masc (Delta_M): 1 | Fem (Delta_F): 1 | Máx |M-F| intra-sala: 5
+  • TOTAL : 468 alunos alocados em 16 salas | Capacidade Global: 468/518 ( 90.3% ocup) | 221 M / 247 F
+  • LISTA DE ESPERA (SEM TURMA): 32 de 500 alunos válidos não alocados (6.4%) | Por turno: 32 Manhã, 0 Tarde, 0 Integral | Gênero: 31 M / 1 F
+            Exemplos s/ turma -> Otávio Gael Barbosa Pereira (M/MANHÃ), Nicolas Ramos do Fernandes (M/MANHÃ), Gustavo Miguel Moura Santana (M/MANHÃ), Tomás Lopes do Reis dos Vieira (M/MANHÃ), Gabriel Barbosa dos Reis de Santana (M/MANHÃ), Enzo Pinto Gomes (M/MANHÃ) ... (+26 listados na aba 'Inconsistências')
+
+[4] DETALHAMENTO POR SALA (LOTAÇÃO E GÊNERO)
+----------------------------------------------------------------------------------------
+  Turma        | Turno  |   Lotação |   Ocup. | Livres |   Masc (M) |    Fem (F) | |M - F|
+  ----------------------------------------------------------------------------------------
+  MANHÃ - A    | MANHÃ  |  29/29    |  100.0% |      0 |  15 (  52%) |  14 (  48%) |       1
+  MANHÃ - B    | MANHÃ  |  29/29    |  100.0% |      0 |  15 (  52%) |  14 (  48%) |       1
+  MANHÃ - C    | MANHÃ  |  29/29    |  100.0% |      0 |  15 (  52%) |  14 (  48%) |       1
+  MANHÃ - D    | MANHÃ  |  29/29    |  100.0% |      0 |  15 (  52%) |  14 (  48%) |       1
+  MANHÃ - E    | MANHÃ  |  29/29    |  100.0% |      0 |  15 (  52%) |  14 (  48%) |       1
+  MANHÃ - F    | MANHÃ  |  29/29    |  100.0% |      0 |  15 (  52%) |  14 (  48%) |       1
+  MANHÃ - G    | MANHÃ  |  29/29    |  100.0% |      0 |  15 (  52%) |  14 (  48%) |       1
+  TARDE - H    | TARDE  |  30/35    |   85.7% |      5 |  13 (  43%) |  17 (  57%) |       4
+  TARDE - I    | TARDE  |  30/35    |   85.7% |      5 |  13 (  43%) |  17 (  57%) |       4
+  TARDE - J    | TARDE  |  30/35    |   85.7% |      5 |  13 (  43%) |  17 (  57%) |       4
+  TARDE - K    | TARDE  |  30/35    |   85.7% |      5 |  13 (  43%) |  17 (  57%) |       4
+  TARDE - L    | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - M    | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - N    | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - O    | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - P    | TARDE  |  29/35    |   82.9% |      6 |  12 (  41%) |  17 (  59%) |       5
+
+[5] ANÁLISE DE RECURSOS — EXISTE SOLUÇÃO COM SALAS VAZIAS?
+----------------------------------------------------------------------------------------
+  • MANHÃ : NÃO. Todas as 7 sala(s) são estritamente necessárias (mínimo teórico = ceil(203/29) = 7 salas).
+            Se 1 sala fosse fechada, restariam 174 vagas para 203 alunos (faltariam 29 vagas).
+  • TARDE : SIM! É matematicamente possível deixar até 1 sala(s) VAZIA(S) (usando 8 de 9 turmas).
+            Trade-off: economiza 1 sala(s)/professor(es), mas eleva a média de 29.4 alunos/sala (84.1% ocup.) para 33.1 alunos/sala (94.6% ocup.).
+            Nota: o modelo padrão ocupou todas as 9 salas porque a regra de Equilíbrio em Quantidade penaliza turmas vazias frente às cheias.
+  => Conclusão de Recursos: Há potencial para economizar até 1 sala(s) caso a ONG priorize redução de custos sobre turmas menores.
+
+[6] COMO MELHORAR O BALANCEAMENTO — DIAGNÓSTICO E RECOMENDAÇÕES
+----------------------------------------------------------------------------------------
+  1. [Ótimo Teórico - MANHÃ] O ensalamento atingiu equilíbrio perfeito de quantidade (29 alunos em cada sala) e o menor desvio inteiro possível de gênero entre salas (Delta_M=0, Delta_F=0).
+  2. [Paridade 50/50 - MANHÃ] A base de inscritos do turno tem mais Masculino (M) (105) do que Feminino (F) (98), gerando diferença média de ~1.0 por sala. Para aproximar cada sala do 50/50, seria necessário captar/migrar ~7 aluno(s) do gênero Feminino (F).
+  3. [Indivisibilidade Inteira - TARDE] A diferença de 1 aluno entre salas (265 alunos / 9 salas deixa resto 4) é matematicamente irredutível; 5 nova(s) matrícula(s) igualariam todas as salas.
+  4. [Paridade 50/50 - TARDE] A base de inscritos do turno tem mais Feminino (F) (149) do que Masculino (M) (116), gerando diferença média de ~3.7 por sala. Para aproximar cada sala do 50/50, seria necessário captar/migrar ~33 aluno(s) do gênero Masculino (M).
+  5. [Sinergia entre Turnos] Manhã e Tarde têm desvios de gênero em direções opostas (Manhã: 105M/98F vs. Tarde: 116M/149F). Caso alguns alunos tenham disponibilidade flexível (Integral), permutar até 3 par(es) entre turnos melhoraria simultaneamente a paridade 50/50 nos dois períodos.
+  6. [Balanceamento de Infraestrutura] A taxa de ocupação de MANHÃ (100.0%) difere bastante de TARDE (84.1%). Avaliar remanejamento de turmas/salas ou direcionamento de novas matrículas para o período da TARDE.
+  7. [Expansão de Vagas / Lista de Espera] 32 aluno(s) ficaram sem turma por limite físico de capacidade (32 Manhã, 0 Tarde, 0 Integral; vagas ociosas incompatíveis restantes: 50). Abrir +2 turma(s) na Manhã e +0 na Tarde (ou ampliar vagas/sala) absorveria 100% da fila.
+
+========================================================================================

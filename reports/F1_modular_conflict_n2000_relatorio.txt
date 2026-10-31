@@ -4,7 +4,7 @@
 
 [1] PRÉ-PROCESSAMENTO & QUALIDADE DOS DADOS
 ----------------------------------------------------------------------------------------
-  Arquivo de entrada          : instances\generated\F1_modular_conflict\F1_modular_conflict_n2000.xlsx
+  Arquivo de entrada          : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\generated\F1_modular_conflict\F1_modular_conflict_n2000.xlsx
   Arquivo Excel gerado        : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\experiments\F1_modular_conflict_n2000.xlsx
   Linhas lidas na aba Alunos  : 2000 (Válidos em I: 2000 | Inválidos retidos: 0 | Rodapés ignorados: 0)
   Inconsistências detectadas  : 20 total (0 tratadas auto | 20 alertas duplicidade | 0 impeditivas)
@@ -33,14 +33,14 @@
 
 [2] INFORMAÇÕES DO SOLVER MATEMÁTICO (MILP LEXICOGRÁFICO - PULP)
 ----------------------------------------------------------------------------------------
-  Solver utilizado            : PULP_CBC_CMD
+  Solver utilizado            : PULP_CBC_CMD (Decomp. Hierárquica + Perfis)
   Pesos do modelo             : W_qtd=1.0, W_gen=1.0, epsilon=0.0001
-  Dimensão do modelo          : 70312 variáveis (66824 binárias x_ik, 198 inteiras y_k/z_kg, 3290 contínuas)
-  Restrições lineares         : 10096 (Fase 1) -> 10097 (Fase 2 com trava lexicográfica)
+  Dimensão do modelo          : 344 variáveis (0 binárias, 338 inteiras de fluxo/perfil, 6 contínuas)
+  Restrições lineares         : 666 (Fase 1) -> 666 (Fase 2 com trava lexicográfica)
   Status Fase 1 (Min-Max)     : Optimal | Z1* = 6.0000
-  Status Fase 2 (Par-a-Par)   : Not Solved
-  Tempos de execução          : Build = 472.4 ms | Fase 1 = 57355.8 ms | Fase 2 = 58103.0 ms | TOTAL = 115957.4 ms (115.9574 s)
-  Diagnóstico de parada       : Fase 1 concluída (Optimal); Fase 2 retornou 'Not Solved', mantendo alocação da Fase 1.
+  Status Fase 2 (Par-a-Par)   : Optimal (Unique Intra-Shift Profile) | Z2* = 542.0000 (total c/ eps: 542.009900)
+  Tempos de execução          : Build = 13.0 ms | Fase 1 = 89.4 ms | Fase 2 = 0.0 ms | TOTAL = 105.0 ms (0.1050 s)
+  Diagnóstico de parada       : Solução ótima global alcançada via Agregação por Perfis + Decomposição Hierárquica em 2 Etapas.
 
 [3] DISTRIBUIÇÃO GERAL POR TURNO (MANHÃ vs. TARDE)
 ----------------------------------------------------------------------------------------

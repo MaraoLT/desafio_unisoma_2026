@@ -1,0 +1,259 @@
+========================================================================================
+ RELATÓRIO DIAGNÓSTICO DE ENSALAMENTO — F5_noisy_realistic_integral_n1000.xlsx
+========================================================================================
+
+[1] PRÉ-PROCESSAMENTO & QUALIDADE DOS DADOS
+----------------------------------------------------------------------------------------
+  Arquivo de entrada          : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\generated\F5_noisy_realistic_integral\F5_noisy_realistic_integral_n1000.xlsx
+  Arquivo Excel gerado        : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\experiments\F5_noisy_realistic_integral_n1000.xlsx
+  Linhas lidas na aba Alunos  : 1000 (Válidos em I: 1000 | Inválidos retidos: 0 | Rodapés ignorados: 0)
+  Inconsistências detectadas  : 166 total (117 tratadas auto | 49 alertas duplicidade | 0 impeditivas)
+
+  Detalhamento das ocorrências:
+    • [TRATADA   ] Linha   3 | Lara Pietra Miranda dos Nunes: Espaços extras removidos no campo Disponibilidade (' integral' -> 'integral'). | Disponibilidade 'integral' padronizada para 'INTEGRAL' (compatível com Manhã e Tarde).
+    • [TRATADA   ] Linha  15 | Bernardo Nunes dos Santana: Espaços extras removidos no campo Sexo ('  M ' -> 'M').
+    • [TRATADA   ] Linha  18 | Melissa Borges dos Reis: Espaços extras removidos no campo Sexo ('  F ' -> 'F').
+    • [TRATADA   ] Linha  19 | Rodrigo Moraes Pinto: Espaços extras ajustados no Nome ('  Rodrigo  Moraes Pinto ' -> 'Rodrigo Moraes Pinto').
+    • [TRATADA   ] Linha  24 | Samuel Vieira dos Dias: Espaços extras removidos no campo Sexo ('  M ' -> 'M').
+    • [TRATADA   ] Linha  41 | Samuel Vitor Almeida Vieira da Nunes: Sexo 'MASC' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha  42 | Felipe Fernandes Martins: Espaços extras removidos no campo Sexo (' m ' -> 'm'). | Sexo 'm' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha  46 | Rafael Reis Nascimento: Espaços extras ajustados no Nome ('  Rafael  Reis Nascimento ' -> 'Rafael Reis Nascimento').
+    • [TRATADA   ] Linha  53 | André Vieira Gomes: Sexo 'MASC' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha  71 | Antônio Araújo dos Lima Carvalho: Disponibilidade 'tarde' corrigida e padronizada para 'TARDE'.
+    • [TRATADA   ] Linha  76 | Caleb Fernandes de Silva: Sexo 'MASC' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha  87 | Gael Breno Barbosa Teixeira: Sexo 'Masculino' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha 102 | Eduarda Lara Miranda do Rocha da Moraes: Espaços extras removidos no campo Disponibilidade (' MANHÃ ' -> 'MANHÃ').
+    • [TRATADA   ] Linha 108 | Fernanda Yasmin Freitas Lopes: Espaços extras removidos no campo Disponibilidade (' MANHÃ ' -> 'MANHÃ').
+    • [TRATADA   ] Linha 116 | Mirella Souza dos Marques Miranda: Espaços extras ajustados no Nome ('  Mirella  Souza dos Marques Miranda ' -> 'Mirella Souza dos Marques Miranda').
+    • [TRATADA   ] Linha 151 | Tomás Raul Moreira dos Rocha dos Araújo: Sexo 'MASC' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha 153 | Mariana Machado Cavalcanti: Espaços extras removidos no campo Sexo (' f ' -> 'f'). | Sexo 'f' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 157 | Isadora Barbosa de Castro: Disponibilidade 'Manha' corrigida e padronizada para 'MANHÃ'.
+    • [TRATADA   ] Linha 159 | Yasmin Duarte de Garcia do Ferreira: Espaços extras ajustados no Nome ('  Yasmin  Duarte de Garcia do Ferreira ' -> 'Yasmin Duarte de Garcia do Ferreira').
+    • [TRATADA   ] Linha 164 | Gabriela Yasmin Pinto da Santana: Espaços extras removidos no campo Disponibilidade (' TARDE' -> 'TARDE').
+    • [TRATADA   ] Linha 176 | Melissa Fernanda Araújo dos Moura: Espaços extras ajustados no Nome ('  Melissa  Fernanda Araújo dos Moura ' -> 'Melissa Fernanda Araújo dos Moura').
+    • [TRATADA   ] Linha 184 | Augusto Nogueira Souza: Disponibilidade 'tarde' corrigida e padronizada para 'TARDE'.
+    • [TRATADA   ] Linha 198 | Olívia Campos do Gonçalves: Disponibilidade 'manha' corrigida e padronizada para 'MANHÃ'.
+    • [TRATADA   ] Linha 202 | Carlos Henrique Garcia dos Fernandes: Espaços extras removidos no campo Sexo ('  M ' -> 'M').
+    • [TRATADA   ] Linha 215 | Pedro Lima da Cavalcanti: Espaços extras removidos no campo Disponibilidade (' INTEGRAL ' -> 'INTEGRAL').
+    • [TRATADA   ] Linha 227 | Isabela Duarte Fernandes: Espaços extras removidos no campo Disponibilidade (' MANHÃ ' -> 'MANHÃ').
+    • [TRATADA   ] Linha 238 | Mirella Mendes do Freitas Ribeiro: Espaços extras removidos no campo Disponibilidade (' tarde' -> 'tarde'). | Disponibilidade 'tarde' corrigida e padronizada para 'TARDE'.
+    • [TRATADA   ] Linha 239 | Antônio Medeiros dos Barbosa Reis: Sexo 'MASC' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha 244 | Gabriel Costa Santana: Disponibilidade 'tarde' corrigida e padronizada para 'TARDE'.
+    • [TRATADA   ] Linha 245 | Gustavo Fernandes de Miranda: Espaços extras ajustados no Nome ('  Gustavo  Fernandes de Miranda ' -> 'Gustavo Fernandes de Miranda').
+    • [TRATADA   ] Linha 260 | Lucca Souza Moraes: Espaços extras removidos no campo Sexo (' m ' -> 'm'). | Sexo 'm' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha 268 | Matheus Nogueira do Pereira Teixeira: Espaços extras ajustados no Nome ('  Matheus  Nogueira do Pereira Teixeira ' -> 'Matheus Nogueira do Pereira Teixeira').
+    • [TRATADA   ] Linha 295 | Lavínia Campos da Melo: Espaços extras removidos no campo Sexo (' f ' -> 'f'). | Sexo 'f' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 296 | Henrique Souza Silva: Espaços extras removidos no campo Disponibilidade (' tarde' -> 'tarde'). | Disponibilidade 'tarde' corrigida e padronizada para 'TARDE'.
+    • [TRATADA   ] Linha 300 | Esther Vieira Soares: Disponibilidade 'Manha' corrigida e padronizada para 'MANHÃ'.
+    • [TRATADA   ] Linha 307 | Bruna Vitória Barbosa da Martins: Espaços extras removidos no campo Disponibilidade (' integral' -> 'integral'). | Disponibilidade 'integral' padronizada para 'INTEGRAL' (compatível com Manhã e Tarde).
+    • [TRATADA   ] Linha 308 | Rodrigo Moraes Pinto: Espaços extras removidos no campo Disponibilidade (' MANHÃ ' -> 'MANHÃ').
+    • [TRATADA   ] Linha 311 | Samuel Souza Nunes da Teixeira: Espaços extras removidos no campo Sexo ('  M ' -> 'M').
+    • [TRATADA   ] Linha 316 | Tomás Gonçalves Martins: Disponibilidade 'tarde' corrigida e padronizada para 'TARDE'.
+    • [TRATADA   ] Linha 338 | Lara Moraes Rocha: Sexo 'Feminino' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 339 | Natália Gonçalves dos Oliveira Martins: Sexo 'Feminino' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 342 | Raul Santana do Almeida: Espaços extras removidos no campo Disponibilidade (' TARDE ' -> 'TARDE').
+    • [TRATADA   ] Linha 366 | Marcela Catarina Rocha dos Almeida: Sexo 'Feminino' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 409 | Diego Vinícius Souza da Carvalho: Sexo 'MASC' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha 412 | Augusto Cardoso do Silva Garcia: Espaços extras ajustados no Nome ('  Augusto  Cardoso do Silva Garcia ' -> 'Augusto Cardoso do Silva Garcia').
+    • [TRATADA   ] Linha 414 | Augusto Tomás Araújo do Batista: Espaços extras removidos no campo Sexo ('  M ' -> 'M').
+    • [TRATADA   ] Linha 415 | Lívia Reis dos Alves Silva: Espaços extras ajustados no Nome ('  Lívia  Reis dos Alves Silva ' -> 'Lívia Reis dos Alves Silva').
+    • [TRATADA   ] Linha 429 | Esther Garcia da Vieira: Disponibilidade 'Manha' corrigida e padronizada para 'MANHÃ'.
+    • [TRATADA   ] Linha 450 | Gabriel Caleb Ribeiro Medeiros dos Martins: Espaços extras ajustados no Nome ('  Gabriel  Caleb Ribeiro Medeiros dos Martins ' -> 'Gabriel Caleb Ribeiro Medeiros dos Martins').
+    • [TRATADA   ] Linha 454 | Giovanna Antonella Melo da Araújo: Espaços extras ajustados no Nome ('  Giovanna  Antonella Melo da Araújo ' -> 'Giovanna Antonella Melo da Araújo').
+    • [TRATADA   ] Linha 458 | Mirella Martins Andrade do Lopes: Espaços extras removidos no campo Sexo (' f ' -> 'f'). | Sexo 'f' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 462 | Mirella Almeida Gomes: Espaços extras removidos no campo Disponibilidade (' manhã' -> 'manhã'). | Disponibilidade 'manhã' corrigida e padronizada para 'MANHÃ'.
+    • [TRATADA   ] Linha 464 | Amanda Teixeira do Melo: Sexo 'Feminino' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 467 | Hugo Moura Marques: Espaços extras removidos no campo Sexo ('  M ' -> 'M').
+    • [TRATADA   ] Linha 471 | Yasmin Vieira Batista da Ferreira: Espaços extras ajustados no Nome ('  Yasmin  Vieira Batista da Ferreira ' -> 'Yasmin Vieira Batista da Ferreira').
+    • [TRATADA   ] Linha 509 | Heitor Rocha Garcia Oliveira: Espaços extras ajustados no Nome ('  Heitor  Rocha Garcia Oliveira ' -> 'Heitor Rocha Garcia Oliveira').
+    • [TRATADA   ] Linha 513 | Ana Rodrigues dos Freitas: Espaços extras ajustados no Nome ('  Ana  Rodrigues dos Freitas ' -> 'Ana Rodrigues dos Freitas').
+    • [TRATADA   ] Linha 518 | Camila Larissa Machado de Oliveira: Sexo 'FEM' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 544 | Breno Miguel Rodrigues de Souza Miranda: Espaços extras ajustados no Nome ('  Breno  Miguel Rodrigues de Souza Miranda ' -> 'Breno Miguel Rodrigues de Souza Miranda').
+    • [TRATADA   ] Linha 548 | Antônio Rocha dos Santana da Melo: Espaços extras removidos no campo Sexo ('  M ' -> 'M').
+    • [TRATADA   ] Linha 560 | Davi Alves Pereira da Oliveira: Espaços extras removidos no campo Disponibilidade (' manhã' -> 'manhã'). | Disponibilidade 'manhã' corrigida e padronizada para 'MANHÃ'.
+    • [TRATADA   ] Linha 569 | Miguel Santos Miranda do Barbosa: Espaços extras removidos no campo Disponibilidade (' TARDE ' -> 'TARDE').
+    • [TRATADA   ] Linha 583 | Laura Lima da Andrade Marques: Espaços extras removidos no campo Sexo (' f ' -> 'f'). | Sexo 'f' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 598 | Vitor Yuri Garcia Borges: Espaços extras ajustados no Nome ('  Vitor  Yuri Garcia Borges ' -> 'Vitor Yuri Garcia Borges').
+    • [TRATADA   ] Linha 602 | Lara Borges dos Martins: Sexo 'feminino' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 604 | Elisa Rebeca Cavalcanti de Lopes: Espaços extras removidos no campo Disponibilidade (' TARDE' -> 'TARDE').
+    • [TRATADA   ] Linha 607 | Henrique Pereira Santos: Espaços extras ajustados no Nome ('  Henrique  Pereira Santos ' -> 'Henrique Pereira Santos').
+    • [TRATADA   ] Linha 608 | Ana Gabriela Monteiro dos Barros dos Carvalho: Espaços extras removidos no campo Disponibilidade (' manhã' -> 'manhã'). | Disponibilidade 'manhã' corrigida e padronizada para 'MANHÃ'.
+    • [TRATADA   ] Linha 623 | Raul Freitas da Vieira: Sexo 'MASC' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha 626 | Kauã Cavalcanti Lopes: Espaços extras removidos no campo Sexo (' m ' -> 'm'). | Sexo 'm' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha 627 | Pedro Almeida Lopes da Moraes: Espaços extras removidos no campo Disponibilidade (' TARDE ' -> 'TARDE').
+    • [TRATADA   ] Linha 629 | Sophia Nicole Castro Costa Carvalho: Espaços extras removidos no campo Sexo ('  F ' -> 'F').
+    • [TRATADA   ] Linha 635 | Catarina Clara Silva do Rocha: Espaços extras removidos no campo Sexo (' f ' -> 'f'). | Sexo 'f' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 639 | Lívia Mirella Cunha Andrade Pereira: Sexo 'FEM' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 641 | Guilherme Ramos de Moraes: Espaços extras ajustados no Nome ('  Guilherme  Ramos de Moraes ' -> 'Guilherme Ramos de Moraes').
+    • [TRATADA   ] Linha 644 | Letícia Garcia da Carvalho: Espaços extras ajustados no Nome ('  Letícia  Garcia da Carvalho ' -> 'Letícia Garcia da Carvalho').
+    • [TRATADA   ] Linha 647 | Antônio Silva dos Pinto: Disponibilidade 'tarde' corrigida e padronizada para 'TARDE'.
+    • [TRATADA   ] Linha 673 | Antonella Marina Araújo Gomes: Sexo 'feminino' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 686 | Gabriel Tomás Carvalho Andrade dos Santos: Espaços extras removidos no campo Disponibilidade (' MANHÃ ' -> 'MANHÃ').
+    • [TRATADA   ] Linha 688 | Caleb Ferreira Santos: Disponibilidade 'Manha' corrigida e padronizada para 'MANHÃ'.
+    • [TRATADA   ] Linha 690 | Yasmin Cunha da Gomes de Santos: Disponibilidade 'tarde' corrigida e padronizada para 'TARDE'.
+    • [TRATADA   ] Linha 701 | Nicolas Alves Batista: Espaços extras removidos no campo Sexo ('  M ' -> 'M').
+    • [TRATADA   ] Linha 707 | Marcela Reis Batista: Espaços extras removidos no campo Sexo ('  F ' -> 'F').
+    • [TRATADA   ] Linha 724 | Fernanda Ramos do Costa: Espaços extras ajustados no Nome ('  Fernanda  Ramos do Costa ' -> 'Fernanda Ramos do Costa').
+    • [TRATADA   ] Linha 726 | Natália Gonçalves Soares: Disponibilidade 'tarde' corrigida e padronizada para 'TARDE'.
+    • [TRATADA   ] Linha 733 | Caleb Carvalho Araújo: Espaços extras removidos no campo Disponibilidade (' MANHÃ ' -> 'MANHÃ').
+    • [TRATADA   ] Linha 736 | Clara Borges Moura: Espaços extras ajustados no Nome ('  Clara  Borges Moura ' -> 'Clara Borges Moura').
+    • [TRATADA   ] Linha 740 | Felipe Bruno Nunes do Garcia Lima: Sexo 'masculino' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha 748 | Rafaela Vieira Martins: Espaços extras ajustados no Nome ('  Rafaela  Vieira Martins ' -> 'Rafaela Vieira Martins').
+    • [TRATADA   ] Linha 756 | Carolina Luísa Andrade dos Correia: Espaços extras removidos no campo Disponibilidade (' integral' -> 'integral'). | Disponibilidade 'integral' padronizada para 'INTEGRAL' (compatível com Manhã e Tarde).
+    • [TRATADA   ] Linha 764 | Mirella Dias da Medeiros: Espaços extras removidos no campo Disponibilidade (' manhã' -> 'manhã'). | Disponibilidade 'manhã' corrigida e padronizada para 'MANHÃ'.
+    • [TRATADA   ] Linha 773 | Heloísa Júlia Mendes Vieira: Sexo 'FEM' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 803 | Joaquim Almeida da Cardoso: Espaços extras removidos no campo Sexo ('  M ' -> 'M').
+    • [TRATADA   ] Linha 812 | Antônio Theo Medeiros de Mendes do Gonçalves: Disponibilidade 'tarde' corrigida e padronizada para 'TARDE'.
+    • [TRATADA   ] Linha 817 | Helena Costa dos Araújo Miranda: Espaços extras removidos no campo Disponibilidade (' INTEGRAL ' -> 'INTEGRAL').
+    • [TRATADA   ] Linha 821 | Breno Gonçalves Ferreira: Espaços extras removidos no campo Sexo ('  M ' -> 'M').
+    • [TRATADA   ] Linha 830 | Bianca Cecília Andrade de Gomes: Sexo 'Feminino' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 831 | Marina Melissa Correia Castro Melo: Espaços extras removidos no campo Disponibilidade (' TARDE' -> 'TARDE').
+    • [TRATADA   ] Linha 842 | Yuri Reis Ribeiro: Espaços extras removidos no campo Sexo ('  M ' -> 'M').
+    • [TRATADA   ] Linha 847 | Heitor Carvalho de Ramos: Espaços extras removidos no campo Disponibilidade (' tarde' -> 'tarde'). | Disponibilidade 'tarde' corrigida e padronizada para 'TARDE'.
+    • [TRATADA   ] Linha 851 | Carlos Henrique Garcia dos Fernandes: Espaços extras removidos no campo Sexo (' m ' -> 'm'). | Sexo 'm' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha 860 | Sarah Gomes Pereira: Sexo 'feminino' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 884 | Matheus Henrique Carvalho Teixeira: Disponibilidade 'MANHA' corrigida e padronizada para 'MANHÃ'.
+    • [TRATADA   ] Linha 885 | Ana Moreira do Rodrigues: Espaços extras removidos no campo Disponibilidade (' INTEGRAL ' -> 'INTEGRAL').
+    • [TRATADA   ] Linha 918 | Carolina Laura Miranda Ferreira: Espaços extras ajustados no Nome ('  Carolina  Laura Miranda Ferreira ' -> 'Carolina Laura Miranda Ferreira').
+    • [TRATADA   ] Linha 938 | Valentina Carvalho de Freitas: Espaços extras removidos no campo Disponibilidade (' MANHÃ ' -> 'MANHÃ').
+    • [TRATADA   ] Linha 940 | Heitor Yuri Teixeira Rocha Soares: Sexo 'masculino' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha 942 | Manuela Barbosa Carvalho: Sexo 'FEM' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 943 | Olívia Ribeiro da Fernandes: Espaços extras removidos no campo Disponibilidade (' MANHÃ ' -> 'MANHÃ').
+    • [TRATADA   ] Linha 971 | Lucca Henrique Fernandes Carvalho: Disponibilidade 'manha' corrigida e padronizada para 'MANHÃ'.
+    • [TRATADA   ] Linha 973 | Arthur Machado dos Moraes: Sexo 'MASC' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha 974 | Clara Mariana Pereira do Vieira Marques: Espaços extras ajustados no Nome ('  Clara  Mariana Pereira do Vieira Marques ' -> 'Clara Mariana Pereira do Vieira Marques').
+    • [TRATADA   ] Linha 976 | Vitória Campos dos Soares: Sexo 'FEM' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 977 | Letícia Mariana Rodrigues da Machado: Espaços extras ajustados no Nome ('  Letícia  Mariana Rodrigues da Machado ' -> 'Letícia Mariana Rodrigues da Machado').
+    • [TRATADA   ] Linha 991 | Lívia Oliveira de Alves: Disponibilidade 'manha' corrigida e padronizada para 'MANHÃ'.
+    • [TRATADA   ] Linha 996 | Carlos Marques do Nogueira: Sexo 'masculino' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha 1000 | Bernardo Nunes dos Santana: Sexo 'MASC' padronizado automaticamente para 'M'.
+    • [ALERTA    ] Linha   2 | Helena Freitas do Miranda: Nome 'Helena Freitas do Miranda' aparece 3 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 2 (F/MANHÃ), linha 23 (F/INTEGRAL), linha 1001 (F/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha   4 | Stella Manuela Santana Nascimento de Reis: Nome 'Stella Manuela Santana Nascimento de Reis' aparece 3 vezes (turnos distintos (MANHÃ, TARDE): linha 4 (F/MANHÃ), linha 17 (F/MANHÃ), linha 999 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha   6 | Bernardo Nunes dos Santana: Nome 'Bernardo Nunes dos Santana' aparece 3 vezes (turnos distintos (INTEGRAL, TARDE): linha 6 (M/INTEGRAL), linha 15 (M/INTEGRAL), linha 1000 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha   9 | Bianca Monteiro da Vieira de Freitas: Nome 'Bianca Monteiro da Vieira de Freitas' aparece 2 vezes (mesmo turno (TARDE): linha 9 (F/TARDE), linha 134 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  10 | Lara Duarte Nunes: Nome 'Lara Duarte Nunes' aparece 2 vezes (mesmo turno (MANHÃ): linha 10 (F/MANHÃ), linha 43 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  18 | Melissa Borges dos Reis: Nome 'Melissa Borges dos Reis' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 18 (F/MANHÃ), linha 154 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  19 | Rodrigo Moraes Pinto: Nome 'Rodrigo Moraes Pinto' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 19 (M/TARDE), linha 308 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  27 | Agatha Lara Cunha do Ramos Duarte: Nome 'Agatha Lara Cunha do Ramos Duarte' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 27 (F/MANHÃ), linha 35 (F/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  44 | Tomás Raul Moreira dos Rocha dos Araújo: Nome 'Tomás Raul Moreira dos Rocha dos Araújo' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 44 (M/TARDE), linha 151 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  47 | Matheus Gael Pereira de Lima: Nome 'Matheus Gael Pereira de Lima' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 47 (M/TARDE), linha 62 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  48 | Elisa Melo do Moraes: Nome 'Elisa Melo do Moraes' aparece 2 vezes (mesmo turno (MANHÃ): linha 48 (F/MANHÃ), linha 408 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  56 | Carolina Bianca Ribeiro do Alves de Fernandes: Nome 'Carolina Bianca Ribeiro do Alves de Fernandes' aparece 2 vezes (mesmo turno (TARDE): linha 56 (F/TARDE), linha 660 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  59 | Nathan Alves Santos Melo: Nome 'Nathan Alves Santos Melo' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 59 (M/MANHÃ), linha 819 (M/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  77 | Juliana Emanuelly Pereira Araújo Vieira: Nome 'Juliana Emanuelly Pereira Araújo Vieira' aparece 2 vezes (turnos distintos (INTEGRAL, TARDE): linha 77 (F/INTEGRAL), linha 146 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  94 | Enzo Araújo Carvalho Duarte: Nome 'Enzo Araújo Carvalho Duarte' aparece 2 vezes (turnos distintos (INTEGRAL, TARDE): linha 94 (M/TARDE), linha 235 (M/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  99 | Augusto Tomás Araújo do Batista: Nome 'Augusto Tomás Araújo do Batista' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 99 (M/TARDE), linha 414 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 101 | Sophia Barros da Pinto Fernandes: Nome 'Sophia Barros da Pinto Fernandes' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 101 (F/INTEGRAL), linha 130 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 118 | Matheus Moraes Campos: Nome 'Matheus Moraes Campos' aparece 2 vezes (mesmo turno (MANHÃ): linha 118 (M/MANHÃ), linha 727 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 121 | Luísa Monteiro do Nascimento: Nome 'Luísa Monteiro do Nascimento' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 121 (F/TARDE), linha 666 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 133 | Rebeca Castro Carvalho: Nome 'Rebeca Castro Carvalho' aparece 2 vezes (mesmo turno (TARDE): linha 133 (F/TARDE), linha 224 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 138 | Otávio Noah Gonçalves Alves: Nome 'Otávio Noah Gonçalves Alves' aparece 2 vezes (turnos distintos (INTEGRAL, TARDE): linha 138 (M/INTEGRAL), linha 434 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 177 | Júlia Barros de Cardoso Moraes: Nome 'Júlia Barros de Cardoso Moraes' aparece 2 vezes (turnos distintos (INTEGRAL, TARDE): linha 177 (F/INTEGRAL), linha 539 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 183 | Arthur Machado de Pinto: Nome 'Arthur Machado de Pinto' aparece 2 vezes (mesmo turno (MANHÃ): linha 183 (M/MANHÃ), linha 201 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 184 | Augusto Nogueira Souza: Nome 'Augusto Nogueira Souza' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 184 (M/TARDE), linha 924 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 185 | Augusto Miranda dos Marques: Nome 'Augusto Miranda dos Marques' aparece 2 vezes (mesmo turno (INTEGRAL): linha 185 (M/INTEGRAL), linha 360 (M/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 200 | Samuel Machado Nunes: Nome 'Samuel Machado Nunes' aparece 2 vezes (mesmo turno (TARDE): linha 200 (M/TARDE), linha 251 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 202 | Carlos Henrique Garcia dos Fernandes: Nome 'Carlos Henrique Garcia dos Fernandes' aparece 2 vezes (mesmo turno (TARDE): linha 202 (M/TARDE), linha 851 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 205 | Agatha Nogueira Moreira: Nome 'Agatha Nogueira Moreira' aparece 3 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 205 (F/INTEGRAL), linha 231 (F/MANHÃ), linha 477 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 226 | Raul Freitas da Vieira: Nome 'Raul Freitas da Vieira' aparece 2 vezes (mesmo turno (TARDE): linha 226 (M/TARDE), linha 623 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 229 | Henrique Bernardo Santana Costa: Nome 'Henrique Bernardo Santana Costa' aparece 2 vezes (turnos distintos (INTEGRAL, TARDE): linha 229 (M/INTEGRAL), linha 522 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 270 | Lavínia Campos da Melo: Nome 'Lavínia Campos da Melo' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 270 (F/INTEGRAL), linha 295 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 273 | Bruna Duarte da Araújo de Moura: Nome 'Bruna Duarte da Araújo de Moura' aparece 2 vezes (mesmo turno (TARDE): linha 273 (F/TARDE), linha 590 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 274 | Gabriela Mendes de Cavalcanti: Nome 'Gabriela Mendes de Cavalcanti' aparece 2 vezes (mesmo turno (TARDE): linha 274 (F/TARDE), linha 962 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 297 | Augusto Emanuel Santos do Garcia: Nome 'Augusto Emanuel Santos do Garcia' aparece 2 vezes (mesmo turno (TARDE): linha 297 (M/TARDE), linha 438 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 298 | Davi Machado do Marques da Araújo: Nome 'Davi Machado do Marques da Araújo' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 298 (M/TARDE), linha 600 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 334 | Leonardo Thiago Monteiro do Santos: Nome 'Leonardo Thiago Monteiro do Santos' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 334 (M/MANHÃ), linha 698 (M/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 339 | Natália Gonçalves dos Oliveira Martins: Nome 'Natália Gonçalves dos Oliveira Martins' aparece 2 vezes (mesmo turno (MANHÃ): linha 339 (F/MANHÃ), linha 948 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 362 | Pedro Almeida Lopes da Moraes: Nome 'Pedro Almeida Lopes da Moraes' aparece 2 vezes (turnos distintos (INTEGRAL, TARDE): linha 362 (M/INTEGRAL), linha 627 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 387 | Caleb Rodrigues Gomes: Nome 'Caleb Rodrigues Gomes' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 387 (M/MANHÃ), linha 390 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 407 | Rafael Barbosa Martins: Nome 'Rafael Barbosa Martins' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 407 (M/MANHÃ), linha 436 (M/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 423 | Vitória Campos dos Soares: Nome 'Vitória Campos dos Soares' aparece 2 vezes (mesmo turno (TARDE): linha 423 (F/TARDE), linha 976 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 445 | Carlos Arthur Nascimento do Freitas: Nome 'Carlos Arthur Nascimento do Freitas' aparece 2 vezes (mesmo turno (TARDE): linha 445 (M/TARDE), linha 939 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 465 | Vitor Yuri Garcia Borges: Nome 'Vitor Yuri Garcia Borges' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 465 (M/MANHÃ), linha 598 (M/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 496 | Letícia Garcia da Carvalho: Nome 'Letícia Garcia da Carvalho' aparece 2 vezes (turnos distintos (INTEGRAL, TARDE): linha 496 (F/INTEGRAL), linha 644 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 511 | Yasmin Marina Garcia Carvalho: Nome 'Yasmin Marina Garcia Carvalho' aparece 2 vezes (mesmo turno (TARDE): linha 511 (F/TARDE), linha 557 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 517 | Lucca Carvalho do Costa da Nascimento: Nome 'Lucca Carvalho do Costa da Nascimento' aparece 2 vezes (turnos distintos (INTEGRAL, TARDE): linha 517 (M/TARDE), linha 953 (M/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 568 | Catarina Clara Silva do Rocha: Nome 'Catarina Clara Silva do Rocha' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 568 (F/MANHÃ), linha 635 (F/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 587 | Olívia Oliveira do Nunes de Campos: Nome 'Olívia Oliveira do Nunes de Campos' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 587 (F/TARDE), linha 591 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 787 | Bianca Batista da Fernandes da Barros: Nome 'Bianca Batista da Fernandes da Barros' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 787 (F/MANHÃ), linha 932 (F/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+
+[2] INFORMAÇÕES DO SOLVER MATEMÁTICO (MILP LEXICOGRÁFICO - PULP)
+----------------------------------------------------------------------------------------
+  Solver utilizado            : PULP_CBC_CMD (Decomp. Hierárquica + Perfis)
+  Pesos do modelo             : W_qtd=1.0, W_gen=1.0, epsilon=0.0001
+  Dimensão do modelo          : 428 variáveis (116 binárias, 302 inteiras de fluxo/perfil, 10 contínuas)
+  Restrições lineares         : 431 (Fase 1) -> 432 (Fase 2 com trava lexicográfica)
+  Status Fase 1 (Min-Max)     : Optimal | Z1* = 2.0000
+  Status Fase 2 (Par-a-Par)   : Optimal | Z2* = 128.0000 (total c/ eps: 128.005500)
+  Tempos de execução          : Build = 8.4 ms | Fase 1 = 177.5 ms | Fase 2 = 228.9 ms | TOTAL = 416.9 ms (0.4169 s)
+  Diagnóstico de parada       : Solução ótima global alcançada via Agregação por Perfis + Decomposição Hierárquica em 2 Etapas.
+
+[3] DISTRIBUIÇÃO GERAL POR TURNO (MANHÃ vs. TARDE)
+----------------------------------------------------------------------------------------
+  • MANHÃ : 528 alunos ( 52.8% do total) | Vagas: 528/704 ( 75.0% ocup, 176 livres) | Gênero: 242 M (45.8%) / 286 F (54.2%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 0 | Masc (Delta_M): 0 | Fem (Delta_F): 0 | Máx |M-F| intra-sala: 2
+  • TARDE : 472 alunos ( 47.2% do total) | Vagas: 472/480 ( 98.3% ocup,  8 livres) | Gênero: 232 M (49.2%) / 240 F (50.8%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 1 | Masc (Delta_M): 1 | Fem (Delta_F): 0 | Máx |M-F| intra-sala: 1
+  • TOTAL : 1000 alunos alocados em 38 salas | Capacidade Global: 1000/1184 ( 84.5% ocup) | 474 M / 526 F
+  • DECISÃO DE ALUNOS INTEGRAIS (200 flexíveis): 131 enviados p/ MANHÃ (89 M, 42 F) | 69 enviados p/ TARDE (9 M, 60 F)
+
+[4] DETALHAMENTO POR SALA (LOTAÇÃO E GÊNERO)
+----------------------------------------------------------------------------------------
+  Turma        | Turno  |   Lotação |   Ocup. | Livres |   Masc (M) |    Fem (F) | |M - F|
+  ----------------------------------------------------------------------------------------
+  MANHÃ - A    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - B    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - C    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - D    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - E    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - F    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - G    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - H    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - I    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - J    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - K    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - L    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - M    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - N    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - O    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - P    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - Q    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - R    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - S    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - T    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - U    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  MANHÃ - V    | MANHÃ  |  24/32    |   75.0% |      8 |  11 (  46%) |  13 (  54%) |       2
+  TARDE - W    | TARDE  |  30/30    |  100.0% |      0 |  15 (  50%) |  15 (  50%) |       0
+  TARDE - X    | TARDE  |  30/30    |  100.0% |      0 |  15 (  50%) |  15 (  50%) |       0
+  TARDE - Y    | TARDE  |  30/30    |  100.0% |      0 |  15 (  50%) |  15 (  50%) |       0
+  TARDE - Z    | TARDE  |  30/30    |  100.0% |      0 |  15 (  50%) |  15 (  50%) |       0
+  TARDE - AA   | TARDE  |  30/30    |  100.0% |      0 |  15 (  50%) |  15 (  50%) |       0
+  TARDE - AB   | TARDE  |  30/30    |  100.0% |      0 |  15 (  50%) |  15 (  50%) |       0
+  TARDE - AC   | TARDE  |  30/30    |  100.0% |      0 |  15 (  50%) |  15 (  50%) |       0
+  TARDE - AD   | TARDE  |  30/30    |  100.0% |      0 |  15 (  50%) |  15 (  50%) |       0
+  TARDE - AE   | TARDE  |  29/30    |   96.7% |      1 |  14 (  48%) |  15 (  52%) |       1
+  TARDE - AF   | TARDE  |  29/30    |   96.7% |      1 |  14 (  48%) |  15 (  52%) |       1
+  TARDE - AG   | TARDE  |  29/30    |   96.7% |      1 |  14 (  48%) |  15 (  52%) |       1
+  TARDE - AH   | TARDE  |  29/30    |   96.7% |      1 |  14 (  48%) |  15 (  52%) |       1
+  TARDE - AI   | TARDE  |  29/30    |   96.7% |      1 |  14 (  48%) |  15 (  52%) |       1
+  TARDE - AJ   | TARDE  |  29/30    |   96.7% |      1 |  14 (  48%) |  15 (  52%) |       1
+  TARDE - AK   | TARDE  |  29/30    |   96.7% |      1 |  14 (  48%) |  15 (  52%) |       1
+  TARDE - AL   | TARDE  |  29/30    |   96.7% |      1 |  14 (  48%) |  15 (  52%) |       1
+
+[5] ANÁLISE DE RECURSOS — EXISTE SOLUÇÃO COM SALAS VAZIAS?
+----------------------------------------------------------------------------------------
+  • MANHÃ : SIM! É matematicamente possível deixar até 5 sala(s) VAZIA(S) (usando 17 de 22 turmas).
+            Trade-off: economiza 5 sala(s)/professor(es), mas eleva a média de 24.0 alunos/sala (75.0% ocup.) para 31.1 alunos/sala (97.1% ocup.).
+            Nota: o modelo padrão ocupou todas as 22 salas porque a regra de Equilíbrio em Quantidade penaliza turmas vazias frente às cheias.
+  • TARDE : NÃO. Todas as 16 sala(s) são estritamente necessárias (mínimo teórico = ceil(472/30) = 16 salas).
+            Se 1 sala fosse fechada, restariam 450 vagas para 472 alunos (faltariam 22 vagas).
+  => Conclusão de Recursos: Há potencial para economizar até 5 sala(s) caso a ONG priorize redução de custos sobre turmas menores.
+
+[6] COMO MELHORAR O BALANCEAMENTO — DIAGNÓSTICO E RECOMENDAÇÕES
+----------------------------------------------------------------------------------------
+  1. [Ótimo Teórico - MANHÃ] O ensalamento atingiu equilíbrio perfeito de quantidade (24 alunos em cada sala) e o menor desvio inteiro possível de gênero entre salas (Delta_M=0, Delta_F=0).
+  2. [Paridade 50/50 - MANHÃ] A base de inscritos do turno tem mais Feminino (F) (286) do que Masculino (M) (242), gerando diferença média de ~2.0 por sala. Para aproximar cada sala do 50/50, seria necessário captar/migrar ~44 aluno(s) do gênero Masculino (M).
+  3. [Indivisibilidade Inteira - TARDE] A diferença de 1 aluno entre salas (472 alunos / 16 salas deixa resto 8) é matematicamente irredutível; 8 nova(s) matrícula(s) igualariam todas as salas.
+  4. [Balanceamento de Infraestrutura] A taxa de ocupação de TARDE (98.3%) difere bastante de MANHÃ (75.0%). Avaliar remanejamento de turmas/salas ou direcionamento de novas matrículas para o período da MANHÃ.
+
+========================================================================================

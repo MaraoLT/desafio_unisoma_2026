@@ -1,0 +1,96 @@
+========================================================================================
+ RELATÓRIO DIAGNÓSTICO DE ENSALAMENTO — F5_noisy_realistic_integral_n200.xlsx
+========================================================================================
+
+[1] PRÉ-PROCESSAMENTO & QUALIDADE DOS DADOS
+----------------------------------------------------------------------------------------
+  Arquivo de entrada          : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\generated\F5_noisy_realistic_integral\F5_noisy_realistic_integral_n200.xlsx
+  Arquivo Excel gerado        : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\experiments\F5_noisy_realistic_integral_n200.xlsx
+  Linhas lidas na aba Alunos  : 200 (Válidos em I: 200 | Inválidos retidos: 0 | Rodapés ignorados: 0)
+  Inconsistências detectadas  : 33 total (24 tratadas auto | 9 alertas duplicidade | 0 impeditivas)
+
+  Detalhamento das ocorrências:
+    • [TRATADA   ] Linha   9 | Eduarda Lorena Gomes Costa Silva: Espaços extras ajustados no Nome ('  Eduarda  Lorena Gomes Costa Silva ' -> 'Eduarda Lorena Gomes Costa Silva').
+    • [TRATADA   ] Linha  26 | Beatriz Lima Barbosa: Espaços extras ajustados no Nome ('  Beatriz  Lima Barbosa ' -> 'Beatriz Lima Barbosa').
+    • [TRATADA   ] Linha  34 | Larissa Lavínia Araújo dos Rocha dos Freitas: Espaços extras ajustados no Nome ('  Larissa  Lavínia Araújo dos Rocha dos Freitas ' -> 'Larissa Lavínia Araújo dos Rocha dos Freitas').
+    • [TRATADA   ] Linha  46 | Bianca Marques Teixeira: Espaços extras removidos no campo Disponibilidade (' MANHÃ ' -> 'MANHÃ').
+    • [TRATADA   ] Linha  61 | Olívia Miranda Correia Pinto: Sexo 'FEM' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha  63 | Benício Nogueira dos Costa: Espaços extras ajustados no Nome ('  Benício  Nogueira dos Costa ' -> 'Benício Nogueira dos Costa').
+    • [TRATADA   ] Linha  64 | Arthur Tomás Freitas Ramos: Espaços extras removidos no campo Sexo (' m ' -> 'm'). | Sexo 'm' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha  74 | Camila Lara Medeiros de Borges: Espaços extras removidos no campo Disponibilidade (' integral' -> 'integral'). | Disponibilidade 'integral' padronizada para 'INTEGRAL' (compatível com Manhã e Tarde).
+    • [TRATADA   ] Linha  80 | Samuel Reis dos Castro: Espaços extras removidos no campo Disponibilidade (' manhã' -> 'manhã'). | Disponibilidade 'manhã' corrigida e padronizada para 'MANHÃ'.
+    • [TRATADA   ] Linha  81 | Igor Ribeiro Freitas: Sexo 'masculino' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha  84 | Maria Correia Fernandes Melo: Sexo 'feminino' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha  89 | Heitor Gael Moraes do Gonçalves dos Moura: Espaços extras removidos no campo Disponibilidade (' MANHÃ ' -> 'MANHÃ').
+    • [TRATADA   ] Linha 105 | Bernardo Duarte de Carvalho: Disponibilidade 'tarde' corrigida e padronizada para 'TARDE'.
+    • [TRATADA   ] Linha 120 | Eduarda Martins da Marques: Espaços extras removidos no campo Sexo (' f ' -> 'f'). | Sexo 'f' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 122 | Breno Freitas do Cunha de Teixeira: Espaços extras removidos no campo Disponibilidade (' tarde' -> 'tarde'). | Disponibilidade 'tarde' corrigida e padronizada para 'TARDE'.
+    • [TRATADA   ] Linha 131 | Olívia Bianca Cunha dos Marques: Espaços extras removidos no campo Sexo ('  F ' -> 'F').
+    • [TRATADA   ] Linha 144 | Benício Oliveira da Marques: Espaços extras ajustados no Nome ('  Benício  Oliveira da Marques ' -> 'Benício Oliveira da Marques').
+    • [TRATADA   ] Linha 150 | Lucas Silva Pereira de Nogueira: Espaços extras ajustados no Nome ('  Lucas  Silva Pereira de Nogueira ' -> 'Lucas Silva Pereira de Nogueira').
+    • [TRATADA   ] Linha 152 | Raul Henrique Borges dos Cunha Gonçalves: Sexo 'masculino' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha 157 | Daniel Cunha Santos: Espaços extras removidos no campo Sexo (' m ' -> 'm'). | Sexo 'm' padronizado automaticamente para 'M'.
+    • [TRATADA   ] Linha 170 | Júlia Gonçalves da Moura Cardoso: Sexo 'Feminino' padronizado automaticamente para 'F'.
+    • [TRATADA   ] Linha 177 | Luana Bianca Teixeira da Lima: Espaços extras ajustados no Nome ('  Luana  Bianca Teixeira da Lima ' -> 'Luana Bianca Teixeira da Lima').
+    • [TRATADA   ] Linha 182 | Gabriela Giovanna Vieira Moura do Reis: Disponibilidade 'Ambos' padronizada para 'INTEGRAL' (compatível com Manhã e Tarde).
+    • [TRATADA   ] Linha 200 | Caleb Medeiros Oliveira: Sexo 'MASC' padronizado automaticamente para 'M'.
+    • [ALERTA    ] Linha   5 | Melissa Lara Costa da Borges: Nome 'Melissa Lara Costa da Borges' aparece 3 vezes (turnos distintos (MANHÃ, TARDE): linha 5 (F/MANHÃ), linha 51 (F/TARDE), linha 201 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  11 | Heloísa Maria Borges da Dias dos Santos: Nome 'Heloísa Maria Borges da Dias dos Santos' aparece 2 vezes (turnos distintos (INTEGRAL, TARDE): linha 11 (F/TARDE), linha 149 (F/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  17 | Bianca Medeiros Barbosa: Nome 'Bianca Medeiros Barbosa' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 17 (F/TARDE), linha 23 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  18 | Gael Lucas Pinto Nogueira: Nome 'Gael Lucas Pinto Nogueira' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 18 (M/TARDE), linha 129 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  21 | Larissa Lavínia Araújo dos Rocha dos Freitas: Nome 'Larissa Lavínia Araújo dos Rocha dos Freitas' aparece 3 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 21 (F/MANHÃ), linha 34 (F/MANHÃ), linha 54 (F/INTEGRAL)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  41 | Lorenzo Igor Dias da Ribeiro Melo: Nome 'Lorenzo Igor Dias da Ribeiro Melo' aparece 2 vezes (turnos distintos (INTEGRAL, MANHÃ): linha 41 (M/INTEGRAL), linha 155 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  82 | Helena Costa Moura: Nome 'Helena Costa Moura' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 82 (F/TARDE), linha 124 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  99 | Caleb Souza da Mendes: Nome 'Caleb Souza da Mendes' aparece 2 vezes (turnos distintos (INTEGRAL, TARDE): linha 99 (M/INTEGRAL), linha 119 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 103 | Rebeca Cardoso dos Correia Marques: Nome 'Rebeca Cardoso dos Correia Marques' aparece 2 vezes (mesmo turno (MANHÃ): linha 103 (F/MANHÃ), linha 148 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+
+[2] INFORMAÇÕES DO SOLVER MATEMÁTICO (MILP LEXICOGRÁFICO - PULP)
+----------------------------------------------------------------------------------------
+  Solver utilizado            : PULP_CBC_CMD (Decomp. Hierárquica + Perfis)
+  Pesos do modelo             : W_qtd=1.0, W_gen=1.0, epsilon=0.0001
+  Dimensão do modelo          : 128 variáveis (26 binárias, 92 inteiras de fluxo/perfil, 10 contínuas)
+  Restrições lineares         : 131 (Fase 1) -> 132 (Fase 2 com trava lexicográfica)
+  Status Fase 1 (Min-Max)     : Optimal | Z1* = 0.0000
+  Status Fase 2 (Par-a-Par)   : Optimal | Z2* = 0.0000 (total c/ eps: 0.001200)
+  Tempos de execução          : Build = 2.4 ms | Fase 1 = 102.5 ms | Fase 2 = 33.8 ms | TOTAL = 140.2 ms (0.1402 s)
+  Diagnóstico de parada       : Solução ótima global alcançada via Agregação por Perfis + Decomposição Hierárquica em 2 Etapas.
+
+[3] DISTRIBUIÇÃO GERAL POR TURNO (MANHÃ vs. TARDE)
+----------------------------------------------------------------------------------------
+  • MANHÃ : 110 alunos ( 55.0% do total) | Vagas: 110/150 ( 73.3% ocup, 40 livres) | Gênero: 50 M (45.5%) / 60 F (54.5%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 0 | Masc (Delta_M): 0 | Fem (Delta_F): 0 | Máx |M-F| intra-sala: 2
+  • TARDE :  90 alunos ( 45.0% do total) | Vagas:  90/90  (100.0% ocup,  0 livres) | Gênero: 45 M (50.0%) / 45 F (50.0%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 0 | Masc (Delta_M): 0 | Fem (Delta_F): 0 | Máx |M-F| intra-sala: 0
+  • TOTAL : 200 alunos alocados em 8 salas | Capacidade Global: 200/240 ( 83.3% ocup) | 95 M / 105 F
+  • DECISÃO DE ALUNOS INTEGRAIS (40 flexíveis): 26 enviados p/ MANHÃ (16 M, 10 F) | 14 enviados p/ TARDE (4 M, 10 F)
+
+[4] DETALHAMENTO POR SALA (LOTAÇÃO E GÊNERO)
+----------------------------------------------------------------------------------------
+  Turma        | Turno  |   Lotação |   Ocup. | Livres |   Masc (M) |    Fem (F) | |M - F|
+  ----------------------------------------------------------------------------------------
+  MANHÃ - A    | MANHÃ  |  22/30    |   73.3% |      8 |  10 (  45%) |  12 (  55%) |       2
+  MANHÃ - B    | MANHÃ  |  22/30    |   73.3% |      8 |  10 (  45%) |  12 (  55%) |       2
+  MANHÃ - C    | MANHÃ  |  22/30    |   73.3% |      8 |  10 (  45%) |  12 (  55%) |       2
+  MANHÃ - D    | MANHÃ  |  22/30    |   73.3% |      8 |  10 (  45%) |  12 (  55%) |       2
+  MANHÃ - E    | MANHÃ  |  22/30    |   73.3% |      8 |  10 (  45%) |  12 (  55%) |       2
+  TARDE - F    | TARDE  |  30/30    |  100.0% |      0 |  15 (  50%) |  15 (  50%) |       0
+  TARDE - G    | TARDE  |  30/30    |  100.0% |      0 |  15 (  50%) |  15 (  50%) |       0
+  TARDE - H    | TARDE  |  30/30    |  100.0% |      0 |  15 (  50%) |  15 (  50%) |       0
+
+[5] ANÁLISE DE RECURSOS — EXISTE SOLUÇÃO COM SALAS VAZIAS?
+----------------------------------------------------------------------------------------
+  • MANHÃ : SIM! É matematicamente possível deixar até 1 sala(s) VAZIA(S) (usando 4 de 5 turmas).
+            Trade-off: economiza 1 sala(s)/professor(es), mas eleva a média de 22.0 alunos/sala (73.3% ocup.) para 27.5 alunos/sala (91.7% ocup.).
+            Nota: o modelo padrão ocupou todas as 5 salas porque a regra de Equilíbrio em Quantidade penaliza turmas vazias frente às cheias.
+  • TARDE : NÃO. Todas as 3 sala(s) são estritamente necessárias (mínimo teórico = ceil(90/30) = 3 salas).
+            Se 1 sala fosse fechada, restariam 60 vagas para 90 alunos (faltariam 30 vagas).
+  => Conclusão de Recursos: Há potencial para economizar até 1 sala(s) caso a ONG priorize redução de custos sobre turmas menores.
+
+[6] COMO MELHORAR O BALANCEAMENTO — DIAGNÓSTICO E RECOMENDAÇÕES
+----------------------------------------------------------------------------------------
+  1. [Ótimo Teórico - MANHÃ] O ensalamento atingiu equilíbrio perfeito de quantidade (22 alunos em cada sala) e o menor desvio inteiro possível de gênero entre salas (Delta_M=0, Delta_F=0).
+  2. [Paridade 50/50 - MANHÃ] A base de inscritos do turno tem mais Feminino (F) (60) do que Masculino (M) (50), gerando diferença média de ~2.0 por sala. Para aproximar cada sala do 50/50, seria necessário captar/migrar ~10 aluno(s) do gênero Masculino (M).
+  3. [Ótimo Teórico - TARDE] O ensalamento atingiu equilíbrio perfeito de quantidade (30 alunos em cada sala) e o menor desvio inteiro possível de gênero entre salas (Delta_M=0, Delta_F=0).
+  4. [Balanceamento de Infraestrutura] A taxa de ocupação de TARDE (100.0%) difere bastante de MANHÃ (73.3%). Avaliar remanejamento de turmas/salas ou direcionamento de novas matrículas para o período da MANHÃ.
+
+========================================================================================

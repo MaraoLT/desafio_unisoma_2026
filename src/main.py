@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+import glob
 from pathlib import Path
 import sys
 from typing import Optional
@@ -79,9 +80,19 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
         "inputs",
         nargs="*",
         help=(
-            "Caminho(s) para arquivo(s) .xlsx de instância. "
-            "Se omitido, processa todas as planilhas em instances/public/."
+            "Caminho(s) para arquivo(s) .xlsx, pasta(s) ou padrão glob. "
+            "Se omitido (e sem --all), processa todas as planilhas em instances/public/."
         ),
+    )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help="Executa todas as instâncias de instances/public/ e instances/generated/.",
+    )
+    parser.add_argument(
+        "--summary-only",
+        action="store_true",
+        help="Suprime os relatórios longos no terminal (continua salvando em reports/) e exibe tabela resumo.",
     )
     parser.add_argument(
         "--in-place",
@@ -145,6 +156,11 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--legacy-monolithic",
+        action="store_true",
+        help="Usa o modelo monolítico antigo com variáveis individuais x_ik (para benchmark).",
+    )
+    parser.add_argument(
         "--time-limit",
         type=int,
         default=60,
@@ -158,22 +174,55 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def _collect_xlsx_from_target(target: Path) -> list[Path]:
+    """Coleta recursivamente arquivos .xlsx válidos a partir de um arquivo ou diretório."""
+    if target.is_file():
+        return [target]
+    if target.is_dir():
+        return sorted(
+            p
+            for p in target.rglob("*.xlsx")
+            if not p.name.startswith("~$") and not p.stem.lower().endswith("_validacao")
+        )
+    return []
+
+
+def _resolve_input_paths(args: argparse.Namespace) -> list[Path]:
+    """Resolve lista final de arquivos .xlsx a partir de --all, pastas, globs ou padrão."""
+    collected: list[Path] = []
+    if args.all:
+        for folder in (PROJECT_ROOT / "instances" / "public", PROJECT_ROOT / "instances" / "generated"):
+            collected.extend(_collect_xlsx_from_target(folder))
+    elif args.inputs:
+        for raw_item in args.inputs:
+            p = Path(raw_item)
+            if p.exists():
+                collected.extend(_collect_xlsx_from_target(p))
+            else:
+                for matched in sorted(glob.glob(raw_item, recursive=True)):
+                    collected.extend(_collect_xlsx_from_target(Path(matched)))
+    else:
+        collected.extend(_collect_xlsx_from_target(PROJECT_ROOT / "instances" / "public"))
+
+    # Remove eventuais duplicatas mantendo a ordem
+    seen: set[Path] = set()
+    unique_paths: list[Path] = []
+    for p in collected:
+        rp = p.resolve()
+        if rp not in seen:
+            seen.add(rp)
+            unique_paths.append(p)
+    return unique_paths
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     _configure_utf8_console()
     args = _parse_args(argv)
 
-    if args.inputs:
-        instance_paths = [Path(p) for p in args.inputs]
-    else:
-        public_dir = PROJECT_ROOT / "instances" / "public"
-        instance_paths = sorted(
-            p
-            for p in public_dir.glob("*.xlsx")
-            if not p.name.startswith("~$") and not p.stem.lower().endswith("_validacao")
-        )
-        if not instance_paths:
-            print(f"Nenhuma instância .xlsx encontrada em: {public_dir}")
-            return 1
+    instance_paths = _resolve_input_paths(args)
+    if not instance_paths:
+        print("Nenhuma instância .xlsx encontrada para os parâmetros informados.")
+        return 1
 
     params = SolverParameters(
         w_qtd=args.w_qtd,
@@ -182,24 +231,51 @@ def main(argv: Optional[list[str]] = None) -> int:
         enable_phase2=not args.no_phase2,
         auto_skip_phase2=args.auto_phase2,
         allow_unallocated=args.allow_unallocated,
+        use_decomposition=not args.legacy_monolithic,
         time_limit_s=args.time_limit,
         msg=args.solver_verbose,
     )
 
+    executions: list[PipelineExecution] = []
     for idx, inst_path in enumerate(instance_paths, start=1):
-        if idx > 1:
+        if idx > 1 and not args.summary_only:
             print("\n")
         excel_out = None if args.in_place else (args.output_dir / inst_path.name)
         report_out = args.reports_dir / f"{inst_path.stem}_relatorio.txt"
 
-        run_pipeline(
+        ex = run_pipeline(
             input_excel_path=inst_path,
             excel_output_path=excel_out,
             report_output_path=report_out,
             allow_integral=args.allow_integral,
             solver_params=params,
-            print_report=True,
+            print_report=not args.summary_only,
         )
+        executions.append(ex)
+
+    if len(executions) > 1:
+        print("\n" + "=" * 112)
+        print(f" RESUMO DO LOTE EXECUTADO ({len(executions)} instâncias)")
+        print("=" * 112)
+        print(
+            f"  {'Instância':<38} | {'Status':<10} | {'Alocados':>11} | {'S/Turma':>7} | "
+            f"{'Z1*':>5} | {'Z2_puro*':>8} | {'Tempo Solver':>12}"
+        )
+        print("  " + "-" * 108)
+        for ex in executions:
+            sr = ex.solver_result
+            m = sr.metrics
+            n_tot = len(ex.processed_instance.students)
+            n_aloc = len(sr.student_to_turma)
+            st_lbl = "Optimal" if sr.optimal else ("Feasible" if sr.feasible else "Infeasible")
+            z1_s = f"{m.z1_objective:.0f}" if m.z1_objective is not None else "-"
+            z2_s = f"{m.z2_pairwise_pure:.0f}" if m.z2_pairwise_pure is not None else "-"
+            print(
+                f"  {ex.raw_instance.filepath.stem:<38} | {st_lbl:<10} | "
+                f"{f'{n_aloc}/{n_tot}':>11} | {m.num_unallocated:>7} | "
+                f"{z1_s:>5} | {z2_s:>8} | {m.total_time_s * 1000:>9.1f} ms"
+            )
+        print("=" * 112)
 
     return 0
 

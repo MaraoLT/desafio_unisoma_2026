@@ -1,0 +1,144 @@
+========================================================================================
+ RELATÓRIO DIAGNÓSTICO DE ENSALAMENTO — F6_shift_overflow_fixed_n2000.xlsx
+========================================================================================
+
+[1] PRÉ-PROCESSAMENTO & QUALIDADE DOS DADOS
+----------------------------------------------------------------------------------------
+  Arquivo de entrada          : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\generated\F6_shift_overflow_fixed\F6_shift_overflow_fixed_n2000.xlsx
+  Arquivo Excel gerado        : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\experiments\F6_shift_overflow_fixed_n2000.xlsx
+  Linhas lidas na aba Alunos  : 2000 (Válidos em I: 2000 | Inválidos retidos: 0 | Rodapés ignorados: 0)
+  Inconsistências detectadas  : 21 total (0 tratadas auto | 20 alertas duplicidade | 1 impeditivas)
+
+  Detalhamento das ocorrências:
+    • [ALERTA    ] Linha  70 | Noah Castro de Barros do Garcia: Nome 'Noah Castro de Barros do Garcia' aparece 2 vezes (mesmo turno (MANHÃ): linha 70 (M/MANHÃ), linha 144 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  73 | Carlos Barbosa Costa: Nome 'Carlos Barbosa Costa' aparece 2 vezes (mesmo turno (MANHÃ): linha 73 (M/MANHÃ), linha 753 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 152 | Benício Vieira Cardoso Ribeiro: Nome 'Benício Vieira Cardoso Ribeiro' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 152 (M/TARDE), linha 1070 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 175 | Lara Cecília Martins dos Machado: Nome 'Lara Cecília Martins dos Machado' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 175 (F/TARDE), linha 1538 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 186 | Lorenzo Monteiro da Santos Ribeiro: Nome 'Lorenzo Monteiro da Santos Ribeiro' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 186 (M/MANHÃ), linha 245 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 246 | Gael Cunha da Freitas: Nome 'Gael Cunha da Freitas' aparece 2 vezes (mesmo turno (MANHÃ): linha 246 (M/MANHÃ), linha 1277 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 251 | Juliana Martins Moura Pereira: Nome 'Juliana Martins Moura Pereira' aparece 2 vezes (mesmo turno (TARDE): linha 251 (F/TARDE), linha 399 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 283 | Breno Cavalcanti do Mendes: Nome 'Breno Cavalcanti do Mendes' aparece 2 vezes (mesmo turno (TARDE): linha 283 (M/TARDE), linha 364 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 293 | Júlia Pietra Ferreira da Garcia: Nome 'Júlia Pietra Ferreira da Garcia' aparece 2 vezes (mesmo turno (TARDE): linha 293 (F/TARDE), linha 421 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 342 | Camila Alves de Garcia Nunes: Nome 'Camila Alves de Garcia Nunes' aparece 2 vezes (mesmo turno (TARDE): linha 342 (F/TARDE), linha 1006 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 406 | Isabela Elisa Reis dos Cavalcanti: Nome 'Isabela Elisa Reis dos Cavalcanti' aparece 2 vezes (mesmo turno (MANHÃ): linha 406 (F/MANHÃ), linha 530 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 596 | Emanuelly Natália Pereira Moreira: Nome 'Emanuelly Natália Pereira Moreira' aparece 2 vezes (mesmo turno (TARDE): linha 596 (F/TARDE), linha 1054 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 612 | Bernardo Freitas Barros Marques: Nome 'Bernardo Freitas Barros Marques' aparece 2 vezes (mesmo turno (MANHÃ): linha 612 (M/MANHÃ), linha 879 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 727 | Arthur Tomás Cunha Gonçalves: Nome 'Arthur Tomás Cunha Gonçalves' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 727 (M/MANHÃ), linha 1417 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 900 | Felipe Batista Santos: Nome 'Felipe Batista Santos' aparece 2 vezes (mesmo turno (MANHÃ): linha 900 (M/MANHÃ), linha 925 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 1027 | Henrique Nicolas Borges dos Ramos: Nome 'Henrique Nicolas Borges dos Ramos' aparece 2 vezes (mesmo turno (MANHÃ): linha 1027 (M/MANHÃ), linha 1842 (M/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 1112 | André Ramos da Pinto de Moura: Nome 'André Ramos da Pinto de Moura' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 1112 (M/MANHÃ), linha 1964 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 1181 | Maria Barros Rodrigues: Nome 'Maria Barros Rodrigues' aparece 2 vezes (mesmo turno (TARDE): linha 1181 (F/TARDE), linha 1184 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 1308 | Lorenzo Moraes Monteiro: Nome 'Lorenzo Moraes Monteiro' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 1308 (M/MANHÃ), linha 2001 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha 1399 | Heloísa Moura de Dias: Nome 'Heloísa Moura de Dias' aparece 2 vezes (mesmo turno (MANHÃ): linha 1399 (F/MANHÃ), linha 1774 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [IMPEDITIVA] Global    | -: Turno MANHÃ possui 930 alunos válidos para apenas 810 vagas (27 turmas x 30 vagas). Déficit de 120 vaga(s).
+
+[2] INFORMAÇÕES DO SOLVER MATEMÁTICO (MILP LEXICOGRÁFICO - PULP)
+----------------------------------------------------------------------------------------
+  Solver utilizado            : PULP_CBC_CMD (Decomp. Hierárquica + Perfis)
+  Pesos do modelo             : W_qtd=1.0, W_gen=1.0, epsilon=0.0001
+  Dimensão do modelo          : 554 variáveis (194 binárias, 350 inteiras de fluxo/perfil, 10 contínuas)
+  Restrições lineares         : 685 (Fase 1) -> 686 (Fase 2 com trava lexicográfica)
+  Status Fase 1 (Min-Max)     : Optimal | Z1* = 3.0000
+  Status Fase 2 (Par-a-Par)   : Optimal | Z2* = 208.0000 (total c/ eps: 208.017000)
+  Tempos de execução          : Build = 15.3 ms | Fase 1 = 117.7 ms | Fase 2 = 57.1 ms | TOTAL = 193.4 ms (0.1934 s)
+  Diagnóstico de parada       : Solução ótima global alcançada via Agregação por Perfis + Decomposição Hierárquica em 2 Etapas. Alocação parcial concluída: 1880/2000 ensalados e 120 em lista de espera (sem turma).
+
+[3] DISTRIBUIÇÃO GERAL POR TURNO (MANHÃ vs. TARDE)
+----------------------------------------------------------------------------------------
+  • MANHÃ : 810 alunos ( 43.1% do total) | Vagas: 810/810 (100.0% ocup,  0 livres) | Gênero: 432 M (53.3%) / 378 F (46.7%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 0 | Masc (Delta_M): 0 | Fem (Delta_F): 0 | Máx |M-F| intra-sala: 2
+  • TARDE : 1070 alunos ( 56.9% do total) | Vagas: 1070/1295 ( 82.6% ocup, 225 livres) | Gênero: 480 M (44.9%) / 590 F (55.1%)
+            Amplitudes máx no turno -> Qtd (Delta_qtd): 1 | Masc (Delta_M): 1 | Fem (Delta_F): 1 | Máx |M-F| intra-sala: 4
+  • TOTAL : 1880 alunos alocados em 64 salas | Capacidade Global: 1880/2105 ( 89.3% ocup) | 912 M / 968 F
+  • LISTA DE ESPERA (SEM TURMA): 120 de 2000 alunos válidos não alocados (6.0%) | Por turno: 120 Manhã, 0 Tarde, 0 Integral | Gênero: 107 M / 13 F
+            Exemplos s/ turma -> Raul Lorenzo Garcia do Teixeira (M/MANHÃ), Heitor Noah Reis da Silva (M/MANHÃ), Raul Campos Costa (M/MANHÃ), Samuel Moreira Cunha (M/MANHÃ), Vitor Castro de Cunha (M/MANHÃ), João Vieira da Martins Marques (M/MANHÃ) ... (+114 listados na aba 'Inconsistências')
+
+[4] DETALHAMENTO POR SALA (LOTAÇÃO E GÊNERO)
+----------------------------------------------------------------------------------------
+  Turma        | Turno  |   Lotação |   Ocup. | Livres |   Masc (M) |    Fem (F) | |M - F|
+  ----------------------------------------------------------------------------------------
+  MANHÃ - A    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - B    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - C    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - D    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - E    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - F    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - G    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - H    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - I    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - J    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - K    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - L    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - M    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - N    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - O    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - P    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - Q    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - R    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - S    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - T    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - U    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - V    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - W    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - X    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - Y    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - Z    | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  MANHÃ - AA   | MANHÃ  |  30/30    |  100.0% |      0 |  16 (  53%) |  14 (  47%) |       2
+  TARDE - AB   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AC   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AD   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AE   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AF   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AG   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AH   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AI   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AJ   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AK   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AL   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AM   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AN   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AO   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AP   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AQ   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AR   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AS   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AT   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AU   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AV   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AW   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AX   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AY   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - AZ   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - BA   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - BB   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - BC   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - BD   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - BE   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - BF   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - BG   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - BH   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - BI   | TARDE  |  29/35    |   82.9% |      6 |  13 (  45%) |  16 (  55%) |       3
+  TARDE - BJ   | TARDE  |  28/35    |   80.0% |      7 |  13 (  46%) |  15 (  54%) |       2
+  TARDE - BK   | TARDE  |  28/35    |   80.0% |      7 |  13 (  46%) |  15 (  54%) |       2
+  TARDE - BL   | TARDE  |  28/35    |   80.0% |      7 |  12 (  43%) |  16 (  57%) |       4
+
+[5] ANÁLISE DE RECURSOS — EXISTE SOLUÇÃO COM SALAS VAZIAS?
+----------------------------------------------------------------------------------------
+  • MANHÃ : NÃO. Todas as 27 sala(s) são estritamente necessárias (mínimo teórico = ceil(810/30) = 27 salas).
+            Se 1 sala fosse fechada, restariam 780 vagas para 810 alunos (faltariam 30 vagas).
+  • TARDE : SIM! É matematicamente possível deixar até 6 sala(s) VAZIA(S) (usando 31 de 37 turmas).
+            Trade-off: economiza 6 sala(s)/professor(es), mas eleva a média de 28.9 alunos/sala (82.6% ocup.) para 34.5 alunos/sala (98.6% ocup.).
+            Nota: o modelo padrão ocupou todas as 37 salas porque a regra de Equilíbrio em Quantidade penaliza turmas vazias frente às cheias.
+  => Conclusão de Recursos: Há potencial para economizar até 6 sala(s) caso a ONG priorize redução de custos sobre turmas menores.
+
+[6] COMO MELHORAR O BALANCEAMENTO — DIAGNÓSTICO E RECOMENDAÇÕES
+----------------------------------------------------------------------------------------
+  1. [Ótimo Teórico - MANHÃ] O ensalamento atingiu equilíbrio perfeito de quantidade (30 alunos em cada sala) e o menor desvio inteiro possível de gênero entre salas (Delta_M=0, Delta_F=0).
+  2. [Paridade 50/50 - MANHÃ] A base de inscritos do turno tem mais Masculino (M) (432) do que Feminino (F) (378), gerando diferença média de ~2.0 por sala. Para aproximar cada sala do 50/50, seria necessário captar/migrar ~54 aluno(s) do gênero Feminino (F).
+  3. [Indivisibilidade Inteira - TARDE] A diferença de 1 aluno entre salas (1070 alunos / 37 salas deixa resto 34) é matematicamente irredutível; 3 nova(s) matrícula(s) igualariam todas as salas.
+  4. [Paridade 50/50 - TARDE] A base de inscritos do turno tem mais Feminino (F) (590) do que Masculino (M) (480), gerando diferença média de ~3.0 por sala. Para aproximar cada sala do 50/50, seria necessário captar/migrar ~110 aluno(s) do gênero Masculino (M).
+  5. [Sinergia entre Turnos] Manhã e Tarde têm desvios de gênero em direções opostas (Manhã: 432M/378F vs. Tarde: 480M/590F). Caso alguns alunos tenham disponibilidade flexível (Integral), permutar até 27 par(es) entre turnos melhoraria simultaneamente a paridade 50/50 nos dois períodos.
+  6. [Balanceamento de Infraestrutura] A taxa de ocupação de MANHÃ (100.0%) difere bastante de TARDE (82.6%). Avaliar remanejamento de turmas/salas ou direcionamento de novas matrículas para o período da TARDE.
+  7. [Expansão de Vagas / Lista de Espera] 120 aluno(s) ficaram sem turma por limite físico de capacidade (120 Manhã, 0 Tarde, 0 Integral; vagas ociosas incompatíveis restantes: 225). Abrir +4 turma(s) na Manhã e +0 na Tarde (ou ampliar vagas/sala) absorveria 100% da fila.
+
+========================================================================================

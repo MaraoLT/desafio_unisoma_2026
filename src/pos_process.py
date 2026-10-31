@@ -10,6 +10,7 @@ Responsabilidades:
 
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import dataclass
 import math
 from pathlib import Path
@@ -18,6 +19,7 @@ from typing import Optional
 
 import openpyxl
 from openpyxl.styles import Alignment, Font, PatternFill
+from openpyxl.utils import get_column_letter
 
 from src.models.solver import SolverResult
 from src.pre_process import (
@@ -58,15 +60,23 @@ def _get_or_reset_sheet(
 
 
 def _auto_adjust_columns(ws: openpyxl.worksheet.worksheet.Worksheet) -> None:
-    """Ajusta largura das colunas para facilitar leitura pela equipe da ONG."""
-    for col_cells in ws.columns:
-        max_len = 0
-        col_letter = col_cells[0].column_letter
-        for cell in col_cells:
-            val_str = "" if cell.value is None else str(cell.value)
-            if len(val_str) > max_len:
-                max_len = len(val_str)
-        ws.column_dimensions[col_letter].width = min(max(max_len + 4, 12), 75)
+    """Ajusta largura das colunas (amostrando até 1.000 linhas p/ ultra-escala)."""
+    max_scan_row = min(ws.max_row, 1000)
+    max_col = ws.max_column
+    if max_scan_row < 1 or max_col < 1:
+        return
+    max_lens = [0] * max_col
+    for row_vals in ws.iter_rows(
+        min_row=1, max_row=max_scan_row, max_col=max_col, values_only=True
+    ):
+        for c_idx, val in enumerate(row_vals):
+            if val is not None:
+                v_len = len(str(val))
+                if v_len > max_lens[c_idx]:
+                    max_lens[c_idx] = v_len
+    for c_idx, m_len in enumerate(max_lens, start=1):
+        col_letter = get_column_letter(c_idx)
+        ws.column_dimensions[col_letter].width = min(max(m_len + 4, 12), 75)
 
 
 def write_excel_output(
@@ -124,11 +134,12 @@ def write_excel_output(
                 disp_out = turma.turno if st.disponibilidade == "INTEGRAL" else st.disponibilidade
                 ws_ens.append([st.nome, st.sexo, disp_out, turma.codigo])
 
-            for r_idx in range(2, ws_ens.max_row + 1):
-                ws_ens.cell(row=r_idx, column=1).alignment = left_align
-                ws_ens.cell(row=r_idx, column=2).alignment = center_align
-                ws_ens.cell(row=r_idx, column=3).alignment = center_align
-                ws_ens.cell(row=r_idx, column=4).alignment = center_align
+            if ws_ens.max_row <= 5000:
+                for r_idx in range(2, ws_ens.max_row + 1):
+                    ws_ens.cell(row=r_idx, column=1).alignment = left_align
+                    ws_ens.cell(row=r_idx, column=2).alignment = center_align
+                    ws_ens.cell(row=r_idx, column=3).alignment = center_align
+                    ws_ens.cell(row=r_idx, column=4).alignment = center_align
 
         _auto_adjust_columns(ws_ens)
 
@@ -280,9 +291,15 @@ def build_diagnostic_report(
 
     if instance.inconsistencies:
         lines.append("\n  Detalhamento das ocorrências:")
-        for inc in instance.inconsistencies:
+        max_inc_show = 25 if len(instance.inconsistencies) > 30 else len(instance.inconsistencies)
+        for inc in instance.inconsistencies[:max_inc_show]:
             loc = f"Linha {inc.row_number:>3}" if inc.row_number is not None else "Global   "
             lines.append(f"    • [{inc.severidade:<10}] {loc} | {inc.nome}: {inc.mensagem}")
+        if len(instance.inconsistencies) > max_inc_show:
+            rem_inc = len(instance.inconsistencies) - max_inc_show
+            lines.append(
+                f"    ... (+{rem_inc} ocorrências adicionais registradas integralmente na aba '{SHEET_INCONSISTENCIAS}')"
+            )
 
     # -------------------------------------------------------------------------
     # 2. Métricas de Execução do Solver Matemático (PuLP / CBC)
@@ -297,7 +314,7 @@ def build_diagnostic_report(
     )
     lines.append(
         f"  Dimensão do modelo          : {m.num_variables} variáveis "
-        f"({m.num_binary_vars} binárias x_ik, {m.num_integer_vars} inteiras y_k/z_kg, "
+        f"({m.num_binary_vars} binárias, {m.num_integer_vars} inteiras de fluxo/perfil, "
         f"{m.num_continuous_vars} contínuas)"
     )
     lines.append(
@@ -454,18 +471,11 @@ def build_diagnostic_report(
     # -------------------------------------------------------------------------
     lines.append("\n[4] DETALHAMENTO POR SALA (LOTAÇÃO E GÊNERO)")
     lines.append(sep_light)
-    header_table = (
-        f"  {'Turma':<12} | {'Turno':<6} | {'Lotação':>9} | {'Ocup.':>7} | "
-        f"{'Livres':>6} | {'Masc (M)':>10} | {'Fem (F)':>10} | {'|M - F|':>7}"
-    )
-    lines.append(header_table)
-    lines.append("  " + "-" * (len(header_table) - 2))
 
-    empty_rooms_current = 0
-    for t in instance.turmas:
+    empty_rooms_current = sum(1 for t in instance.turmas if result.y_turma[t.id] == 0)
+
+    def _format_room_row(t: TurmaSpec) -> str:
         tot = result.y_turma[t.id]
-        if tot == 0:
-            empty_rooms_current += 1
         m_c = result.z_turma_gen[(t.id, GENERO_M)]
         f_c = result.z_turma_gen[(t.id, GENERO_F)]
         livres = t.capacidade - tot
@@ -473,11 +483,59 @@ def build_diagnostic_report(
         pm = (100.0 * m_c / tot) if tot > 0 else 0.0
         pf = (100.0 * f_c / tot) if tot > 0 else 0.0
         diff_mf = abs(m_c - f_c)
-
-        lines.append(
-            f"  {t.codigo:<12} | {t.turno:<6} | {tot:>3}/{t.capacidade:<5} | {ocup:>6.1f}% | "
-            f"{livres:>6} | {m_c:>3} ({pm:>4.0f}%) | {f_c:>3} ({pf:>4.0f}%) | {diff_mf:>7}"
+        return (
+            f"  {t.codigo:<12} | {t.turno:<6} | {tot:>4}/{t.capacidade:<5} | {ocup:>6.1f}% | "
+            f"{livres:>6} | {m_c:>4} ({pm:>3.0f}%) | {f_c:>4} ({pf:>3.0f}%) | {diff_mf:>7}"
         )
+
+    header_table = (
+        f"  {'Turma':<12} | {'Turno':<6} | {'Lotação':>10} | {'Ocup.':>7} | "
+        f"{'Livres':>6} | {'Masc (M)':>11} | {'Fem (F)':>11} | {'|M - F|':>7}"
+    )
+
+    if len(instance.turmas) <= 80:
+        lines.append(header_table)
+        lines.append("  " + "-" * (len(header_table) - 2))
+        for t in instance.turmas:
+            lines.append(_format_room_row(t))
+    else:
+        lines.append(
+            f"  Resumo Agrupado por Perfil de Sala ({len(instance.turmas)} salas no total):"
+        )
+        prof_counts: Counter[tuple[str, int, int, int, int]] = Counter()
+        for t in instance.turmas:
+            tot = result.y_turma[t.id]
+            m_c = result.z_turma_gen[(t.id, GENERO_M)]
+            f_c = result.z_turma_gen[(t.id, GENERO_F)]
+            prof_counts[(t.turno, tot, t.capacidade, m_c, f_c)] += 1
+
+        prof_header = (
+            f"  {'Turno':<6} | {'Qtd Salas':>9} | {'Lotação':>10} | {'Ocup.':>7} | "
+            f"{'Masc (M)':>9} | {'Fem (F)':>9} | {'|M - F|':>7}"
+        )
+        lines.append(prof_header)
+        lines.append("  " + "-" * (len(prof_header) - 2))
+        for (turno_p, tot_p, cap_p, m_p, f_p), qtd_salas in sorted(
+            prof_counts.items(), key=lambda item: (0 if item[0][0] == TURNO_MANHA else 1, -item[0][1], -item[0][3])
+        ):
+            ocup_p = (100.0 * tot_p / cap_p) if cap_p > 0 else 0.0
+            lines.append(
+                f"  {turno_p:<6} | {qtd_salas:>9} | {tot_p:>4}/{cap_p:<5} | {ocup_p:>6.1f}% | "
+                f"{m_p:>9} | {f_p:>9} | {abs(m_p - f_p):>7}"
+            )
+
+        lines.append("\n  Amostra nominal de salas (primeiras 15 e últimas 10):")
+        lines.append(header_table)
+        lines.append("  " + "-" * (len(header_table) - 2))
+        for t in instance.turmas[:15]:
+            lines.append(_format_room_row(t))
+        omitted = len(instance.turmas) - 25
+        lines.append(
+            f"  ... (+{omitted} salas intermediárias omitidas no resumo; "
+            f"alocação completa disponível na aba '{SHEET_ENSALAMENTO}')"
+        )
+        for t in instance.turmas[-10:]:
+            lines.append(_format_room_row(t))
 
     # -------------------------------------------------------------------------
     # 5. Análise de Economia de Recursos (Viabilidade de Salas Vazias)

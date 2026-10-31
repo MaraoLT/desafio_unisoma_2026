@@ -17,14 +17,14 @@
 
 [2] INFORMAÇÕES DO SOLVER MATEMÁTICO (MILP LEXICOGRÁFICO - PULP)
 ----------------------------------------------------------------------------------------
-  Solver utilizado            : PULP_CBC_CMD
+  Solver utilizado            : PULP_CBC_CMD (Decomp. Hierárquica + Perfis)
   Pesos do modelo             : W_qtd=1.0, W_gen=1.0, epsilon=0.0001
-  Dimensão do modelo          : 530 variáveis (480 binárias x_ik, 18 inteiras y_k/z_kg, 32 contínuas)
-  Restrições lineares         : 250 (Fase 1) -> 251 (Fase 2 com trava lexicográfica)
+  Dimensão do modelo          : 12 variáveis (4 binárias, 8 inteiras de fluxo/perfil, 0 contínuas)
+  Restrições lineares         : 10 (Fase 1) -> 10 (Fase 2 com trava lexicográfica)
   Status Fase 1 (Min-Max)     : Optimal | Z1* = 5.0000
-  Status Fase 2 (Par-a-Par)   : Optimal | Z2* = 10.0000 (total c/ eps: 10.009300)
-  Tempos de execução          : Build = 4.1 ms | Fase 1 = 113.8 ms | Fase 2 = 348.2 ms | TOTAL = 467.1 ms (0.4671 s)
-  Diagnóstico de parada       : Solução ótima global alcançada nas Fases 1 e 2 (Otimização Lexicográfica).
+  Status Fase 2 (Par-a-Par)   : Optimal (Unique Intra-Shift Profile) | Z2* = 10.0000 (total c/ eps: 10.009300)
+  Tempos de execução          : Build = 0.3 ms | Fase 1 = 61.0 ms | Fase 2 = 0.0 ms | TOTAL = 62.0 ms (0.0620 s)
+  Diagnóstico de parada       : Solução ótima global alcançada via Agregação por Perfis + Decomposição Hierárquica em 2 Etapas.
 
 [3] DISTRIBUIÇÃO GERAL POR TURNO (MANHÃ vs. TARDE)
 ----------------------------------------------------------------------------------------
@@ -36,14 +36,14 @@
 
 [4] DETALHAMENTO POR SALA (LOTAÇÃO E GÊNERO)
 ----------------------------------------------------------------------------------------
-  Turma        | Turno  |   Lotação |   Ocup. | Livres |   Masc (M) |    Fem (F) | |M - F|
-  ----------------------------------------------------------------------------------------
-  MANHÃ - A    | MANHÃ  |  25/30    |   83.3% |      5 |   7 (  28%) |  18 (  72%) |      11
-  MANHÃ - B    | MANHÃ  |  24/30    |   80.0% |      6 |   6 (  25%) |  18 (  75%) |      12
-  MANHÃ - C    | MANHÃ  |  24/30    |   80.0% |      6 |   7 (  29%) |  17 (  71%) |      10
-  TARDE - D    | TARDE  |  29/35    |   82.9% |      6 |  21 (  72%) |   8 (  28%) |      13
-  TARDE - E    | TARDE  |  29/35    |   82.9% |      6 |  20 (  69%) |   9 (  31%) |      11
-  TARDE - F    | TARDE  |  29/35    |   82.9% |      6 |  20 (  69%) |   9 (  31%) |      11
+  Turma        | Turno  |    Lotação |   Ocup. | Livres |    Masc (M) |     Fem (F) | |M - F|
+  -------------------------------------------------------------------------------------------
+  MANHÃ - A    | MANHÃ  |   25/30    |   83.3% |      5 |    7 ( 28%) |   18 ( 72%) |      11
+  MANHÃ - B    | MANHÃ  |   24/30    |   80.0% |      6 |    7 ( 29%) |   17 ( 71%) |      10
+  MANHÃ - C    | MANHÃ  |   24/30    |   80.0% |      6 |    6 ( 25%) |   18 ( 75%) |      12
+  TARDE - D    | TARDE  |   29/35    |   82.9% |      6 |   21 ( 72%) |    8 ( 28%) |      13
+  TARDE - E    | TARDE  |   29/35    |   82.9% |      6 |   20 ( 69%) |    9 ( 31%) |      11
+  TARDE - F    | TARDE  |   29/35    |   82.9% |      6 |   20 ( 69%) |    9 ( 31%) |      11
 
 [5] ANÁLISE DE RECURSOS — EXISTE SOLUÇÃO COM SALAS VAZIAS?
 ----------------------------------------------------------------------------------------

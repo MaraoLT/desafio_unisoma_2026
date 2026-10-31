@@ -1,9 +1,10 @@
 """Gerador de famílias de instâncias difíceis — Desafio UniSoma 2026.
 
 Gera benchmarks sintéticos estruturados em famílias de alta dificuldade de
-balanceamento nos portes de 200, 500, 1000 e 2000 alunos, incluindo famílias
-com alunos de disponibilidade 'Integral' (nos quais o solver decide se o aluno
-será alocado na Manhã ou na Tarde).
+balanceamento nos portes de 200, 500, 1000, 2000, 10000 e 50000 alunos,
+incluindo famílias com alunos de disponibilidade 'Integral', excesso de demanda
+(lista de espera) e regimes extremos de infraestrutura (muitas salas minúsculas
+e poucas salas gigantes).
 
 Famílias disponíveis:
   1. F1_modular_conflict          : Sem integrais; conflito modular primo (r_M + r_F > |K_s|) e ~98% ocupação.
@@ -11,8 +12,10 @@ Famílias disponíveis:
   3. F3_bottleneck_integral       : ~40% Integrais; gargalo severo na Manhã + salas assimétricas + ~98.5% ocupação.
   4. F4_extreme_minority_integral : ~25% Integrais; escassez extrema do gênero minoritário (~18% M / 82% F).
   5. F5_noisy_realistic_integral  : ~20% Integrais; ruído realista de grafia, homônimos (~5%) e salas economizáveis.
-  6. F6_shift_overflow_fixed      : Sem integrais; excesso de demanda na Manhã (~116%, alunos sem turma) e vagas ociosas na Tarde.
+  6. F6_shift_overflow_fixed      : Sem integrais; excesso de demanda na Manhã (~115%, alunos sem turma) e vagas ociosas na Tarde.
   7. F7_global_overflow_integral  : ~25% Integrais; excesso global de demanda (~110% da capacidade total) + inversão de gênero.
+  8. F8_many_tiny_rooms_integral  : ~30% Integrais; muitas salas muito pequenas (~9-11 vagas/sala, até 4.644 salas em N=50k).
+  9. F9_few_huge_rooms_integral   : ~35% Integrais; poucas salas muito grandes / auditórios (2-4 por turno, até 8.600 vagas/sala).
 """
 
 from __future__ import annotations
@@ -27,13 +30,14 @@ import sys
 from typing import Optional
 
 import openpyxl
+from openpyxl.cell import WriteOnlyCell
 from openpyxl.styles import Alignment, Font, PatternFill
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-BENCHMARK_SIZES: tuple[int, ...] = (200, 500, 1000, 2000)
+BENCHMARK_SIZES: tuple[int, ...] = (200, 500, 1000, 2000, 10000, 50000)
 
 FIRST_NAMES_M: tuple[str, ...] = (
     "Arthur", "Bernardo", "Bruno", "Caio", "Carlos", "Daniel", "Davi", "Diego",
@@ -205,6 +209,8 @@ def _build_f1_modular_conflict(n: int, out_dir: Path, seed: int) -> GeneratedIns
         500: (7, 9),
         1000: (13, 19),
         2000: (29, 37),
+        10000: (149, 179),
+        50000: (743, 887),
     }
     if n in rooms_map:
         km, kt = rooms_map[n]
@@ -278,6 +284,8 @@ def _build_f2_gender_cross_integral(n: int, out_dir: Path, seed: int) -> Generat
         500: (8, 9),
         1000: (16, 17),
         2000: (31, 33),
+        10000: (157, 163),
+        50000: (787, 811),
     }
     km, kt = rooms_map.get(n, (max(3, n // 60), max(4, n // 58)))
 
@@ -344,10 +352,12 @@ def _build_f2_gender_cross_integral(n: int, out_dir: Path, seed: int) -> Generat
 def _build_f3_bottleneck_integral(n: int, out_dir: Path, seed: int) -> GeneratedInstanceSpec:
     """Família 3: ~40% Integrais + Gargalo severo de vagas na Manhã + salas assimétricas."""
     cfg_map = {
-        200: (4, 23, 4, 28),    # Cap: 92 M + 112 T = 204 (98.0% ocup!)
-        500: (9, 25, 9, 32),    # Cap: 225 M + 288 T = 513 (97.5% ocup!)
-        1000: (17, 25, 19, 31), # Cap: 425 M + 589 T = 1014 (98.6% ocup!)
-        2000: (33, 26, 37, 32), # Cap: 858 M + 1184 T = 2042 (97.9% ocup!)
+        200: (4, 23, 4, 28),      # Cap: 92 M + 112 T = 204 (98.0% ocup!)
+        500: (9, 25, 9, 32),      # Cap: 225 M + 288 T = 513 (97.5% ocup!)
+        1000: (17, 25, 19, 31),   # Cap: 425 M + 589 T = 1014 (98.6% ocup!)
+        2000: (33, 26, 37, 32),   # Cap: 858 M + 1184 T = 2042 (97.9% ocup!)
+        10000: (167, 26, 181, 32),  # Cap: 4342 M + 5792 T = 10134 (98.7% ocup!)
+        50000: (829, 26, 911, 32),  # Cap: 21554 M + 29152 T = 50706 (98.6% ocup!)
     }
     if n in cfg_map:
         km, vm, kt, vt = cfg_map[n]
@@ -417,6 +427,8 @@ def _build_f4_extreme_minority_integral(n: int, out_dir: Path, seed: int) -> Gen
         500: (11, 7),
         1000: (19, 15),
         2000: (37, 31),
+        10000: (181, 157),
+        50000: (907, 787),
     }
     km, kt = rooms_map.get(n, (max(3, n // 50), max(3, n // 65)))
 
@@ -480,10 +492,12 @@ def _build_f4_extreme_minority_integral(n: int, out_dir: Path, seed: int) -> Gen
 def _build_f5_noisy_realistic_integral(n: int, out_dir: Path, seed: int) -> GeneratedInstanceSpec:
     """Família 5: ~20% Integrais + Ruído realista tratável + Homônimos + Salas economizáveis."""
     cfg_map = {
-        200: (5, 30, 3, 30),     # Cap: 150 M + 90 T = 240 (permite sala vazia na Manhã!)
-        500: (11, 32, 8, 30),    # Cap: 352 M + 240 T = 592
-        1000: (22, 32, 16, 30),  # Cap: 704 M + 480 T = 1184
-        2000: (43, 32, 31, 30),  # Cap: 1376 M + 930 T = 2306
+        200: (5, 30, 3, 30),        # Cap: 150 M + 90 T = 240 (permite sala vazia na Manhã!)
+        500: (11, 32, 8, 30),       # Cap: 352 M + 240 T = 592
+        1000: (22, 32, 16, 30),     # Cap: 704 M + 480 T = 1184
+        2000: (43, 32, 31, 30),     # Cap: 1376 M + 930 T = 2306
+        10000: (211, 32, 151, 30),  # Cap: 6752 M + 4530 T = 11282
+        50000: (1051, 32, 751, 30), # Cap: 33632 M + 22530 T = 56162
     }
     if n in cfg_map:
         km, vm, kt, vt = cfg_map[n]
@@ -541,10 +555,12 @@ def _build_f5_noisy_realistic_integral(n: int, out_dir: Path, seed: int) -> Gene
 def _build_f6_shift_overflow_fixed(n: int, out_dir: Path, seed: int) -> GeneratedInstanceSpec:
     """Família 6: Sem Integrais + Estouro de vagas na Manhã (~115%) com folga ociosa na Tarde."""
     cfg_map = {
-        200: (3, 28, 4, 31, 98),      # Cap: 84 M + 124 T = 208 | 98 na Manhã -> 14 sem turma!
-        500: (7, 29, 9, 35, 235),     # Cap: 203 M + 315 T = 518 | 235 na Manhã -> 32 sem turma!
-        1000: (13, 30, 19, 34, 450),  # Cap: 390 M + 646 T = 1036 | 450 na Manhã -> 60 sem turma!
-        2000: (27, 30, 37, 35, 930),  # Cap: 810 M + 1295 T = 2105 | 930 na Manhã -> 120 sem turma!
+        200: (3, 28, 4, 31, 98),         # Cap: 84 M + 124 T = 208 | 98 na Manhã -> 14 sem turma!
+        500: (7, 29, 9, 35, 235),        # Cap: 203 M + 315 T = 518 | 235 na Manhã -> 32 sem turma!
+        1000: (13, 30, 19, 34, 450),     # Cap: 390 M + 646 T = 1036 | 450 na Manhã -> 60 sem turma!
+        2000: (27, 30, 37, 35, 930),     # Cap: 810 M + 1295 T = 2105 | 930 na Manhã -> 120 sem turma!
+        10000: (137, 30, 181, 35, 4710), # Cap: 4110 M + 6335 T = 10445 | 4710 na Manhã -> 600 sem turma!
+        50000: (683, 30, 907, 35, 23590),# Cap: 20490 M + 31745 T = 52235 | 23590 na Manhã -> 3100 sem turma!
     }
     if n in cfg_map:
         km, vm, kt, vt, nm = cfg_map[n]
@@ -605,10 +621,12 @@ def _build_f6_shift_overflow_fixed(n: int, out_dir: Path, seed: int) -> Generate
 def _build_f7_global_overflow_integral(n: int, out_dir: Path, seed: int) -> GeneratedInstanceSpec:
     """Família 7: ~25% Integrais + Estouro global de capacidade (~110% demanda/vagas) + Inversão M/F."""
     cfg_map = {
-        200: (3, 26, 4, 26, 82),      # Cap: 78 M + 104 T = 182 (falta 18 vagas no global!)
-        500: (7, 26, 9, 30, 192),     # Cap: 182 M + 270 T = 452 (falta 48 vagas no global!)
-        1000: (13, 28, 18, 30, 384),  # Cap: 364 M + 540 T = 904 (falta 96 vagas no global!)
-        2000: (27, 28, 35, 30, 796),  # Cap: 756 M + 1050 T = 1806 (falta 194 vagas no global!)
+        200: (3, 26, 4, 26, 82),         # Cap: 78 M + 104 T = 182 (falta 18 vagas no global!)
+        500: (7, 26, 9, 30, 192),        # Cap: 182 M + 270 T = 452 (falta 48 vagas no global!)
+        1000: (13, 28, 18, 30, 384),     # Cap: 364 M + 540 T = 904 (falta 96 vagas no global!)
+        2000: (27, 28, 35, 30, 796),     # Cap: 756 M + 1050 T = 1806 (falta 194 vagas no global!)
+        10000: (137, 28, 173, 30, 3990), # Cap: 3836 M + 5190 T = 9026 (falta 974 vagas no global!)
+        50000: (683, 28, 863, 30, 19950),# Cap: 19124 M + 25890 T = 45014 (falta 4986 vagas no global!)
     }
     if n in cfg_map:
         km, vm, kt, vt, n_fix_m = cfg_map[n]
@@ -674,6 +692,146 @@ def _build_f7_global_overflow_integral(n: int, out_dir: Path, seed: int) -> Gene
     )
 
 
+def _build_f8_many_tiny_rooms_integral(n: int, out_dir: Path, seed: int) -> GeneratedInstanceSpec:
+    """Família 8: ~30% Integrais + Muitas salas muito pequenas (~9-11 vagas/sala, até 4.644 salas)."""
+    cfg_map = {
+        200: (12, 9, 11, 9),          # 23 micro-salas de 9 vagas (Cap: 108 M + 99 T = 207, 96.6% ocup)
+        500: (29, 9, 28, 9),          # 57 micro-salas de 9 vagas (Cap: 261 M + 252 T = 513, 97.5% ocup)
+        1000: (53, 10, 49, 10),       # 102 micro-salas de 10 vagas (Cap: 530 M + 490 T = 1020, 98.0% ocup)
+        2000: (103, 10, 101, 10),     # 204 micro-salas de 10 vagas (Cap: 1030 M + 1010 T = 2040, 98.0% ocup)
+        10000: (499, 10, 521, 10),    # 1.020 micro-salas de 10 vagas (Cap: 4990 M + 5210 T = 10200, 98.0% ocup)
+        50000: (2297, 11, 2347, 11),  # 4.644 micro-salas de 11 vagas (Cap: 25267 M + 25817 T = 51084, 97.9% ocup)
+    }
+    if n in cfg_map:
+        km, vm, kt, vt = cfg_map[n]
+    else:
+        vm = vt = 10
+        tot_rooms = max(8, math.ceil((n / 0.98) / vm))
+        km = tot_rooms // 2
+        kt = tot_rooms - km
+
+    cap_m, cap_t = km * vm, kt * vt
+    n_int = int(round(0.30 * n))
+    rem_fixed = n - n_int
+    n_fix_m = min(cap_m, int(round(rem_fixed * (cap_m / (cap_m + cap_t)))))
+    n_fix_t = rem_fixed - n_fix_m
+    if n_fix_t > cap_t:
+        overflow_t = n_fix_t - cap_t
+        n_fix_t -= overflow_t
+        n_fix_m += overflow_t
+
+    # Conflito modular e viés cruzado moderado (Manhã 68% F vs Tarde 66% M) em centenas/milhares de salas
+    m_manha, f_manha = _modular_hard_split(n_fix_m, km, target_m_ratio=0.32)
+    m_tarde, f_tarde = _modular_hard_split(n_fix_t, kt, target_m_ratio=0.66)
+    m_int = (n_int // 2) + 1 if n_int >= 4 else n_int // 2
+    f_int = n_int - m_int
+
+    name = f"F8_many_tiny_rooms_integral_n{n}"
+    fpath = out_dir / "F8_many_tiny_rooms_integral" / f"{name}.xlsx"
+
+    return GeneratedInstanceSpec(
+        family="F8_many_tiny_rooms_integral",
+        name=name,
+        description=(
+            "~30% de alunos Integrais; pulverização extrema em muitas salas muito pequenas "
+            "(oficinas/tutorias de 9 a 11 vagas/sala, chegando a 4.644 turmas em N=50.000) com "
+            "ocupação ~98% e restos modulares coprimos."
+        ),
+        filepath=str(fpath),
+        seed=seed,
+        total_students=n,
+        has_integral=True,
+        turmas_manha=km,
+        turmas_tarde=kt,
+        vagas_manha=vm,
+        vagas_tarde=vt,
+        cap_total_manha=cap_m,
+        cap_total_tarde=cap_t,
+        cap_total_global=cap_m + cap_t,
+        global_occupancy_pct=round(100.0 * n / (cap_m + cap_t), 2),
+        count_manha_m=m_manha,
+        count_manha_f=f_manha,
+        count_tarde_m=m_tarde,
+        count_tarde_f=f_tarde,
+        count_integral_m=m_int,
+        count_integral_f=f_int,
+        homonym_pairs=max(2, min(250, n // 100)),
+        noisy_cells=0,
+    )
+
+
+def _build_f9_few_huge_rooms_integral(n: int, out_dir: Path, seed: int) -> GeneratedInstanceSpec:
+    """Família 9: ~35% Integrais + Poucas salas muito grandes / auditórios (2-4 por turno)."""
+    cfg_map = {
+        200: (2, 52, 2, 52),        # 4 salas grandes (Cap: 104 M + 104 T = 208, 96.2% ocup)
+        500: (2, 130, 2, 128),      # 4 auditórios (Cap: 260 M + 256 T = 516, 96.9% ocup)
+        1000: (2, 260, 3, 170),     # 5 auditórios assimétricos (Cap: 520 M + 510 T = 1030, 97.1% ocup)
+        2000: (3, 345, 2, 505),     # 5 mega-auditórios (Cap: 1035 M + 1010 T = 2045, 97.8% ocup)
+        10000: (3, 1720, 4, 1255),  # 7 mega-auditórios (Cap: 5160 M + 5020 T = 10180, 98.2% ocup)
+        50000: (3, 8600, 4, 6280),  # 7 mega-auditórios gigantes (Cap: 25800 M + 25120 T = 50920, 98.2% ocup)
+    }
+    if n in cfg_map:
+        km, vm, kt, vt = cfg_map[n]
+    else:
+        km, kt = 3, 4
+        target_cap = math.ceil(n / 0.98)
+        vm = math.ceil(0.50 * target_cap / km)
+        vt = math.ceil((target_cap - km * vm) / kt)
+
+    cap_m, cap_t = km * vm, kt * vt
+    n_int = int(round(0.35 * n))
+    rem_fixed = n - n_int
+    n_fix_m = min(cap_m, int(round(rem_fixed * (cap_m / (cap_m + cap_t)))))
+    n_fix_t = rem_fixed - n_fix_m
+    if n_fix_t > cap_t:
+        overflow_t = n_fix_t - cap_t
+        n_fix_t -= overflow_t
+        n_fix_m += overflow_t
+
+    # Forte assimetria demográfica cruzada nos fixos (Manhã 74% F vs Tarde 72% M)
+    f_manha = int(round(0.74 * n_fix_m))
+    m_manha = n_fix_m - f_manha
+
+    m_tarde = int(round(0.72 * n_fix_t))
+    f_tarde = n_fix_t - m_tarde
+
+    m_int = (n_int // 2) + 1 if n_int >= 4 else n_int // 2
+    f_int = n_int - m_int
+
+    name = f"F9_few_huge_rooms_integral_n{n}"
+    fpath = out_dir / "F9_few_huge_rooms_integral" / f"{name}.xlsx"
+
+    return GeneratedInstanceSpec(
+        family="F9_few_huge_rooms_integral",
+        name=name,
+        description=(
+            "~35% de alunos Integrais; concentração extrema em poucas salas muito grandes / "
+            "auditórios (apenas 2 a 4 salas por turno, até 8.600 vagas/sala em N=50.000) com "
+            "assimetria de capacidades M/T e inversão cruzada de gênero."
+        ),
+        filepath=str(fpath),
+        seed=seed,
+        total_students=n,
+        has_integral=True,
+        turmas_manha=km,
+        turmas_tarde=kt,
+        vagas_manha=vm,
+        vagas_tarde=vt,
+        cap_total_manha=cap_m,
+        cap_total_tarde=cap_t,
+        cap_total_global=cap_m + cap_t,
+        global_occupancy_pct=round(100.0 * n / (cap_m + cap_t), 2),
+        count_manha_m=m_manha,
+        count_manha_f=f_manha,
+        count_tarde_m=m_tarde,
+        count_tarde_f=f_tarde,
+        count_integral_m=m_int,
+        count_integral_f=f_int,
+        homonym_pairs=max(2, min(250, n // 100)),
+        noisy_cells=0,
+    )
+
+
 FAMILY_BUILDERS = {
     "F1_modular_conflict": _build_f1_modular_conflict,
     "F2_gender_cross_integral": _build_f2_gender_cross_integral,
@@ -682,6 +840,8 @@ FAMILY_BUILDERS = {
     "F5_noisy_realistic_integral": _build_f5_noisy_realistic_integral,
     "F6_shift_overflow_fixed": _build_f6_shift_overflow_fixed,
     "F7_global_overflow_integral": _build_f7_global_overflow_integral,
+    "F8_many_tiny_rooms_integral": _build_f8_many_tiny_rooms_integral,
+    "F9_few_huge_rooms_integral": _build_f9_few_huge_rooms_integral,
 }
 
 
@@ -712,7 +872,7 @@ def _apply_treatable_noise(
 
 
 def materialize_instance_excel(spec: GeneratedInstanceSpec) -> Path:
-    """Materializa a planilha .xlsx com as abas 'Alunos' e 'Turmas' a partir do spec."""
+    """Materializa a planilha .xlsx com as abas 'Alunos' e 'Turmas' em streaming O(1) RAM."""
     _verify_spec_feasibility(spec)
     rng = random.Random(spec.seed)
 
@@ -765,48 +925,52 @@ def materialize_instance_excel(spec: GeneratedInstanceSpec) -> Path:
                 dup_name = history[offset % len(history)]
                 student_rows[target_idx] = (dup_name, s_cur, d_cur)
 
-    # 3. Cria Workbook no formato exato do Desafio UniSoma
+    # 3. Cria Workbook em modo write_only p/ altíssima performance em N=50.000
     out_path = Path(spec.filepath)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    wb = openpyxl.Workbook()
+    wb = openpyxl.Workbook(write_only=True)
     header_font = Font(bold=True, color="FFFFFF")
     header_fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
     center_align = Alignment(horizontal="center", vertical="center")
     left_align = Alignment(horizontal="left", vertical="center")
 
+    def _hdr_cell(ws: openpyxl.worksheet._write_only.WriteOnlyWorksheet, val: str, align: Alignment) -> WriteOnlyCell:
+        c = WriteOnlyCell(ws, value=val)
+        c.font = header_font
+        c.fill = header_fill
+        c.alignment = align
+        return c
+
     # Aba 1: Alunos
-    ws_alunos = wb.active
-    ws_alunos.title = "Alunos"
-    ws_alunos.append(["Nome", "Sexo", "Disponibilidade"])
-    for c_idx in range(1, 4):
-        cell = ws_alunos.cell(row=1, column=c_idx)
-        cell.font = header_font
-        cell.fill = header_fill
-        cell.alignment = left_align if c_idx == 1 else center_align
-
-    for nome, sexo, disp in student_rows:
-        ws_alunos.append([nome, sexo, disp])
-
+    ws_alunos = wb.create_sheet(title="Alunos")
     ws_alunos.column_dimensions["A"].width = 42
     ws_alunos.column_dimensions["B"].width = 14
     ws_alunos.column_dimensions["C"].width = 20
+    ws_alunos.append(
+        [
+            _hdr_cell(ws_alunos, "Nome", left_align),
+            _hdr_cell(ws_alunos, "Sexo", center_align),
+            _hdr_cell(ws_alunos, "Disponibilidade", center_align),
+        ]
+    )
+    for row in student_rows:
+        ws_alunos.append(list(row))
 
     # Aba 2: Turmas
     ws_turmas = wb.create_sheet(title="Turmas")
-    ws_turmas.append(["Recursos", "Quantidade"])
-    for c_idx in range(1, 3):
-        cell = ws_turmas.cell(row=1, column=c_idx)
-        cell.font = header_font
-        cell.fill = header_fill
-        cell.alignment = left_align if c_idx == 1 else center_align
-
+    ws_turmas.column_dimensions["A"].width = 20
+    ws_turmas.column_dimensions["B"].width = 15
+    ws_turmas.append(
+        [
+            _hdr_cell(ws_turmas, "Recursos", left_align),
+            _hdr_cell(ws_turmas, "Quantidade", center_align),
+        ]
+    )
     ws_turmas.append(["turmas_manha", spec.turmas_manha])
     ws_turmas.append(["turmas_tarde", spec.turmas_tarde])
     ws_turmas.append(["vagas_manha", spec.vagas_manha])
     ws_turmas.append(["vagas_tarde", spec.vagas_tarde])
-    ws_turmas.column_dimensions["A"].width = 20
-    ws_turmas.column_dimensions["B"].width = 15
 
     wb.save(out_path)
     wb.close()
@@ -825,7 +989,8 @@ def _write_catalog_docs(specs: list[GeneratedInstanceSpec], output_dir: Path) ->
         "# Catálogo de Instâncias Difíceis Geradas — Desafio UniSoma 2026",
         "",
         "Conjunto de benchmarks sintéticos projetados para estressar o balanceamento "
-        "de quantidade e gênero e a decisão de horário de alunos **Integrais**.",
+        "de quantidade e gênero, a decisão de horário de alunos **Integrais**, listas "
+        "de espera e regimes extremos de infraestrutura (`200` a `50.000` alunos).",
         "",
         "| Instância | Família | Alunos | Integrais | Turmas (M/T) | Vagas/Sala (M/T) | Demanda/Cap. | Mín. s/ Turma | Flags Recomendadas |",
         "| :--- | :--- | ---: | ---: | :---: | :---: | ---: | ---: | :--- |",
@@ -859,6 +1024,8 @@ def _write_catalog_docs(specs: list[GeneratedInstanceSpec], output_dir: Path) ->
             "5. **`F5_noisy_realistic_integral`**: ~20% de alunos `Integral` + ~12% de ruído tratável de escrita/case + ~5% de homônimos + folga de salas na Manhã (permite soluções com salas vazias).",
             "6. **`F6_shift_overflow_fixed`**: Sem alunos `Integral`; excesso de demanda localizado na Manhã (~115% das vagas da Manhã, deixando alunos na lista de espera) enquanto sobram vagas ociosas incompatíveis na Tarde.",
             "7. **`F7_global_overflow_integral`**: ~25% de alunos `Integral`; superlotação global (~110% da capacidade total da ONG, lotando 100% das salas e deixando ~9-10% dos inscritos sem turma) combinada com inversão demográfica cruzada.",
+            "8. **`F8_many_tiny_rooms_integral`**: ~30% de alunos `Integral`; **muitas salas muito pequenas** (micro-turmas/oficinas de 9 a 11 vagas/sala, escalando até **4.644 salas** em `N=50000`) com ocupação ~98% e contagens primas.",
+            "9. **`F9_few_huge_rooms_integral`**: ~35% de alunos `Integral`; **poucas salas muito grandes** (auditórios/aulões com apenas 2 a 4 salas por turno e até **8.600 vagas/sala** em `N=50000`), capacidades assimétricas e viés cruzado de gênero.",
             "",
         ]
     )
@@ -910,14 +1077,14 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
         nargs="+",
         choices=list(FAMILY_BUILDERS.keys()),
         default=None,
-        help="Subconjunto de famílias a gerar (padrão: todas as 5 famílias).",
+        help="Subconjunto de famílias a gerar (padrão: todas as 9 famílias).",
     )
     parser.add_argument(
         "--sizes",
         nargs="+",
         type=int,
         default=list(BENCHMARK_SIZES),
-        help="Tamanhos de alunos por instância (padrão: 200 500 1000 2000).",
+        help="Tamanhos de alunos por instância (padrão: 200 500 1000 2000 10000 50000).",
     )
     parser.add_argument(
         "--seed",
@@ -943,23 +1110,23 @@ def main(argv: Optional[list[str]] = None) -> int:
         base_seed=args.seed,
     )
 
-    print("=" * 102)
+    print("=" * 112)
     print(f" GERADOR DE INSTÂNCIAS CONCLUÍDO — {len(specs)} instâncias criadas em: {args.output_dir}")
-    print("=" * 102)
+    print("=" * 112)
     print(
-        f"  {'Instância':<38} | {'Alunos':>6} | {'Integrais':>9} | "
-        f"{'Turmas M/T':>10} | {'Vagas M/T':>9} | {'Dem/Cap':>7} | {'S/Turma':>7}"
+        f"  {'Instância':<40} | {'Alunos':>6} | {'Integrais':>9} | "
+        f"{'Turmas M/T':>11} | {'Vagas M/T':>11} | {'Dem/Cap':>7} | {'S/Turma':>7}"
     )
-    print("  " + "-" * 98)
+    print("  " + "-" * 108)
     for sp in specs:
         n_int = sp.count_integral_m + sp.count_integral_f
         print(
-            f"  {sp.name:<38} | {sp.total_students:>6} | {n_int:>9} | "
-            f"{sp.turmas_manha:>4}/{sp.turmas_tarde:<5} | "
-            f"{sp.vagas_manha:>4}/{sp.vagas_tarde:<4} | {sp.global_occupancy_pct:>6.1f}% | "
+            f"  {sp.name:<40} | {sp.total_students:>6} | {n_int:>9} | "
+            f"{sp.turmas_manha:>5}/{sp.turmas_tarde:<5} | "
+            f"{sp.vagas_manha:>5}/{sp.vagas_tarde:<5} | {sp.global_occupancy_pct:>6.1f}% | "
             f"{sp.expected_unallocated:>7}"
         )
-    print("=" * 102)
+    print("=" * 112)
     return 0
 
 
