@@ -65,7 +65,13 @@ def validate_sheet_headers(
     found_columns = [
         str(c).strip() for c in (header_cells or []) if c is not None and str(c).strip() != ""
     ]
-    missing_columns = [col for col in expected_columns if col not in found_columns]
+    missing_columns = []
+    for col in expected_columns:
+        if col in found_columns:
+            continue
+        if col == "Recursos" and any(normalize_token(c) in ("recursos", "recurso") for c in found_columns):
+            continue
+        missing_columns.append(col)
     if not missing_columns:
         return None
 

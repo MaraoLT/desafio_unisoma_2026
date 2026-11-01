@@ -12,7 +12,11 @@ __pycache__/
 build/
 dist/
 *.spec
+!UniSomaEnsalamento.spec
 
 # Arquivos temporários do Excel
 ~$*.xlsx
+
+.agents/
+.unisoma_settings.json
 

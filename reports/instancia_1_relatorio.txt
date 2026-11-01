@@ -4,17 +4,17 @@
 
 [1] PRÉ-PROCESSAMENTO & QUALIDADE DOS DADOS
 ----------------------------------------------------------------------------------------
-  Arquivo de entrada          : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\public\instancia_1.xlsx
+  Arquivo de entrada          : instances\public\instancia_1.xlsx
   Arquivo Excel gerado        : C:\Users\ainar\OneDrive\Documentos\Unicamp\desafio_unisoma_2026\instances\experiments\instancia_1.xlsx
   Linhas lidas na aba Alunos  : 120 (Válidos em I: 120 | Inválidos retidos: 0 | Rodapés ignorados: 0)
   Inconsistências detectadas  : 5 total (1 tratadas auto | 4 alertas duplicidade | 0 impeditivas)
 
   Detalhamento das ocorrências:
     • [TRATADA   ] Linha   1 | -: Cabeçalho atípico na coluna A ('Recebi as instâncias') interpretado automaticamente como 'Nome'.
-    • [ALERTA    ] Linha  21 | Natália Gomes Pereira de Almeida: Nome 'Natália Gomes Pereira de Almeida' aparece 2 vezes (mesmo turno (TARDE): linha 21 (F/TARDE), linha 44 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
-    • [ALERTA    ] Linha  23 | Valentina Cardoso de Oliveira de Freitas: Nome 'Valentina Cardoso de Oliveira de Freitas' aparece 2 vezes (mesmo turno (TARDE): linha 23 (F/TARDE), linha 48 (F/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
-    • [ALERTA    ] Linha  25 | Bernardo Araújo Lima da Costa: Nome 'Bernardo Araújo Lima da Costa' aparece 2 vezes (turnos distintos (MANHÃ, TARDE): linha 25 (M/MANHÃ), linha 28 (M/TARDE)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
-    • [ALERTA    ] Linha  27 | Lara Pereira Rodrigues Monteiro: Nome 'Lara Pereira Rodrigues Monteiro' aparece 2 vezes (mesmo turno (MANHÃ): linha 27 (F/MANHÃ), linha 111 (F/MANHÃ)). Alocado em duplicidade conforme regra de homônimos; recomenda-se conferir se não é cadastro duplicado.
+    • [ALERTA    ] Linha  21 | Natália Gomes Pereira de Almeida: "Natália Gomes Pereira de Almeida" aparece 2 vezes (Linhas 21, 44). Verifique se é cadastro duplicado.
+    • [ALERTA    ] Linha  23 | Valentina Cardoso de Oliveira de Freitas: "Valentina Cardoso de Oliveira de Freitas" aparece 2 vezes (Linhas 23, 48). Verifique se é cadastro duplicado.
+    • [ALERTA    ] Linha  25 | Bernardo Araújo Lima da Costa: "Bernardo Araújo Lima da Costa" aparece 2 vezes (Linhas 25, 28). Verifique se é cadastro duplicado.
+    • [ALERTA    ] Linha  27 | Lara Pereira Rodrigues Monteiro: "Lara Pereira Rodrigues Monteiro" aparece 2 vezes (Linhas 27, 111). Verifique se é cadastro duplicado.
 
 [2] INFORMAÇÕES DO SOLVER MATEMÁTICO (MILP LEXICOGRÁFICO - PULP)
 ----------------------------------------------------------------------------------------
@@ -24,7 +24,7 @@
   Restrições lineares         : 10 (Fase 1) -> 10 (Fase 2 com trava lexicográfica)
   Status Fase 1 (Min-Max)     : Optimal | Z1* = 4.0000
   Status Fase 2 (Par-a-Par)   : Optimal (Unique Intra-Shift Profile) | Z2* = 4.0000 (total c/ eps: 4.003200)
-  Tempos de execução          : Build = 0.5 ms | Fase 1 = 48.8 ms | Fase 2 = 0.0 ms | TOTAL = 50.1 ms (0.0501 s)
+  Tempos de execução          : Build = 0.8 ms | Fase 1 = 973.0 ms | Fase 2 = 0.0 ms | TOTAL = 974.7 ms (0.9747 s)
   Diagnóstico de parada       : Solução ótima global alcançada via Agregação por Perfis + Decomposição Hierárquica em 2 Etapas.
 
 [3] DISTRIBUIÇÃO GERAL POR TURNO (MANHÃ vs. TARDE)
