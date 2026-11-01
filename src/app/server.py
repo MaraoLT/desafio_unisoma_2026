@@ -3,8 +3,62 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
 import tempfile
 import traceback
+
+def _load_column_widths() -> dict[str, dict[str, int]]:
+    paths = [
+        Path(".unisoma_columns.json"),
+        Path.home() / ".unisoma_columns.json",
+    ]
+    for p in paths:
+        try:
+            if p.exists():
+                return json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+    return {}
+
+def _save_column_widths(widths: dict[str, dict[str, int]]) -> None:
+    paths = [
+        Path(".unisoma_columns.json"),
+        Path.home() / ".unisoma_columns.json",
+    ]
+    for p in paths:
+        try:
+            p.write_text(json.dumps(widths, ensure_ascii=False, indent=2), encoding="utf-8")
+            return
+        except Exception:
+            continue
+
+def _load_settings() -> dict[str, Any]:
+    paths = [
+        Path.home() / ".unisoma_settings.json",
+        Path(".unisoma_settings.json"),
+    ]
+    for p in paths:
+        try:
+            if p.exists():
+                return json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+    return {}
+
+def _save_settings(settings: dict[str, Any]) -> None:
+    paths = [
+        Path.home() / ".unisoma_settings.json",
+        Path(".unisoma_settings.json"),
+    ]
+    for p in paths:
+        try:
+            p.write_text(json.dumps(settings, ensure_ascii=False, indent=2), encoding="utf-8")
+            return
+        except Exception:
+            continue
+
+
+
 from typing import Any, Optional
 
 import openpyxl
@@ -38,6 +92,30 @@ class AppBackend:
         self.last_summary: Optional[dict[str, Any]] = None
         self.undo_stack: list[dict[str, list[list[str]]]] = []
         self.redo_stack: list[dict[str, list[list[str]]]] = []
+        self.col_widths: dict[str, dict[str, int]] = _load_column_widths()
+
+    def set_column_width(self, sheet_name: str, field: str, width: int) -> dict[str, Any]:
+        """Salva a largura da coluna para a aba especificada."""
+        if not hasattr(self, "col_widths") or self.col_widths is None:
+            self.col_widths = {}
+        if sheet_name not in self.col_widths:
+            self.col_widths[sheet_name] = {}
+        self.col_widths[sheet_name][field] = int(width)
+        _save_column_widths(self.col_widths)
+        return {"success": True}
+
+    def get_tutorial_status(self) -> dict[str, Any]:
+        """Retorna se o tutorial interativo já foi visualizado."""
+        settings = _load_settings()
+        seen = bool(settings.get("tutorial_seen", False))
+        return {"seen": seen}
+
+    def set_tutorial_status(self, seen: bool = True) -> dict[str, Any]:
+        """Salva a preferência de visualização do tutorial."""
+        settings = _load_settings()
+        settings["tutorial_seen"] = bool(seen)
+        _save_settings(settings)
+        return {"seen": bool(seen), "success": True}
 
     def _clone_sheets(self) -> dict[str, list[list[str]]]:
         return {s: [list(r) for r in rows] for s, rows in self.sheets_data.items()}
@@ -224,6 +302,7 @@ class AppBackend:
             "total_pages": total_pages,
             "total_rows": total_data_rows,
             "dirty": self.dirty,
+            "col_widths": self.col_widths.get(sheet_name, {}) if hasattr(self, "col_widths") else {},
         }
 
     def jump_to_row(
@@ -558,51 +637,101 @@ class AppBackend:
         if "Alunos" not in self.sheets_data:
             return {"success": False, "error": "Aba 'Alunos' não encontrada."}
 
-        self._push_undo()
         extra = extra or {}
         matrix = self.sheets_data["Alunos"]
-        headers = [normalize_token(c) for c in matrix[0]] if matrix else []
-        col_nome = headers.index("nome") if "nome" in headers else 0
-        col_sexo = headers.index("sexo") if "sexo" in headers else 1
-        col_disp = (
-            headers.index("disponibilidade")
-            if "disponibilidade" in headers
-            else (2 if len(headers) > 2 else 2)
-        )
+
+        from src.read_instance import _detect_student_columns
+        col_indices, _, _, _ = _detect_student_columns(matrix[0] if matrix else [])
+        col_nome = col_indices.get("nome", 0)
+        col_sexo = col_indices.get("sexo", 1)
+        col_disp = col_indices.get("disponibilidade", 2)
 
         modified = False
+        snapshot_pushed = False
+
+        def _ensure_undo():
+            nonlocal snapshot_pushed
+            if not snapshot_pushed:
+                self._push_undo()
+                snapshot_pushed = True
+
+        rows_to_process: list[int] = []
 
         if action == "accept_sanitize":
-            # Aceita a higienização proposta (remover espaços, normalizar Sexo p/ M/F, turno)
-            for r_num in target_rows:
+            # Se target_rows não for especificado, aplica a todas as inconsistências tratadas pendentes
+            rows_to_process = list(target_rows)
+            if not rows_to_process:
+                if not self.last_summary:
+                    self.validate_data()
+                if self.last_summary:
+                    for inc in self.last_summary.get("inconsistencias", []):
+                        if inc.get("can_review") and inc.get("review_type") == "sanitize":
+                            linhas = inc.get("linhas") or ([inc.get("linha")] if inc.get("linha") else [])
+                            rows_to_process.extend(linhas)
+            rows_to_process = list(dict.fromkeys(rows_to_process))
+
+            from src.pre_process import (
+                _clean_spaces,
+                _parse_sexo,
+                _parse_disponibilidade,
+                TURNO_MANHA,
+                TURNO_TARDE,
+            )
+
+            for r_num in rows_to_process:
                 mat_idx = r_num - 1
-                if 1 <= mat_idx < len(matrix):
+                if mat_idx == 0 and len(matrix) > 0:
+                    # Correção de cabeçalho atípico (Linha 1)
+                    r = matrix[0]
+                    while len(r) <= max(col_nome, col_sexo, col_disp):
+                        r.append("")
+                    if r[col_nome] != "Nome":
+                        _ensure_undo()
+                        r[col_nome] = "Nome"
+                        modified = True
+                    if r[col_sexo] != "Sexo":
+                        _ensure_undo()
+                        r[col_sexo] = "Sexo"
+                        modified = True
+                    if r[col_disp] != "Disponibilidade":
+                        _ensure_undo()
+                        r[col_disp] = "Disponibilidade"
+                        modified = True
+                elif 1 <= mat_idx < len(matrix):
                     r = matrix[mat_idx]
-                    nome_val = r[col_nome].strip() if col_nome < len(r) else ""
-                    sexo_val = r[col_sexo].strip() if col_sexo < len(r) else ""
-                    disp_val = r[col_disp].strip() if col_disp < len(r) else ""
+                    while len(r) <= max(col_nome, col_sexo, col_disp):
+                        r.append("")
 
-                    # Normaliza Sexo
-                    sexo_tok = normalize_token(sexo_val)
-                    if sexo_tok in {"m", "masculino", "masc", "homem", "menino"}:
-                        r[col_sexo] = "M"
-                    elif sexo_tok in {"f", "feminino", "fem", "mulher", "menina"}:
-                        r[col_sexo] = "F"
+                    orig_nome = r[col_nome]
+                    orig_sexo = r[col_sexo]
+                    orig_disp = r[col_disp]
 
-                    # Normaliza Disponibilidade
-                    disp_tok = normalize_token(disp_val)
-                    if "manha" in disp_tok:
-                        r[col_disp] = "Manhã"
-                    elif "tarde" in disp_tok:
-                        r[col_disp] = "Tarde"
-                    elif "integral" in disp_tok:
-                        r[col_disp] = "Integral"
+                    # 1. Higienização de Nome
+                    clean_n = _clean_spaces(orig_nome)
+                    if clean_n != orig_nome:
+                        _ensure_undo()
+                        r[col_nome] = clean_n
+                        modified = True
 
-                    # Remove espaços do nome
-                    import re
+                    # 2. Higienização de Sexo
+                    clean_s, _, s_err = _parse_sexo(orig_sexo)
+                    if clean_s and not s_err and clean_s != orig_sexo:
+                        _ensure_undo()
+                        r[col_sexo] = clean_s
+                        modified = True
 
-                    r[col_nome] = re.sub(r"\s+", " ", nome_val)
-                    modified = True
+                    # 3. Higienização de Disponibilidade
+                    clean_d, _, _, d_err = _parse_disponibilidade(orig_disp, allow_integral=True)
+                    if clean_d and not d_err:
+                        std_disp = (
+                            "Manhã"
+                            if clean_d == TURNO_MANHA
+                            else ("Tarde" if clean_d == TURNO_TARDE else "Integral")
+                        )
+                        if std_disp != orig_disp:
+                            _ensure_undo()
+                            r[col_disp] = std_disp
+                            modified = True
 
         elif action == "remove_duplicates":
             # Remove as linhas excedentes do aluno n-plicado, mantendo apenas a primeira
@@ -612,6 +741,7 @@ class AppBackend:
                 for r_num in rows_to_remove:
                     mat_idx = r_num - 1
                     if 1 <= mat_idx < len(matrix):
+                        _ensure_undo()
                         matrix.pop(mat_idx)
                         modified = True
 
@@ -623,18 +753,39 @@ class AppBackend:
                 mat_idx = r_num - 1
                 if 1 <= mat_idx < len(matrix):
                     r = matrix[mat_idx]
+                    while len(r) <= max(col_nome, col_sexo, col_disp):
+                        r.append("")
                     if field_name == "sexo" and col_sexo < len(r):
-                        r[col_sexo] = new_val
-                        modified = True
+                        if r[col_sexo] != new_val:
+                            _ensure_undo()
+                            r[col_sexo] = new_val
+                            modified = True
                     elif field_name == "disponibilidade" and col_disp < len(r):
-                        r[col_disp] = new_val
-                        modified = True
+                        if r[col_disp] != new_val:
+                            _ensure_undo()
+                            r[col_disp] = new_val
+                            modified = True
 
         if modified:
             self.dirty = True
 
         validation = self.validate_data()
-        page_payload = self.get_sheet_page(self.active_sheet, page=1, search_query="")
+
+        # Garante visualização na aba 'Alunos' e na página correta da linha afetada
+        self.active_sheet = "Alunos"
+        target_row = (
+            target_rows[0]
+            if target_rows
+            else (rows_to_process[0] if (action == "accept_sanitize" and rows_to_process) else 1)
+        )
+        page_size = DEFAULT_PAGE_SIZE
+        mat_target = max(1, target_row - 1)
+        target_page = ((mat_target - 1) // max(50, page_size)) + 1 if mat_target > 0 else 1
+
+        page_payload = self.get_sheet_page(self.active_sheet, page=target_page, search_query="")
+        if target_row:
+            page_payload["highlight_excel_row"] = target_row
+
         return {
             **page_payload,
             "dirty": self.dirty,
@@ -729,29 +880,43 @@ class AppBackend:
         """Constrói RawInstance a partir das matrizes editáveis em memória."""
         alunos_matrix = self.sheets_data.get("Alunos", [])
         raw_students: list[RawStudentRow] = []
+        header_warnings: list[str] = []
+        header_mapping: dict[str, str] = {
+            "nome": "Nome",
+            "sexo": "Sexo",
+            "disponibilidade": "Disponibilidade",
+        }
 
         if len(alunos_matrix) >= 1:
-            headers = [normalize_token(c) for c in alunos_matrix[0]]
-            col_nome = headers.index("nome") if "nome" in headers else 0
-            col_sexo = headers.index("sexo") if "sexo" in headers else 1
-            col_disp = (
-                headers.index("disponibilidade")
-                if "disponibilidade" in headers
-                else (2 if len(headers) > 2 else 2)
+            from src.read_instance import _detect_student_columns
+
+            col_indices, detected_mapping, header_warnings, _ = _detect_student_columns(
+                alunos_matrix[0]
             )
+            if detected_mapping:
+                header_mapping = detected_mapping
+            col_nome = col_indices.get("nome", 0)
+            col_sexo = col_indices.get("sexo", 1)
+            col_disp = col_indices.get("disponibilidade", 2)
 
             for r_idx, r in enumerate(alunos_matrix[1:], start=2):
-                nome = r[col_nome].strip() if col_nome < len(r) else ""
-                sexo = r[col_sexo].strip() if col_sexo < len(r) else ""
-                disp = r[col_disp].strip() if col_disp < len(r) else ""
-                if not nome and not sexo and not disp:
+                nome = r[col_nome] if col_nome < len(r) else None
+                sexo = r[col_sexo] if col_sexo < len(r) else None
+                disp = r[col_disp] if col_disp < len(r) else None
+
+                # Pula linhas completamente vazias
+                str_n = "" if nome is None else str(nome).strip()
+                str_s = "" if sexo is None else str(sexo).strip()
+                str_d = "" if disp is None else str(disp).strip()
+                if not str_n and not str_s and not str_d:
                     continue
+
                 raw_students.append(
                     RawStudentRow(
                         row_number=r_idx,
-                        nome=nome or None,
-                        sexo=sexo or None,
-                        disponibilidade=disp or None,
+                        nome=str(nome) if nome is not None else None,
+                        sexo=str(sexo) if sexo is not None else None,
+                        disponibilidade=str(disp) if disp is not None else None,
                     )
                 )
 
@@ -801,12 +966,8 @@ class AppBackend:
             sheet_names=list(self.sheets_data.keys()),
             alunos_sheet_name="Alunos",
             turmas_sheet_name="Turmas",
-            header_mapping={
-                "nome": "Nome",
-                "sexo": "Sexo",
-                "disponibilidade": "Disponibilidade",
-            },
-            header_warnings=[],
+            header_mapping=header_mapping,
+            header_warnings=header_warnings,
             students=raw_students,
             turmas=turmas_cfg,
         )
@@ -1131,7 +1292,7 @@ class AppBackend:
 
         if not self.sheets_data:
             return (
-                "Nenhuma planilha está aberta no momento. Clique em **Abrir Excel** na barra "
+                "Nenhuma planilha está aberta no momento. Clique em **Abrir Planilha** na barra "
                 "superior para carregar os alunos e turmas."
             )
 
@@ -1162,7 +1323,7 @@ class AppBackend:
         # 2. Perguntas sobre erros / inconsistências / cadastros inválidos
         if any(w in q for w in ("erro", "inconsist", "problema", "duplicad", "homonim", "invalid", "alerta", "corrig")):
             if not self.last_summary:
-                return "Clique em **Otimizar Turmas** para verificar todos os erros e alertas da planilha."
+                return "Clique em **Organizar Turmas** para verificar todos os erros e alertas da planilha."
             counts = self.last_summary["incons_counts"]
             if counts["total"] == 0:
                 return "Nenhum erro ou inconsistência foi encontrado na planilha."
@@ -1185,7 +1346,7 @@ class AppBackend:
             if not self.last_summary:
                 n_al = max(0, len(self.sheets_data.get("Alunos", [])) - 1)
                 return (
-                    f"A aba **Alunos** possui **{n_al} linhas**. Clique em **Otimizar Turmas** "
+                    f"A aba **Alunos** possui **{n_al} linhas**. Clique em **Organizar Turmas** "
                     "para calcular a ocupação das salas."
                 )
             s = self.last_summary
@@ -1202,7 +1363,7 @@ class AppBackend:
         # 4. Perguntas sobre gênero (meninos / meninas)
         if any(w in q for w in ("genero", "menino", "menina", "masculin", "feminin", "sexo", "equilibrio", "proporcao")):
             if not self.last_summary:
-                return "Execute **Otimizar Turmas** primeiro para ver o equilíbrio exato entre meninos e meninas."
+                return "Execute **Organizar Turmas** primeiro para ver o equilíbrio exato entre meninos e meninas."
             sm = self.last_summary["stats_turnos"][TURNO_MANHA]
             st = self.last_summary["stats_turnos"][TURNO_TARDE]
             return (
@@ -1215,7 +1376,7 @@ class AppBackend:
         # 5. Perguntas sobre lista de espera / sem turma
         if any(w in q for w in ("espera", "sem turma", "ficou de fora", "nao alocado", "excedente")):
             if not self.last_summary:
-                return "Clique em **Otimizar Turmas** para verificar se há alunos excedentes."
+                return "Clique em **Organizar Turmas** para verificar se há alunos excedentes."
             esp = self.last_summary["total_espera"]
             if esp == 0:
                 return "Nenhum aluno válido ficou sem turma — **100% foram alocados**."
@@ -1274,8 +1435,9 @@ class AppBackend:
                         for idx, r in top
                     )
                     return (
-                        f"Encontrei na aba **Alunos** (rode **Otimizar Turmas** para ver a sala):\n{bullets}"
+                        f"Encontrei na aba **Alunos** (rode **Organizar Turmas** para ver a sala):\n{bullets}"
                     )
+
 
         return (
             "Você pode consultar dados exatos perguntando, por exemplo:\n"

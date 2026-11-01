@@ -101,7 +101,7 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
                 res["filepath"] = str(backend.current_filepath)
             else:
                 res["filename"] = "Planilha sem título"
-                res["filepath"] = "Nova planilha — clique em 'Abrir Excel' ou 'Salvar'"
+                res["filepath"] = "Nova planilha — clique em 'Abrir Planilha' ou 'Salvar'"
             return _json_resp(res)
 
         # Inicia com planilha vazia estilo Excel/Sheets (linha de cabeçalho padrão + linhas em branco)
@@ -122,8 +122,9 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
 
         res = backend.get_sheet_page("Alunos", page=1, search_query="")
         res["filename"] = "Planilha sem título"
-        res["filepath"] = "Nova planilha — clique em 'Abrir Excel' para carregar seus dados"
+        res["filepath"] = "Nova planilha — clique em 'Abrir Planilha' para carregar seus dados"
         return _json_resp(res)
+
 
     @app.post("/api/get_page")
     def api_get_page():
@@ -190,6 +191,14 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
                 after_col=int(after_col) if after_col is not None and str(after_col).isdigit() else None,
             )
         )
+
+    @app.post("/api/set_col_width")
+    def api_set_col_width():
+        body = _read_json()
+        sheet_name = str(body.get("sheet_name", backend.active_sheet))
+        field = str(body.get("field", ""))
+        width = int(body.get("width", 0))
+        return _json_resp(backend.set_column_width(sheet_name, field, width))
 
     @app.post("/api/undo")
     def api_undo():
@@ -313,7 +322,23 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
         prompt = str(body.get("prompt", ""))
         return _json_resp({"answer": backend.ask_assistant(prompt)})
 
+    @app.route("/api/tutorial_status", method=["GET", "POST"])
+    def api_tutorial_status():
+        if bottle.request.method == "GET":
+            return _json_resp(backend.get_tutorial_status())
+        body = _read_json()
+        if isinstance(body, dict):
+            if "seen" in body:
+                return _json_resp(backend.set_tutorial_status(bool(body["seen"])))
+            if body.get("action") in ("get", "status"):
+                return _json_resp(backend.get_tutorial_status())
+        seen_query = bottle.request.query.get("seen")
+        if seen_query is not None:
+            return _json_resp(backend.set_tutorial_status(seen_query.lower() in ("true", "1", "yes")))
+        return _json_resp(backend.get_tutorial_status())
+
     return app
+
 
 
 class _QuietWSGIHandler(WSGIRequestHandler):
@@ -482,7 +507,15 @@ def _run_self_test(out_json_path: str) -> int:
             assert xlsx_res.get("success") is True and Path(tmp_xlsx).stat().st_size > 1000, f"Falha XLSX: {xlsx_res}"
             report["xlsx_bytes"] = Path(tmp_xlsx).stat().st_size
 
+        # 7. Testa endpoint e persistência de tutorial_status
+        tut_post = _post("/api/tutorial_status", {"seen": True})
+        assert tut_post.get("seen") is True, f"Falha em POST /api/tutorial_status: {tut_post}"
+        tut_get = _post("/api/tutorial_status", {})
+        assert tut_get.get("seen") is True, f"Falha ao ler status do tutorial: {tut_get}"
+        report["tutorial_status_ok"] = True
+
         report["ok"] = True
+
         Path(out_json_path).write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         return 0
     except Exception as exc:

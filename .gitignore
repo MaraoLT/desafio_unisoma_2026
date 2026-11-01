@@ -16,3 +16,6 @@ dist/
 # Arquivos temporários do Excel
 ~$*.xlsx
 
+.agents/
+.unisoma_settings.json
+

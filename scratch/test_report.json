@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "bundle_root": "C:\\Users\\ainar\\OneDrive\\Documentos\\Unicamp\\desafio_unisoma_2026",
+  "index_exists": true,
+  "css_exists": true,
+  "webview_edgechromium_ok": true,
+  "base_url": "http://127.0.0.1:49676/",
+  "tabulator_bundled": true,
+  "initial_filename": "Planilha sem título",
+  "allocated": 120,
+  "classes_opened": 4,
+  "pdf_bytes": 15399,
+  "xlsx_bytes": 13711,
+  "tutorial_status_ok": true
+}
