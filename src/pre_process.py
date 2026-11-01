@@ -408,12 +408,7 @@ def pre_process(raw: RawInstance, allow_integral: bool = False) -> ProcessedInst
 
             turnos_set = {o[3] for o in occs}
             sexos_set = {o[2] for o in occs}
-            detalhe_turnos = (
-                f"mesmo turno ({next(iter(turnos_set))})"
-                if len(turnos_set) == 1
-                else f"turnos distintos ({', '.join(sorted(turnos_set))})"
-            )
-            detalhes_linhas = ", ".join(f"linha {r} ({s}/{d})" for r, _, s, d in occs)
+            linhas_str = ", ".join(str(r) for r in rows_list)
 
             inconsistencies.append(
                 Inconsistency(
@@ -425,9 +420,8 @@ def pre_process(raw: RawInstance, allow_integral: bool = False) -> ProcessedInst
                     severidade="ALERTA",
                     tratada=True,
                     mensagem=(
-                        f"Nome '{canonical_name}' aparece {len(occs)} vezes ({detalhe_turnos}: "
-                        f"{detalhes_linhas}). Alocado em duplicidade conforme regra de homônimos; "
-                        "recomenda-se conferir se não é cadastro duplicado."
+                        f'"{canonical_name}" aparece {len(occs)} vezes (Linhas {linhas_str}). '
+                        "Verifique se é cadastro duplicado."
                     ),
                 )
             )

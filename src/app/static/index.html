@@ -139,27 +139,9 @@
 
       <!-- Visão 2: Dashboard do Ensalamento (Turmas e Barras de Alunos, Alunas e Vagas Vazias) -->
       <div class="side-body" id="paneDashboard">
-        <div class="dash-kpi-row">
-          <div class="dash-kpi-card accent-navy">
-            <div class="dash-kpi-title">Total Alocados / Vagas</div>
-            <div class="dash-kpi-val" id="dashKpiTotalVal">—</div>
-            <div class="dash-kpi-sub" id="dashKpiTotalSub">Ocupação Global</div>
-          </div>
-          <div class="dash-kpi-card accent-cyan">
-            <div class="dash-kpi-title">Turno MANHÃ</div>
-            <div class="dash-kpi-val" id="dashKpiManhaVal">—</div>
-            <div class="dash-kpi-sub" id="dashKpiManhaSub">Lotação e Gênero</div>
-          </div>
-          <div class="dash-kpi-card accent-teal">
-            <div class="dash-kpi-title">Turno TARDE</div>
-            <div class="dash-kpi-val" id="dashKpiTardeVal">—</div>
-            <div class="dash-kpi-sub" id="dashKpiTardeSub">Lotação e Gênero</div>
-          </div>
-        </div>
-
         <div class="dash-turmas-scroll" id="dashTurmasContainer">
           <div class="dash-empty-state">
-            Clique em <b>Otimizar Turmas</b> na barra superior para visualizar os cartões de lotação e as barras de distribuição de meninos, meninas e vagas vazias por sala.
+            Clique em <b>Otimizar Turmas</b> na barra superior para visualizar as turmas e as barras de distribuição por sala.
           </div>
         </div>
       </div>
@@ -828,15 +810,9 @@
       document.getElementById("shiftsBox").innerHTML = "Pré-visualização da capacidade por período.";
       document.getElementById("issuesBox").innerHTML = "<span style='font-size:12px; color:#64748B;'>Nenhum erro verificado ainda.</span>";
 
-      document.getElementById("dashKpiTotalVal").textContent = "—";
-      document.getElementById("dashKpiTotalSub").textContent = "Ocupação Global";
-      document.getElementById("dashKpiManhaVal").textContent = "—";
-      document.getElementById("dashKpiManhaSub").textContent = "Lotação e Gênero";
-      document.getElementById("dashKpiTardeVal").textContent = "—";
-      document.getElementById("dashKpiTardeSub").textContent = "Lotação e Gênero";
       document.getElementById("dashTurmasContainer").innerHTML = `
         <div class="dash-empty-state">
-          Clique em <b>Otimizar Turmas</b> na barra superior para visualizar os cartões de lotação e as barras de distribuição de meninos, meninas e vagas vazias por sala.
+          Clique em <b>Otimizar Turmas</b> na barra superior para visualizar as turmas e as barras de distribuição por sala.
         </div>
       `;
     }
@@ -926,7 +902,11 @@
           // Mensagem explicativa
           const msgDiv = document.createElement("div");
           msgDiv.className = "issue-msg-text";
-          msgDiv.innerHTML = `<b>${inc.nome}</b>: ${inc.mensagem}`;
+          if (inc.categoria === "Duplicidade de Nome") {
+            msgDiv.textContent = inc.mensagem;
+          } else {
+            msgDiv.innerHTML = `<b>${inc.nome}</b>: ${inc.mensagem}`;
+          }
 
           // Clique no corpo navega para a linha / aba correspondente
           card.onclick = () => {
@@ -1027,8 +1007,6 @@
       const lot = Math.max(0, Number(t.lotacao) || 0);
       const masc = Math.max(0, Number(t.masculino) || 0);
       const fem = Math.max(0, Number(t.feminino) || 0);
-      const livres = Math.max(0, cap - lot);
-      const ocupPct = cap > 0 ? ((100.0 * lot) / cap).toFixed(1) : "0.0";
 
       const pctM = cap > 0 ? Math.min(100, (100.0 * masc) / cap) : 0;
       const pctF = cap > 0 ? Math.min(Math.max(0, 100 - pctM), (100.0 * fem) / cap) : 0;
@@ -1045,17 +1023,16 @@
       card.innerHTML = `
         <div class="dash-turma-top">
           <span class="dash-turma-code ${accentClass}">${t.codigo}</span>
-          <span class="dash-turma-lot">Lotação: ${lot}/${cap} (${ocupPct}%) • ${livres} livres</span>
+          <span class="dash-turma-lot">${lot}/${cap}</span>
         </div>
         <div class="dash-gender-bar">
           <div class="dash-bar-seg-m" style="width: ${pctM.toFixed(2)}%;" title="Meninos (M): ${masc}"></div>
           <div class="dash-bar-seg-f" style="width: ${pctF.toFixed(2)}%;" title="Meninas (F): ${fem}"></div>
-          <div class="dash-bar-seg-empty" style="width: ${pctVazio.toFixed(2)}%;" title="Vagas Vazias: ${livres}"></div>
+          <div class="dash-bar-seg-empty" style="width: ${pctVazio.toFixed(2)}%;"></div>
         </div>
         <div class="dash-turma-legend">
           <span class="legend-m">■ Meninos (M): ${masc}</span>
           <span class="legend-f">■ Meninas (F): ${fem}</span>
-          <span class="legend-empty">■ Vagas Vazias: ${livres}</span>
         </div>
       `;
       return card;
@@ -1063,35 +1040,15 @@
 
     function renderDashboard(s) {
       const container = document.getElementById("dashTurmasContainer");
-      if (!s || !s.stats_turnos) {
+      if (!s) {
         return;
       }
-
-      const stM = s.stats_turnos["MANHÃ"] || { salas: 0, capacidade_total: 0, alocados: 0, masculino: 0, feminino: 0, ocupacao_pct: 0 };
-      const stT = s.stats_turnos["TARDE"] || { salas: 0, capacidade_total: 0, alocados: 0, masculino: 0, feminino: 0, ocupacao_pct: 0 };
-
-      const capTotal = (stM.capacidade_total || 0) + (stT.capacidade_total || 0);
-      const alocTotal = (stM.alocados || 0) + (stT.alocados || 0);
-      const livresTotal = Math.max(0, capTotal - alocTotal);
-      const ocupGlobal = capTotal > 0 ? ((100.0 * alocTotal) / capTotal).toFixed(1) : "0.0";
-
-      const livresM = Math.max(0, (stM.capacidade_total || 0) - (stM.alocados || 0));
-      const livresT = Math.max(0, (stT.capacidade_total || 0) - (stT.alocados || 0));
-
-      document.getElementById("dashKpiTotalVal").textContent = `${alocTotal} / ${capTotal} (${ocupGlobal}%)`;
-      document.getElementById("dashKpiTotalSub").textContent = `${s.total_salas || 0} turmas ativas • ${livresTotal} vagas livres`;
-
-      document.getElementById("dashKpiManhaVal").textContent = `${stM.alocados}/${stM.capacidade_total} alunos (${stM.masculino}M / ${stM.feminino}F)`;
-      document.getElementById("dashKpiManhaSub").textContent = `${stM.salas} turma(s) • Ocupação: ${Number(stM.ocupacao_pct || 0).toFixed(1)}% (${livresM} livres)`;
-
-      document.getElementById("dashKpiTardeVal").textContent = `${stT.alocados}/${stT.capacidade_total} alunos (${stT.masculino}M / ${stT.feminino}F)`;
-      document.getElementById("dashKpiTardeSub").textContent = `${stT.salas} turma(s) • Ocupação: ${Number(stT.ocupacao_pct || 0).toFixed(1)}% (${livresT} livres)`;
 
       const turmas = s.turmas || [];
       if (!turmas.length) {
         container.innerHTML = `
           <div class="dash-empty-state">
-            Clique em <b>Otimizar Turmas</b> na barra superior para visualizar os cartões de lotação e as barras de distribuição de meninos, meninas e vagas vazias por sala.
+            Clique em <b>Otimizar Turmas</b> na barra superior para visualizar as turmas e as barras de distribuição por sala.
           </div>
         `;
         return;
