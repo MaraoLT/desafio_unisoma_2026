@@ -41,6 +41,20 @@ import webview
 from src.app.server import AppBackend
 
 
+def _find_app_icon() -> Optional[Path]:
+    """Localiza o arquivo .ico oficial do Aloca ABC / ABC Aprendiz."""
+    candidates = [
+        BUNDLE_ROOT / "src" / "app" / "images" / "app_icon.ico",
+        BUNDLE_ROOT / "src" / "app" / "static" / "favicon.ico",
+        Path.cwd() / "src" / "app" / "images" / "app_icon.ico",
+        Path.cwd() / "src" / "app" / "static" / "favicon.ico",
+    ]
+    for cand in candidates:
+        if cand.exists() and cand.is_file():
+            return cand
+    return None
+
+
 def _find_initial_excel() -> Optional[Path]:
     """Procura uma planilha inicial no diretório de execução ou no pacote de exemplo."""
     candidates: list[Path] = []
@@ -96,10 +110,24 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
     def tabulator_js():
         return bottle.static_file("tabulator.min.js", root=str(static_dir), mimetype="application/javascript")
 
+    @app.get("/favicon.ico")
+    def favicon():
+        return bottle.static_file("favicon.ico", root=str(static_dir), mimetype="image/x-icon")
+
     @app.post("/api/init")
     def api_init():
+        body = _read_json()
+        allow_integral_param = body.get("allow_integral")
+        if allow_integral_param is not None:
+            backend.last_allow_integral = bool(allow_integral_param)
+        allow_unallocated_param = body.get("allow_unallocated")
+        if allow_unallocated_param is not None:
+            backend.last_allow_unallocated = bool(allow_unallocated_param)
+
         if backend.sheets_data:
+            val_res = backend.validate_data(allow_integral=backend.last_allow_integral)
             res = backend.get_sheet_page(backend.active_sheet, page=1, search_query="")
+            res["summary"] = val_res.get("summary") if val_res.get("success") else backend.last_summary
             if backend.current_filepath:
                 res["filename"] = backend.current_filepath.name
                 res["filepath"] = str(backend.current_filepath)
@@ -255,8 +283,35 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
         if not selected:
             return _json_resp({"cancelled": True})
 
+        body = _read_json()
+        allow_integral_param = body.get("allow_integral")
+        allow_integral: Optional[bool] = (
+            bool(allow_integral_param) if allow_integral_param is not None else None
+        )
         chosen_path = selected[0] if isinstance(selected, (list, tuple)) else str(selected)
-        return _json_resp(backend.load_excel(chosen_path))
+        return _json_resp(backend.load_excel(chosen_path, allow_integral=allow_integral))
+
+    @app.post("/api/set_options")
+    def api_set_options():
+        body = _read_json()
+        allow_integral = bool(body.get("allow_integral", True))
+        allow_unallocated = bool(body.get("allow_unallocated", False))
+        backend.last_allow_integral = allow_integral
+        backend.last_allow_unallocated = allow_unallocated
+
+        val_res = backend.validate_data(allow_integral=allow_integral)
+        summary = val_res.get("summary") if val_res.get("success") else backend.last_summary
+
+        sheet_name = body.get("sheet_name") or backend.active_sheet
+        page = int(body.get("page", 1))
+        search_query = str(body.get("search_query", ""))
+        page_payload = backend.get_sheet_page(sheet_name, page=page, search_query=search_query)
+
+        return _json_resp({
+            **page_payload,
+            "success": True,
+            "summary": summary,
+        })
 
     @app.post("/api/save_excel")
     def api_save_excel():
@@ -269,7 +324,7 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
             return _json_resp({"success": False, "error": "Janela não inicializada."})
         start_dir = str(backend.current_filepath.parent) if backend.current_filepath else ""
         default_name = (
-            backend.current_filepath.name if backend.current_filepath else "ensalamento.xlsx"
+            backend.current_filepath.name if backend.current_filepath else "AlocaABC.xlsx"
         )
         selected = win.create_file_dialog(
             webview.FileDialog.SAVE,
@@ -307,7 +362,7 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
         if win is None:
             return _json_resp({"success": False, "error": "Janela não inicializada."})
 
-        stem = backend.current_filepath.stem if backend.current_filepath else "ensalamento"
+        stem = backend.current_filepath.stem if backend.current_filepath else "AlocaABC"
         default_pdf = f"Turmas_{stem}.pdf"
         start_dir = str(backend.current_filepath.parent) if backend.current_filepath else ""
 
@@ -332,7 +387,7 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
         if win is None:
             return _json_resp({"success": False, "error": "Janela não inicializada."})
 
-        stem = backend.current_filepath.stem if backend.current_filepath else "ensalamento"
+        stem = backend.current_filepath.stem if backend.current_filepath else "AlocaABC"
         default_pdf = f"Relatorio_Distribuicao_{stem}.pdf"
         start_dir = str(backend.current_filepath.parent) if backend.current_filepath else ""
 
@@ -467,6 +522,10 @@ def _run_self_test(out_json_path: str) -> int:
         assert st_tjs.startswith("200") and b"Tabulator" in body_tjs, f"Falha em GET /tabulator.min.js: {st_tjs}"
         report["tabulator_bundled"] = True
 
+        st_ico, body_ico = _wsgi_call(wsgi_app, "GET", "/favicon.ico")
+        assert st_ico.startswith("200") and len(body_ico) > 1000, f"Falha em GET /favicon.ico: {st_ico}"
+        report["favicon_ok"] = True
+
         def _post(path: str, data: dict[str, Any]) -> dict[str, Any]:
             st, raw = _wsgi_call(wsgi_app, "POST", path, data)
             assert st.startswith("200"), f"HTTP {st} em {path}"
@@ -598,16 +657,19 @@ def main() -> None:
     wsgi_app = create_wsgi_app(backend, window_holder)
     server_url, httpd = start_local_http_server(wsgi_app)
 
+    icon_file = _find_app_icon()
+    icon_arg = str(icon_file) if icon_file else None
+
     try:
         win = webview.create_window(
-            title="UniSoma — Ensalamento Inteligente",
+            title="Aloca ABC",
             url=server_url,
             width=1340,
             height=820,
             min_size=(980, 600),
         )
         window_holder["win"] = win
-        webview.start(debug=False)
+        webview.start(icon=icon_arg, debug=False)
     finally:
         httpd.shutdown()
         httpd.server_close()

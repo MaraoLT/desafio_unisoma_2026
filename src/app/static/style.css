@@ -1031,12 +1031,15 @@ body {
   color: #92400E;
 }
 
+.dash-action-bar,
 .dash-footer-bar {
   display: flex;
   justify-content: center;
   align-items: center;
   padding-top: 4px;
+  padding-bottom: 4px;
   flex-shrink: 0;
+  width: 100%;
 }
 
 .dash-report-btn {

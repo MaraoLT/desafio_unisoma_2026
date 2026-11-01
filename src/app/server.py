@@ -125,6 +125,7 @@ class AppBackend:
         self.processed_instance = None
         self.last_summary: Optional[dict[str, Any]] = None
         self.last_allow_unallocated: bool = False
+        self.last_allow_integral: bool = True
         self.undo_stack: list[dict[str, list[list[str]]]] = []
         self.redo_stack: list[dict[str, list[list[str]]]] = []
         self.col_widths: dict[str, dict[str, int]] = _load_column_widths()
@@ -189,7 +190,7 @@ class AppBackend:
             "summary": validation.get("summary") if validation.get("success") else None,
         }
 
-    def load_excel(self, file_path_str: str) -> dict[str, Any]:
+    def load_excel(self, file_path_str: str, allow_integral: Optional[bool] = None) -> dict[str, Any]:
         """Carrega todas as abas de um arquivo .xlsx para edição em memória."""
         p = Path(file_path_str).resolve()
         if not p.exists():
@@ -239,7 +240,9 @@ class AppBackend:
         else:
             self.active_sheet = next(iter(self.sheets_data.keys()), "Alunos")
 
-        validation = self.validate_data()
+        if allow_integral is not None:
+            self.last_allow_integral = bool(allow_integral)
+        validation = self.validate_data(allow_integral=getattr(self, "last_allow_integral", True))
         summary_obj = validation.get("summary") if validation.get("success") else None
         col_errs = summary_obj.get("column_errors", []) if summary_obj else []
         page_payload = self.get_sheet_page(self.active_sheet, page=1, search_query="")
@@ -360,10 +363,15 @@ class AppBackend:
         res["highlight_excel_row"] = excel_row
         return res
 
-    def validate_data(self, allow_integral: bool = True) -> dict[str, Any]:
+    def validate_data(self, allow_integral: Optional[bool] = None) -> dict[str, Any]:
         """Executa pré-processamento/validação imediata dos dados em memória sem rodar o solver."""
         if "Alunos" not in self.sheets_data or "Turmas" not in self.sheets_data:
             return {"success": False, "error": "A planilha precisa conter as abas 'Alunos' e 'Turmas'."}
+
+        if allow_integral is not None:
+            self.last_allow_integral = bool(allow_integral)
+        else:
+            allow_integral = getattr(self, "last_allow_integral", True)
 
         try:
             raw = self._build_raw_from_memory()

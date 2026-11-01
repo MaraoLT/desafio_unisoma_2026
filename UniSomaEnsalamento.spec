@@ -67,7 +67,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='UniSomaEnsalamento',
+    name='AlocaABC',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -80,4 +80,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon='src/app/images/app_icon.ico',
 )
