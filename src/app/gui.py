@@ -43,8 +43,13 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from src.app.pdf_lists import generate_dashboard_report_pdf
 from src.models.solver import SolverParameters, SolverResult, solve_ensalamento
-from src.models.solver_1step import solve_ensalamento_1step
+
+try:
+    from src.models.solver_1step import solve_ensalamento_1step
+except ImportError:
+    solve_ensalamento_1step = solve_ensalamento
 from src.pos_process import PostProcessArtifacts, pos_process
 from src.pre_process import (
     GENERO_F,
@@ -109,14 +114,25 @@ class GuiPipelineOutcome:
 
 def get_asset_path(relative_name: str) -> Path:
     """Localiza arquivo de asset (ex.: logo) tanto em modo script quanto no .exe PyInstaller."""
+    here = Path(__file__).resolve().parent
     if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
-        bundled = Path(getattr(sys, "_MEIPASS")) / "src" / "app" / "assets" / relative_name
-        if bundled.exists():
-            return bundled
-        bundled_flat = Path(getattr(sys, "_MEIPASS")) / "assets" / relative_name
-        if bundled_flat.exists():
-            return bundled_flat
-    return Path(__file__).resolve().parent / "assets" / relative_name
+        meipass = Path(getattr(sys, "_MEIPASS"))
+        for cand in (
+            meipass / "src" / "app" / "assets" / relative_name,
+            meipass / "assets" / relative_name,
+            meipass / "src" / "app" / "static" / "abc-logo.png",
+            meipass / "src" / "app" / "images" / "abc-logo-1024x798.webp",
+        ):
+            if cand.exists():
+                return cand
+    for local_cand in (
+        here / "assets" / relative_name,
+        here / "static" / "abc-logo.png",
+        here / "images" / "abc-logo-1024x798.webp",
+    ):
+        if local_cand.exists():
+            return local_cand
+    return here / "assets" / relative_name
 
 
 def get_reports_dir(input_excel_path: Path) -> Path:
@@ -213,13 +229,20 @@ def format_validation_log(instance: ProcessedInstance, severity_filter: str = "T
     c_manha = instance.capacidade_por_turno.get(TURNO_MANHA, 0)
     c_tarde = instance.capacidade_por_turno.get(TURNO_TARDE, 0)
 
+    tm_str = "1 turma" if t_manha == 1 else f"{t_manha} turmas"
+    tt_str = "1 turma" if t_tarde == 1 else f"{t_tarde} turmas"
+    vm_str = "1 vaga" if c_manha == 1 else f"{c_manha} vagas"
+    vt_str = "1 vaga" if c_tarde == 1 else f"{c_tarde} vagas"
+    vtot_m_str = "1 vaga" if (t_manha * c_manha) == 1 else f"{t_manha * c_manha} vagas"
+    vtot_t_str = "1 vaga" if (t_tarde * c_tarde) == 1 else f"{t_tarde * c_tarde} vagas"
+
     lines.append(
         f"  • Abas identificadas   : Alunos='{instance.raw.alunos_sheet_name}' | "
         f"Turmas='{instance.raw.turmas_sheet_name}'"
     )
     lines.append(
-        f"  • Estrutura de turmas  : MANHÃ = {t_manha} turma(s) x {c_manha} vagas ({t_manha * c_manha} vagas) | "
-        f"TARDE = {t_tarde} turma(s) x {c_tarde} vagas ({t_tarde * c_tarde} vagas)"
+        f"  • Estrutura de turmas  : MANHÃ = {tm_str} x {vm_str} ({vtot_m_str}) | "
+        f"TARDE = {tt_str} x {vt_str} ({vtot_t_str})"
     )
     lines.append(
         f"  • Registros de alunos  : {n_raw} lidos -> {n_valid} válidos para ensalamento | "
@@ -230,15 +253,30 @@ def format_validation_log(instance: ProcessedInstance, severity_filter: str = "T
     inc_alertas = [i for i in instance.inconsistencies if i.severidade == "ALERTA"]
     inc_impeditivas = [i for i in instance.inconsistencies if i.severidade == "IMPEDITIVA"]
 
+    n_inc = len(instance.inconsistencies)
+    inc_det_str = "1 detectada" if n_inc == 1 else f"{n_inc} detectadas"
+    trat_str = f"{len(inc_tratadas)} tratada" if len(inc_tratadas) == 1 else f"{len(inc_tratadas)} tratadas"
+    alerta_str = f"{len(inc_alertas)} alerta de duplicidade" if len(inc_alertas) == 1 else f"{len(inc_alertas)} alertas de duplicidade"
+    imp_str = f"{len(inc_impeditivas)} impeditiva/crítica" if len(inc_impeditivas) == 1 else f"{len(inc_impeditivas)} impeditivas/críticas"
+
     lines.append(
-        f"  • Inconsistências      : {len(instance.inconsistencies)} detectada(s) "
-        f"({len(inc_tratadas)} tratada(s) | {len(inc_alertas)} alerta(s) de duplicidade | "
-        f"{len(inc_impeditivas)} impeditiva(s)/crítica(s))"
+        f"  • Inconsistências      : {inc_det_str} "
+        f"({trat_str} | {alerta_str} | {imp_str})"
     )
 
     filtered_incs = instance.inconsistencies
     if severity_filter != "TODAS":
         filtered_incs = [i for i in instance.inconsistencies if i.severidade == severity_filter]
+
+    filtered_incs = sorted(
+        filtered_incs,
+        key=lambda inc: (
+            0 if inc.severidade == "IMPEDITIVA" else 1,
+            0 if (inc.row_number is not None and str(inc.row_number).isdigit()) else 1,
+            int(inc.row_number) if (inc.row_number is not None and str(inc.row_number).isdigit()) else 9999999,
+            0 if inc.severidade == "ALERTA" else 1,
+        ),
+    )
 
     if not instance.inconsistencies:
         lines.append("\n  [OK] Nenhuma inconsistência encontrada na planilha de entrada.")
@@ -253,8 +291,13 @@ def format_validation_log(instance: ProcessedInstance, severity_filter: str = "T
             )
 
     if n_invalid > 0:
+        reg_crit_msg = (
+            f"\n  [AVISO] Foi encontrado 1 registro com erro crítico de preenchimento. "
+            if n_invalid == 1
+            else f"\n  [AVISO] Foram encontrados {n_invalid} registros com erro crítico de preenchimento. "
+        )
         lines.append(
-            f"\n  [AVISO] Foram encontrados {n_invalid} registro(s) com erro crítico de preenchimento. "
+            f"{reg_crit_msg}"
             f"O ensalamento prosseguirá normalmente utilizando os {n_valid} alunos válidos restantes, "
             f"e os erros ficarão registrados na aba 'Inconsistências'."
         )
@@ -889,7 +932,74 @@ class EnsalamentoApp(ctk.CTk):
         self.scroll_dashboard.grid_columnconfigure(0, weight=1)
         self.scroll_dashboard.grid_columnconfigure(1, weight=1)
 
+        self.btn_export_dash_report = ctk.CTkButton(
+            self.tab_dashboard,
+            text="Gerar Relatório de Distribuição das Turmas (PDF)",
+            height=36,
+            fg_color=ABC_NAVY,
+            hover_color=ABC_NAVY_DARK,
+            font=ctk.CTkFont(size=13, weight="bold"),
+            command=self._on_export_dashboard_report_clicked,
+        )
+        self.btn_export_dash_report.grid(row=2, column=0, padx=8, pady=(0, 8), sticky="ew")
+
         self._render_empty_dashboard()
+
+    def _on_export_dashboard_report_clicked(self) -> None:
+        if not self.current_outcome or not self.current_outcome.solver_result.feasible:
+            messagebox.showwarning(
+                "Relatório de Distribuição",
+                "Execute o ensalamento primeiro para gerar o relatório de distribuição das turmas.",
+            )
+            return
+
+        proc = self.current_outcome.processed
+        res = self.current_outcome.solver_result
+        stem = proc.raw.filepath.stem if proc.raw.filepath else "ensalamento"
+        initial_dir = str(proc.raw.filepath.parent) if proc.raw.filepath else ""
+        target_path = filedialog.asksaveasfilename(
+            title="Salvar Relatório de Distribuição (PDF)",
+            initialdir=initial_dir,
+            initialfile=f"Relatorio_Distribuicao_{stem}.pdf",
+            defaultextension=".pdf",
+            filetypes=[("Documento PDF", "*.pdf")],
+        )
+        if not target_path:
+            return
+
+        turmas_summary = []
+        for t in proc.turmas:
+            tot_s = res.y_turma.get(t.id, 0) if res.y_turma else 0
+            m_s = res.z_turma_gen.get((t.id, GENERO_M), 0) if res.z_turma_gen else 0
+            f_s = res.z_turma_gen.get((t.id, GENERO_F), 0) if res.z_turma_gen else 0
+            turmas_summary.append(
+                {
+                    "codigo": t.codigo,
+                    "turno": t.turno,
+                    "capacidade": t.capacidade,
+                    "lotacao": tot_s,
+                    "masculino": m_s,
+                    "feminino": f_s,
+                    "livres": max(0, t.capacidade - tot_s),
+                    "ocupacao_pct": round(100.0 * tot_s / t.capacidade, 1) if t.capacidade > 0 else 0.0,
+                }
+            )
+        summary_payload = {
+            "total_alocados": len(res.student_to_turma),
+            "total_validos": len(proc.students),
+            "total_espera": len(res.unallocated_students),
+            "total_salas": len(proc.turmas),
+            "turmas": turmas_summary,
+            "stats_turnos": {},
+        }
+        try:
+            pdf_out = generate_dashboard_report_pdf(target_path, stem, summary_payload)
+            messagebox.showinfo(
+                "Relatório Gerado",
+                f"Relatório de distribuição salvo com sucesso em:\n{pdf_out}",
+            )
+        except Exception as exc:
+            messagebox.showerror("Erro ao Gerar Relatório", str(exc))
 
     # -------------------------------------------------------------------------
     # Construção da Aba 3: Consulta de Turmas e Alunos
@@ -1198,8 +1308,13 @@ class EnsalamentoApp(ctk.CTk):
         inc_tra = [i for i in proc.inconsistencies if i.severidade == "TRATADA"]
 
         self.lbl_val_validos[0].configure(text=f"{n_val} / {n_raw}")
+        retidos_msg = (
+            f"{n_inv} retido por erro crítico"
+            if n_inv == 1
+            else f"{n_inv} retidos por erro crítico"
+        )
         self.lbl_val_validos[1].configure(
-            text=f"{n_inv} retido(s) por erro crítico" if n_inv > 0 else "100% dos alunos válidos"
+            text=retidos_msg if n_inv > 0 else "100% dos alunos válidos"
         )
 
         self.lbl_val_impeditivas[0].configure(text=str(len(inc_imp)))
@@ -1270,7 +1385,10 @@ class EnsalamentoApp(ctk.CTk):
             ocup_t = (100.0 * aloc_t / cap_t) if cap_t > 0 else 0.0
 
             kpi_pair[0].configure(text=f"{aloc_t}/{cap_t} alunos ({m_t}M / {f_t}F)")
-            kpi_pair[1].configure(text=f"{len(t_list)} turma(s) • Ocupação: {ocup_t:.1f}% ({cap_t - aloc_t} livres)")
+            turmas_tot_label = "1 turma" if len(t_list) == 1 else f"{len(t_list)} turmas"
+            vagas_livres_cnt = cap_t - aloc_t
+            livres_label = "1 livre" if vagas_livres_cnt == 1 else f"{vagas_livres_cnt} livres"
+            kpi_pair[1].configure(text=f"{turmas_tot_label} • Ocupação: {ocup_t:.1f}% ({livres_label})")
 
         # 2. Renderiza Turmas em 2 Colunas: Coluna 0 = MANHÃ | Coluna 1 = TARDE
         for child in self.scroll_dashboard.winfo_children():
@@ -1288,11 +1406,12 @@ class EnsalamentoApp(ctk.CTk):
         turmas_tarde = proc.turmas_por_turno.get(TURNO_TARDE, [])
 
         # Cabeçalho Coluna Manhã (sem emoji)
+        salas_manha_label = "1 sala" if len(turmas_manha) == 1 else f"{len(turmas_manha)} salas"
         hdr_manha = ctk.CTkFrame(col_manha, fg_color=ABC_CYAN, corner_radius=8)
         hdr_manha.grid(row=0, column=0, padx=4, pady=(2, 6), sticky="ew")
         ctk.CTkLabel(
             hdr_manha,
-            text=f"Turmas da Manhã ({len(turmas_manha)} sala(s))",
+            text=f"Turmas da Manhã ({salas_manha_label})",
             font=ctk.CTkFont(size=14, weight="bold"),
             text_color="#FFFFFF",
         ).pack(padx=12, pady=6, anchor="w")
@@ -1301,11 +1420,12 @@ class EnsalamentoApp(ctk.CTk):
             self._create_turma_card(col_manha, r_idx, t, res)
 
         # Cabeçalho Coluna Tarde (sem emoji)
+        salas_tarde_label = "1 sala" if len(turmas_tarde) == 1 else f"{len(turmas_tarde)} salas"
         hdr_tarde = ctk.CTkFrame(col_tarde, fg_color=ABC_TEAL_DARK, corner_radius=8)
         hdr_tarde.grid(row=0, column=0, padx=4, pady=(2, 6), sticky="ew")
         ctk.CTkLabel(
             hdr_tarde,
-            text=f"Turmas da Tarde ({len(turmas_tarde)} sala(s))",
+            text=f"Turmas da Tarde ({salas_tarde_label})",
             font=ctk.CTkFont(size=14, weight="bold"),
             text_color="#FFFFFF",
         ).pack(padx=12, pady=6, anchor="w")
@@ -1446,7 +1566,8 @@ class EnsalamentoApp(ctk.CTk):
             genero_filter=self.var_filter_genero.get(),
             sort_by=self.var_sort_order.get(),
         )
-        self.lbl_consulta_count.configure(text=f"{len(rows)} aluno(s)")
+        aluno_cnt_str = "1 aluno" if len(rows) == 1 else f"{len(rows)} alunos"
+        self.lbl_consulta_count.configure(text=aluno_cnt_str)
 
         sep = "-" * 96
         lines = [
@@ -1572,11 +1693,17 @@ class EnsalamentoApp(ctk.CTk):
                 f"Manhã={tm}x{vm} ({tm*vm} vagas) | Tarde={tt}x{vt} ({tt*vt} vagas).\n"
             )
             if show_confirmation:
+                tm_str = "1 turma" if tm == 1 else f"{tm} turmas"
+                tt_str = "1 turma" if tt == 1 else f"{tt} turmas"
+                vm_str = "1 vaga" if vm == 1 else f"{vm} vagas"
+                vt_str = "1 vaga" if vt == 1 else f"{vt} vagas"
+                vtot_m_str = "1 vaga" if tm * vm == 1 else f"{tm * vm} vagas"
+                vtot_t_str = "1 vaga" if tt * vt == 1 else f"{tt * vt} vagas"
                 messagebox.showinfo(
                     "Turmas atualizadas",
                     f"Parâmetros salvos com sucesso na aba 'Turmas' de '{self.selected_file_path.name}'!\n\n"
-                    f"• Manhã: {tm} turma(s) x {vm} vagas = {tm * vm} vagas\n"
-                    f"• Tarde: {tt} turma(s) x {vt} vagas = {tt * vt} vagas",
+                    f"• Manhã: {tm_str} x {vm_str} = {vtot_m_str}\n"
+                    f"• Tarde: {tt_str} x {vt_str} = {vtot_t_str}",
                 )
             return True
         except PermissionError:

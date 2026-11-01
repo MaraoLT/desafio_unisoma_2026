@@ -493,7 +493,7 @@ def pre_process(raw: RawInstance, allow_integral: bool = False) -> ProcessedInst
                 mensagem=(
                     f"Turno MANHÃ possui {fixed_manha} alunos válidos para apenas {cap_manha} vagas "
                     f"({len(turmas_por_turno[TURNO_MANHA])} turmas x {capacidade_por_turno[TURNO_MANHA]} vagas). "
-                    f"Déficit de {excesso} vaga(s)."
+                    f"Déficit de {excesso} {'vaga' if excesso == 1 else 'vagas'}."
                 ),
             )
         )
@@ -513,7 +513,7 @@ def pre_process(raw: RawInstance, allow_integral: bool = False) -> ProcessedInst
                 mensagem=(
                     f"Turno TARDE possui {fixed_tarde} alunos válidos para apenas {cap_tarde} vagas "
                     f"({len(turmas_por_turno[TURNO_TARDE])} turmas x {capacidade_por_turno[TURNO_TARDE]} vagas). "
-                    f"Déficit de {excesso} vaga(s)."
+                    f"Déficit de {excesso} {'vaga' if excesso == 1 else 'vagas'}."
                 ),
             )
         )
@@ -532,7 +532,7 @@ def pre_process(raw: RawInstance, allow_integral: bool = False) -> ProcessedInst
                 tratada=False,
                 mensagem=(
                     f"Total de alunos válidos ({len(students)}) excede a soma total de vagas "
-                    f"da instituição ({cap_manha + cap_tarde}). Déficit global de {excesso} vaga(s)."
+                    f"da instituição ({cap_manha + cap_tarde}). Déficit global de {excesso} {'vaga' if excesso == 1 else 'vagas'}."
                 ),
             )
         )

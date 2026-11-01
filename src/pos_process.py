@@ -169,7 +169,15 @@ def write_excel_output(
             cell.fill = header_fill
             cell.alignment = center_align if col_idx in {1, 3, 4, 6, 7} else left_align
 
-        all_inconsistencies = list(instance.inconsistencies)
+        all_inconsistencies = sorted(
+            instance.inconsistencies,
+            key=lambda inc: (
+                0 if inc.severidade == "IMPEDITIVA" else 1,
+                0 if (inc.row_number is not None and str(inc.row_number).isdigit()) else 1,
+                int(inc.row_number) if (inc.row_number is not None and str(inc.row_number).isdigit()) else 9999999,
+                0 if inc.severidade == "ALERTA" else 1,
+            ),
+        )
         if not result.feasible and instance.capacity_feasible:
             ws_inc.append(
                 [
@@ -543,7 +551,8 @@ def build_diagnostic_report(
     lines.append("\n[5] ANÁLISE DE RECURSOS — EXISTE SOLUÇÃO COM SALAS VAZIAS?")
     lines.append(sep_light)
     if empty_rooms_current > 0:
-        lines.append(f"  Na solução atual já há {empty_rooms_current} sala(s) vazia(s).")
+        sala_vazia_info = "1 sala vazia" if empty_rooms_current == 1 else f"{empty_rooms_current} salas vazias"
+        lines.append(f"  Na solução atual já há {sala_vazia_info}.")
 
     total_savable_rooms = 0
     for turno in (TURNO_MANHA, TURNO_TARDE):
@@ -565,12 +574,15 @@ def build_diagnostic_report(
             ocup_compact = (
                 (100.0 * aloc_t / (min_rooms_needed * cap_unit)) if min_rooms_needed > 0 else 0.0
             )
+            savable_str = "1 sala VAZIA" if savable == 1 else f"{savable} salas VAZIAS"
+            turmas_tot_str = "1 turma" if n_turmas == 1 else f"{n_turmas} turmas"
+            savable_prof_str = "1 sala/professor" if savable == 1 else f"{savable} salas/professores"
             lines.append(
-                f"  • {turno:<6}: SIM! É matematicamente possível deixar até {savable} sala(s) VAZIA(S) "
-                f"(usando {min_rooms_needed} de {n_turmas} turmas)."
+                f"  • {turno:<6}: SIM! É matematicamente possível deixar até {savable_str} "
+                f"(usando {min_rooms_needed} de {turmas_tot_str})."
             )
             lines.append(
-                f"            Trade-off: economiza {savable} sala(s)/professor(es), mas eleva a média "
+                f"            Trade-off: economiza {savable_prof_str}, mas eleva a média "
                 f"de {avg_current:.1f} alunos/sala ({st_info['ocup_pct']:.1f}% ocup.) para "
                 f"{avg_compact:.1f} alunos/sala ({ocup_compact:.1f}% ocup.)."
             )
@@ -581,9 +593,11 @@ def build_diagnostic_report(
         else:
             max_with_one_less = max(0, n_turmas - 1) * cap_unit
             deficit_if_closed = aloc_t - max_with_one_less
+            todas_str = "A sala ofertada é estritamente necessária" if n_turmas == 1 else f"Todas as {n_turmas} salas são estritamente necessárias"
+            min_str = "1 sala" if min_rooms_needed == 1 else f"{min_rooms_needed} salas"
             lines.append(
-                f"  • {turno:<6}: NÃO. Todas as {n_turmas} sala(s) são estritamente necessárias "
-                f"(mínimo teórico = ceil({aloc_t}/{cap_unit}) = {min_rooms_needed} salas)."
+                f"  • {turno:<6}: NÃO. {todas_str} "
+                f"(mínimo teórico = ceil({aloc_t}/{cap_unit}) = {min_str})."
             )
             lines.append(
                 f"            Se 1 sala fosse fechada, restariam {max_with_one_less} vagas para "
@@ -596,9 +610,10 @@ def build_diagnostic_report(
             "nenhuma sala pode ficar vazia sem violar o limite máximo de vagas."
         )
     else:
+        savable_concl_str = "1 sala" if total_savable_rooms == 1 else f"{total_savable_rooms} salas"
         lines.append(
-            f"  => Conclusão de Recursos: Há potencial para economizar até {total_savable_rooms} "
-            "sala(s) caso a ONG priorize redução de custos sobre turmas menores."
+            f"  => Conclusão de Recursos: Há potencial para economizar até {savable_concl_str} "
+            "caso a ONG priorize redução de custos sobre turmas menores."
         )
 
     # -------------------------------------------------------------------------
@@ -635,10 +650,15 @@ def build_diagnostic_report(
             )
         elif amp_q == 1 and rem_q != 0:
             faltam_para_igualar = n_turmas - rem_q
+            matr_str = (
+                "1 nova matrícula igualaria"
+                if faltam_para_igualar == 1
+                else f"{faltam_para_igualar} novas matrículas igualariam"
+            )
             rec_items.append(
                 f"[Indivisibilidade Inteira - {turno}] A diferença de 1 aluno entre salas "
                 f"({aloc_t} alunos / {n_turmas} salas deixa resto {rem_q}) é matematicamente "
-                f"irredutível; {faltam_para_igualar} nova(s) matrícula(s) igualariam todas as salas."
+                f"irredutível; {matr_str} todas as salas."
             )
 
         # Desequilíbrio demográfico 50/50 dentro do turno
@@ -646,11 +666,16 @@ def build_diagnostic_report(
         if diff_turno_mf >= n_turmas:
             gen_maior = "Feminino (F)" if f_t > m_t else "Masculino (M)"
             gen_menor = "Masculino (M)" if f_t > m_t else "Feminino (F)"
+            aluno_migrar_str = (
+                f"~{diff_turno_mf} aluno do gênero {gen_menor}"
+                if diff_turno_mf == 1
+                else f"~{diff_turno_mf} alunos do gênero {gen_menor}"
+            )
             rec_items.append(
                 f"[Paridade 50/50 - {turno}] A base de inscritos do turno tem mais {gen_maior} ({max(m_t, f_t)}) "
                 f"do que {gen_menor} ({min(m_t, f_t)}), gerando diferença média de "
                 f"~{diff_turno_mf / n_turmas:.1f} por sala. Para aproximar cada sala do 50/50, "
-                f"seria necessário captar/migrar ~{diff_turno_mf} aluno(s) do gênero {gen_menor}."
+                f"seria necessário captar/migrar {aluno_migrar_str}."
             )
 
     # 6.2 Complementaridade de gênero e ocupação entre Manhã e Tarde
@@ -662,11 +687,12 @@ def build_diagnostic_report(
     if imb_manha * imb_tarde < 0:
         trocas_uteis = min(abs(imb_manha), abs(imb_tarde)) // 2
         if trocas_uteis > 0:
+            par_str = "1 par" if trocas_uteis == 1 else f"{trocas_uteis} pares"
             rec_items.append(
                 f"[Sinergia entre Turnos] Manhã e Tarde têm desvios de gênero em direções opostas "
                 f"(Manhã: {m_manha}M/{f_manha}F vs. Tarde: {m_tarde}M/{f_tarde}F). Caso alguns "
-                f"alunos tenham disponibilidade flexível (Integral), permutar até {trocas_uteis} "
-                "par(es) entre turnos melhoraria simultaneamente a paridade 50/50 nos dois períodos."
+                f"alunos tenham disponibilidade flexível (Integral), permutar até {par_str} "
+                "entre turnos melhoraria simultaneamente a paridade 50/50 nos dois períodos."
             )
 
     ocup_m = turno_stats[TURNO_MANHA]["ocup_pct"]
@@ -692,19 +718,24 @@ def build_diagnostic_report(
         livres_tot = int(turno_stats[TURNO_MANHA]["livres"] + turno_stats[TURNO_TARDE]["livres"])
         salas_extra_m = math.ceil(u_manha / cap_u_m) if u_manha > 0 else 0
         salas_extra_t = math.ceil((u_tarde + u_int) / cap_u_t) if (u_tarde + u_int) > 0 else 0
+        n_unalloc = len(unalloc_objs)
+        unalloc_str = "1 aluno ficou sem turma" if n_unalloc == 1 else f"{n_unalloc} alunos ficaram sem turma"
+        extra_m_str = "1 turma" if salas_extra_m == 1 else f"{salas_extra_m} turmas"
+        extra_t_str = "1 turma" if salas_extra_t == 1 else f"{salas_extra_t} turmas"
         rec_items.append(
-            f"[Expansão de Vagas / Lista de Espera] {len(unalloc_objs)} aluno(s) ficaram sem turma "
+            f"[Expansão de Vagas / Lista de Espera] {unalloc_str} "
             f"por limite físico de capacidade ({u_manha} Manhã, {u_tarde} Tarde, {u_int} Integral; "
-            f"vagas ociosas incompatíveis restantes: {livres_tot}). Abrir +{salas_extra_m} turma(s) na "
-            f"Manhã e +{salas_extra_t} na Tarde (ou ampliar vagas/sala) absorveria 100% da fila."
+            f"vagas ociosas incompatíveis restantes: {livres_tot}). Abrir +{extra_m_str} na "
+            f"Manhã e +{extra_t_str} na Tarde (ou ampliar vagas/sala) absorveria 100% da fila."
         )
 
     if n_invalid > 0:
         vagas_livres_totais = int(
             turno_stats[TURNO_MANHA]["livres"] + turno_stats[TURNO_TARDE]["livres"]
         )
+        reg_inv_str = "1 registro não alocado" if n_invalid == 1 else f"{n_invalid} registros não alocados"
         rec_items.append(
-            f"[Saneamento Cadastral] Existem {n_invalid} registro(s) não alocados por erro de "
+            f"[Saneamento Cadastral] Existem {reg_inv_str} por erro de "
             f"preenchimento (ver aba '{SHEET_INCONSISTENCIAS}'). Há {vagas_livres_totais} vagas "
             f"ociosas no total ({int(turno_stats[TURNO_MANHA]['livres'])} Manhã / "
             f"{int(turno_stats[TURNO_TARDE]['livres'])} Tarde), suficientes para absorvê-los "

@@ -272,11 +272,12 @@ def solve_ensalamento(
 
         if min_unalloc_hall > 0:
             elapsed = time.perf_counter() - t_total_start
+            alunos_str = "aluno não possui" if min_unalloc_hall == 1 else "alunos não possuem"
             return SolverResult(
                 feasible=False,
                 optimal=False,
                 reason=(
-                    f"Capacidade insuficiente: pelo menos {min_unalloc_hall} aluno(s) não possui(em) "
+                    f"Capacidade insuficiente: pelo menos {min_unalloc_hall} {alunos_str} "
                     "vaga compatível disponível (ative --allow-unallocated para ensalar o máximo "
                     "possível e gerar lista de espera)."
                 ),

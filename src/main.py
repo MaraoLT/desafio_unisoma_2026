@@ -80,7 +80,7 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
         "inputs",
         nargs="*",
         help=(
-            "Caminho(s) para arquivo(s) .xlsx, pasta(s) ou padrão glob. "
+            "Caminhos para arquivos .xlsx, pastas ou padrão glob. "
             "Se omitido (e sem --all), processa todas as planilhas em instances/public/."
         ),
     )

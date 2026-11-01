@@ -317,6 +317,31 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
 
         return _json_resp(backend.export_pdf(pdf_target, allow_unallocated=allow_unallocated))
 
+    @app.post("/api/export_dashboard_report_dialog")
+    def api_export_dashboard_report_dialog():
+        win = window_holder.get("win")
+        if win is None:
+            return _json_resp({"success": False, "error": "Janela não inicializada."})
+
+        stem = backend.current_filepath.stem if backend.current_filepath else "ensalamento"
+        default_pdf = f"Relatorio_Distribuicao_{stem}.pdf"
+        start_dir = str(backend.current_filepath.parent) if backend.current_filepath else ""
+
+        selected = win.create_file_dialog(
+            webview.FileDialog.SAVE,
+            directory=start_dir,
+            save_filename=default_pdf,
+            file_types=("Documento PDF (*.pdf)",),
+        )
+        if not selected:
+            return _json_resp({"cancelled": True})
+
+        pdf_target = selected[0] if isinstance(selected, (list, tuple)) else str(selected)
+        if not pdf_target.lower().endswith(".pdf"):
+            pdf_target += ".pdf"
+
+        return _json_resp(backend.export_dashboard_report(pdf_target))
+
     @app.post("/api/ask")
     def api_ask():
         body = _read_json()
@@ -499,12 +524,19 @@ def _run_self_test(out_json_path: str) -> int:
         opt_res2 = _post("/api/run_ensalamento", {"allow_integral": True, "allow_unallocated": True})
         assert opt_res2.get("success") is True, f"Falha em /api/run_ensalamento pós-fix: {opt_res2}"
 
-        # 7. Testa exportação de PDF limpo p/ alunos (com e sem lista de espera) e salvamento de Excel
+        # 7. Testa exportação de PDF limpo p/ alunos (com e sem lista de espera), Relatório do Dashboard e salvamento de Excel
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp_pdf = str(Path(tmpdir) / "turmas_teste.pdf")
             pdf_res = backend.export_pdf(tmp_pdf, allow_unallocated=True)
             assert pdf_res.get("success") is True and Path(tmp_pdf).stat().st_size > 1000, f"Falha PDF: {pdf_res}"
             report["pdf_bytes"] = Path(tmp_pdf).stat().st_size
+
+            tmp_dash_pdf = str(Path(tmpdir) / "relatorio_dashboard.pdf")
+            dash_pdf_res = backend.export_dashboard_report(tmp_dash_pdf)
+            assert dash_pdf_res.get("success") is True and Path(tmp_dash_pdf).stat().st_size > 1000, (
+                f"Falha Relatório Dashboard PDF: {dash_pdf_res}"
+            )
+            report["dashboard_report_pdf_bytes"] = Path(tmp_dash_pdf).stat().st_size
 
             tmp_xlsx = str(Path(tmpdir) / "planilha_salva.xlsx")
             xlsx_res = backend.save_excel(save_as_path=tmp_xlsx)

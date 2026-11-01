@@ -59,7 +59,7 @@
         >
         <button class="btn btn-sm" onclick="addRowBelow()" title="Inserir nova linha abaixo da seleção">+ Linha Abaixo</button>
         <button class="btn btn-sm" onclick="addColumnRight()" title="Inserir nova coluna à direita da seleção">+ Coluna Direita</button>
-        <button class="btn btn-sm" onclick="deleteSelectedRow()" title="Excluir linha(s) selecionada(s)">Excluir Linha</button>
+        <button class="btn btn-sm" onclick="deleteSelectedRow()" title="Excluir linhas selecionadas">Excluir Linha</button>
         <button class="btn btn-sm" onclick="resetSortOrder()" id="btnResetSort" style="display:none;" title="Restaurar ordem original das linhas">Restaurar Ordem</button>
         <input
           type="text"
@@ -138,6 +138,16 @@
           <div class="dash-empty-state">
             Clique em <b>Otimizar Turmas</b> na barra superior para visualizar as turmas e as barras de distribuição por sala.
           </div>
+        </div>
+        <div class="dash-footer-bar">
+          <button
+            class="btn btn-primary dash-report-btn"
+            id="btnExportDashReport"
+            onclick="exportDashboardReport()"
+            title="Gerar relatório em PDF sobre a distribuição de alunos e gênero nas turmas"
+          >
+            📄 Gerar Relatório de Distribuição
+          </button>
         </div>
       </div>
     </aside>
@@ -260,7 +270,7 @@
           resizable: true,
           headerSort: true,
           headerSortTristate: true,
-          headerTooltip: "Clique/arraste p/ selecionar coluna(s) • Clique na seta p/ ordenar (A-Z / Z-A / Original)",
+          headerTooltip: "Clique/arraste para selecionar colunas • Clique na seta para ordenar (A-Z / Z-A / Original)",
           sorter: excelColumnSorter,
           editor: "input",
           editorParams: { selectContents: true }
@@ -483,7 +493,7 @@
           label: '<div class="ctx-item"><span>📋 Copiar</span><kbd>Ctrl+C</kbd></div>',
           action: () => {
             if (table) table.copyToClipboard();
-            showToast("Célula(s) copiada(s) para a área de transferência.");
+            showToast("Células copiadas para a área de transferência.");
           }
         },
         {
@@ -507,7 +517,7 @@
           action: () => addColumnRight()
         },
         {
-          label: `<div class="ctx-item" style="${isHeaderRow ? 'color:#94A3B8;' : 'color:#DC2626;'}"><span>🗑 Excluir Linha(s)</span></div>`,
+          label: `<div class="ctx-item" style="${isHeaderRow ? 'color:#94A3B8;' : 'color:#DC2626;'}"><span>🗑 Excluir Linha</span></div>`,
           disabled: isHeaderRow,
           action: () => {
             if (isHeaderRow) {
@@ -669,7 +679,8 @@
     function renderPager() {
       const box = document.getElementById("pagerBox");
       if (state.totalPages <= 1) {
-        box.innerHTML = `<span>${state.totalRows} registro(s)</span>`;
+        const termoReg = state.totalRows === 1 ? "1 registro" : `${state.totalRows} registros`;
+        box.innerHTML = `<span>${termoReg}</span>`;
         return;
       }
       box.innerHTML = `
@@ -824,7 +835,8 @@
         if (res.summary) renderSummary(res.summary);
         showToast(matIndices.length > 1 ? `${matIndices.length} linhas excluídas.` : "Linha excluída.");
       } else {
-        showToast(res.error || "Não foi possível excluir a(s) linha(s).");
+        const termoErr = matIndices.length > 1 ? "Não foi possível excluir as linhas." : "Não foi possível excluir a linha.";
+        showToast(res.error || termoErr);
       }
     }
 
@@ -998,6 +1010,19 @@
       }
     }
 
+    async function exportDashboardReport() {
+      await flushPendingUpdates();
+      showBusy("Gerando relatório de distribuição das turmas...");
+      const res = await apiPost("/api/export_dashboard_report_dialog");
+      hideBusy();
+      if (res.cancelled) return;
+      if (res.success) {
+        showToast(`Relatório de distribuição salvo em: ${res.pdf_path}`);
+      } else {
+        showToast(res.error || "Erro ao gerar relatório de distribuição.");
+      }
+    }
+
     function resetSummaryCards() {
       document.getElementById("kpiAloc").textContent = "—";
       document.getElementById("kpiSalas").textContent = "—";
@@ -1063,7 +1088,23 @@
       if (!s.inconsistencias || s.inconsistencias.length === 0) {
         ib.innerHTML = "<span style='font-size:12px; color:#107C41; font-weight:500;'>Nenhum erro ou inconsistência encontrado!</span>";
       } else {
-        s.inconsistencias.forEach((inc) => {
+        const sortedIncs = [...s.inconsistencias].sort((a, b) => {
+          const aImp = a.severidade === "IMPEDITIVA" ? 0 : 1;
+          const bImp = b.severidade === "IMPEDITIVA" ? 0 : 1;
+          if (aImp !== bImp) return aImp - bImp;
+
+          const aRow = (a.linhas && a.linhas.length > 0) ? a.linhas[0] : (a.linha || (a.target_row || 9999999));
+          const bRow = (b.linhas && b.linhas.length > 0) ? b.linhas[0] : (b.linha || (b.target_row || 9999999));
+          const aHasRow = (aRow && aRow !== 9999999) ? 0 : 1;
+          const bHasRow = (bRow && bRow !== 9999999) ? 0 : 1;
+          if (aHasRow !== bHasRow) return aHasRow - bHasRow;
+          if (aRow !== bRow) return aRow - bRow;
+
+          const aTie = a.severidade === "ALERTA" ? 0 : 1;
+          const bTie = b.severidade === "ALERTA" ? 0 : 1;
+          return aTie - bTie;
+        });
+        sortedIncs.forEach((inc) => {
           const card = document.createElement("div");
           card.className = `issue-item ${inc.severidade}`;
 
@@ -1265,6 +1306,29 @@
       return card;
     }
 
+    function createShiftRemovableWarnElement(shiftLabel, shiftTurmas) {
+      if (!shiftTurmas || shiftTurmas.length === 0) return null;
+      const nSalas = shiftTurmas.length;
+      const capUnit = Math.max(0, Number(shiftTurmas[0].capacidade) || 0);
+      if (capUnit <= 0) return null;
+      const totAloc = shiftTurmas.reduce((acc, t) => acc + (Math.max(0, Number(t.lotacao) || 0)), 0);
+      const minSalasNeeded = totAloc > 0 ? Math.ceil(totAloc / capUnit) : 0;
+      const removiveis = Math.max(0, nSalas - minSalasNeeded);
+      if (removiveis < 1) return null;
+
+      const restantes = nSalas - removiveis;
+      const vagasRestantes = restantes * capUnit;
+      const warnDiv = document.createElement("div");
+      warnDiv.className = "dash-shift-warn";
+      const termo = removiveis === 1 ? "1 turma" : `${removiveis} turmas`;
+      const termoRestantes = restantes === 1 ? "1 turma" : `${restantes} turmas`;
+      const termoAlunos = totAloc === 1 ? "1 aluno cabe" : `${totAloc} alunos cabem`;
+      warnDiv.innerHTML =
+        `<b>⚠ Aviso:</b> É possível remover <b>${termo}</b> no turno da <b>${shiftLabel}</b> ` +
+        `(${termoAlunos} em ${termoRestantes} de ${capUnit} vagas = ${vagasRestantes} vagas).`;
+      return warnDiv;
+    }
+
     function renderDashboard(s) {
       const container = document.getElementById("dashTurmasContainer");
       if (!s) {
@@ -1293,8 +1357,12 @@
       colM.className = "dash-shift-col";
       const hdrM = document.createElement("div");
       hdrM.className = "dash-col-header header-manha";
-      hdrM.textContent = `Turmas da Manhã (${turmasManha.length} sala(s))`;
+      const termoSalasM = turmasManha.length === 1 ? "1 sala" : `${turmasManha.length} salas`;
+      hdrM.textContent = `Turmas da Manhã (${termoSalasM})`;
       colM.appendChild(hdrM);
+
+      const warnM = createShiftRemovableWarnElement("Manhã", turmasManha);
+      if (warnM) colM.appendChild(warnM);
 
       if (turmasManha.length === 0) {
         const emptyM = document.createElement("div");
@@ -1310,8 +1378,12 @@
       colT.className = "dash-shift-col";
       const hdrT = document.createElement("div");
       hdrT.className = "dash-col-header header-tarde";
-      hdrT.textContent = `Turmas da Tarde (${turmasTarde.length} sala(s))`;
+      const termoSalasT = turmasTarde.length === 1 ? "1 sala" : `${turmasTarde.length} salas`;
+      hdrT.textContent = `Turmas da Tarde (${termoSalasT})`;
       colT.appendChild(hdrT);
+
+      const warnT = createShiftRemovableWarnElement("Tarde", turmasTarde);
+      if (warnT) colT.appendChild(warnT);
 
       if (turmasTarde.length === 0) {
         const emptyT = document.createElement("div");

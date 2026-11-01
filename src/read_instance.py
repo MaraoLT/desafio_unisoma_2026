@@ -71,16 +71,17 @@ def validate_sheet_headers(
 
     esperadas_str = ", ".join(expected_columns)
     faltantes_str = ", ".join(f"'{c}'" for c in missing_columns)
+    termo_falta = "Falta a coluna esperada" if len(missing_columns) == 1 else "Faltam as colunas esperadas"
     if not found_columns:
         msg = (
             f"Aba '{sheet_name}' (Linha 1): Cabeçalho vazio ou ausente. "
-            f"Falta(m) a(s) coluna(s) esperada(s): {faltantes_str}. "
+            f"{termo_falta}: {faltantes_str}. "
             f"As colunas obrigatórias são: {esperadas_str}."
         )
     else:
         encontradas_str = ", ".join(f"'{c}'" for c in found_columns)
         msg = (
-            f"Aba '{sheet_name}' (Linha 1): Falta(m) a(s) coluna(s) esperada(s): {faltantes_str} "
+            f"Aba '{sheet_name}' (Linha 1): {termo_falta}: {faltantes_str} "
             f"(cabeçalho encontrado: [{encontradas_str}]). "
             f"O nome das colunas deve ser igual ao padrão oficial: {esperadas_str}."
         )

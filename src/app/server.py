@@ -11,7 +11,7 @@ import openpyxl
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
-from src.app.pdf_lists import generate_class_lists_pdf
+from src.app.pdf_lists import generate_class_lists_pdf, generate_dashboard_report_pdf
 from src.models.solver import SolverParameters, solve_ensalamento
 from src.pos_process import write_excel_output
 from src.pre_process import GENERO_F, GENERO_M, TURNO_MANHA, TURNO_TARDE, pre_process
@@ -28,6 +28,35 @@ from src.read_instance import (
 )
 
 DEFAULT_PAGE_SIZE = 5000
+
+
+def _inconsistency_sort_key(inc: Any) -> tuple[int, int, int, int]:
+    """Ordena inconsistências priorizando erros impeditivos, seguidos de alertas e tratados em ordem de linha."""
+    if isinstance(inc, dict):
+        sev = str(inc.get("severidade", "")).upper()
+        rows = inc.get("linhas")
+        if isinstance(rows, list) and len(rows) > 0 and rows[0] is not None:
+            first_row = rows[0]
+        else:
+            first_row = inc.get("linha") or inc.get("target_row")
+    else:
+        sev = str(getattr(inc, "severidade", "")).upper()
+        first_row = getattr(inc, "row_number", None)
+
+    # Grupo 0: Erros Impeditivos | Grupo 1: Alertas e Erros Tratados
+    sev_group = 0 if sev == "IMPEDITIVA" else 1
+
+    # Linha da planilha (erros sem linha vão para o final do respectivo grupo)
+    has_row = 0 if (first_row is not None and str(first_row).isdigit()) else 1
+    try:
+        row_num = int(first_row) if has_row == 0 else 9999999
+    except (ValueError, TypeError):
+        row_num = 9999999
+
+    # Desempate na mesma linha: ALERTA antes de TRATADA
+    tie_sev = 0 if sev == "ALERTA" else 1
+
+    return (sev_group, has_row, row_num, tie_sev)
 
 
 class AppBackend:
@@ -342,7 +371,7 @@ class AppBackend:
                     )
 
             incons_list = []
-            for inc in proc.inconsistencies:
+            for inc in sorted(proc.inconsistencies, key=_inconsistency_sort_key):
                 item: dict[str, Any] = {
                     "linha": inc.row_number,
                     "nome": inc.nome,
@@ -383,14 +412,8 @@ class AppBackend:
 
                 incons_list.append(item)
 
-            # Ordena os erros pela ordem das linhas na planilha (menores linhas primeiro; erros globais no fim)
-            incons_list.sort(
-                key=lambda x: (
-                    0 if (x.get("linhas") or [None])[0] is not None else 1,
-                    (x.get("linhas") or [9999999])[0] if (x.get("linhas") or [None])[0] is not None else 9999999,
-                    0 if x.get("severidade") == "IMPEDITIVA" else 1,
-                )
-            )
+            # Ordena os erros: primeiro erros impeditivos, depois alertas e erros tratados em ordem da linha
+            incons_list.sort(key=_inconsistency_sort_key)
 
             n_imped = sum(1 for i in incons_list if i["severidade"] == "IMPEDITIVA")
             n_alert = sum(1 for i in incons_list if i["severidade"] == "ALERTA")
@@ -938,7 +961,7 @@ class AppBackend:
                     ["-", "-", "-", "-", "Execução do Solver", "IMPEDITIVA", "Requer Ação", res.reason]
                 )
 
-            for inc in proc.inconsistencies:
+            for inc in sorted(proc.inconsistencies, key=_inconsistency_sort_key):
                 if inc.categoria == "Capacidade Insuficiente" and res.feasible:
                     status_lbl = "Tratada via Lista de Espera"
                 elif inc.severidade == "TRATADA":
@@ -1016,6 +1039,7 @@ class AppBackend:
                 stats_turnos[t_code] = {
                     "salas": n_salas,
                     "vagas_sala": cap_unit,
+                    "capacidade_unitaria": cap_unit,
                     "capacidade_total": tot_cap,
                     "alocados": aloc_t,
                     "masculino": m_t,
@@ -1043,7 +1067,7 @@ class AppBackend:
                 )
 
             incons_list = []
-            for inc in proc.inconsistencies:
+            for inc in sorted(proc.inconsistencies, key=_inconsistency_sort_key):
                 item: dict[str, Any] = {
                     "linha": inc.row_number,
                     "nome": inc.nome,
@@ -1084,14 +1108,8 @@ class AppBackend:
 
                 incons_list.append(item)
 
-            # Ordena os erros pela ordem das linhas na planilha (menores linhas primeiro; erros globais no fim)
-            incons_list.sort(
-                key=lambda x: (
-                    0 if (x.get("linhas") or [None])[0] is not None else 1,
-                    (x.get("linhas") or [9999999])[0] if (x.get("linhas") or [None])[0] is not None else 9999999,
-                    0 if x.get("severidade") == "IMPEDITIVA" else 1,
-                )
-            )
+            # Ordena os erros: primeiro erros impeditivos, depois alertas e erros tratados em ordem da linha
+            incons_list.sort(key=_inconsistency_sort_key)
 
             n_imped = sum(1 for i in incons_list if i["severidade"] == "IMPEDITIVA")
             n_alert = sum(1 for i in incons_list if i["severidade"] == "ALERTA")
@@ -1256,6 +1274,29 @@ class AppBackend:
         except Exception as exc:
             return {"success": False, "error": f"Falha ao gerar PDF: {exc}"}
 
+    def export_dashboard_report(self, output_path: str) -> dict[str, Any]:
+        """Gera o relatório PDF de distribuição de alunos e gênero nas turmas (Dashboard do Ensalamento)."""
+        if not self.last_summary or not self.last_summary.get("turmas"):
+            self.validate_data()
+
+        if not self.last_summary or not self.last_summary.get("turmas"):
+            return {
+                "success": False,
+                "error": "Execute 'Otimizar Turmas' primeiro para gerar o relatório de distribuição das turmas.",
+            }
+
+        try:
+            title = self.current_filepath.stem if self.current_filepath else "Ensalamento"
+            pdf_path = generate_dashboard_report_pdf(
+                output_path,
+                title,
+                self.last_summary,
+            )
+            return {"success": True, "pdf_path": str(pdf_path)}
+        except Exception as exc:
+            traceback.print_exc()
+            return {"success": False, "error": f"Falha ao gerar relatório de distribuição: {exc}"}
+
     def ask_assistant(self, user_prompt: str) -> str:
         """Assistente local determinístico (100% offline, 0% erro/alucinação)."""
         raw_q = user_prompt.strip()
@@ -1298,11 +1339,15 @@ class AppBackend:
             counts = self.last_summary["incons_counts"]
             if counts["total"] == 0:
                 return "Nenhum erro ou inconsistência foi encontrado na planilha."
+            termo_total = f"**{counts['total']} ocorrência**" if counts["total"] == 1 else f"**{counts['total']} ocorrências**"
+            termo_imped = f"• **{counts['impeditivas']}** erro impeditivo (alunos sem sexo/turno válido que precisam de correção)" if counts['impeditivas'] == 1 else f"• **{counts['impeditivas']}** erros impeditivos (alunos sem sexo/turno válido que precisam de correção)"
+            termo_alert = f"• **{counts['alertas']}** alerta de homônimos/nomes repetidos" if counts['alertas'] == 1 else f"• **{counts['alertas']}** alertas de homônimos/nomes repetidos"
+            termo_trat = f"• **{counts['tratadas']}** ajuste automático de grafia/acentos" if counts['tratadas'] == 1 else f"• **{counts['tratadas']}** ajustes automáticos de grafia/acentos"
             lines = [
-                f"Encontrei **{counts['total']} ocorrência(s)** na revisão cadastral:",
-                f"• **{counts['impeditivas']}** erro(s) impeditivo(s) (alunos sem sexo/turno válido que precisam de correção)",
-                f"• **{counts['alertas']}** alerta(s) de homônimos/nomes repetidos",
-                f"• **{counts['tratadas']}** ajuste(s) automático(s) de grafia/acentos",
+                f"Encontrei {termo_total} na revisão cadastral:",
+                termo_imped,
+                termo_alert,
+                termo_trat,
             ]
             impeds = [
                 i for i in self.last_summary["inconsistencias"] if i["severidade"] == "IMPEDITIVA"
@@ -1323,12 +1368,15 @@ class AppBackend:
             s = self.last_summary
             sm = s["stats_turnos"][TURNO_MANHA]
             st = s["stats_turnos"][TURNO_TARDE]
+            termo_sala_m = "sala" if sm['salas'] == 1 else "salas"
+            termo_sala_t = "sala" if st['salas'] == 1 else "salas"
+            termo_esp = f"**{s['total_espera']}** aluno" if s['total_espera'] == 1 else f"**{s['total_espera']}** alunos"
             return (
                 f"**Resumo exato do ensalamento:**\n"
                 f"• Alocados: **{s['total_alocados']}** de **{s['total_validos']}** alunos válidos\n"
-                f"• **Manhã**: {sm['alocados']}/{sm['capacidade_total']} vagas em {sm['salas']} sala(s) ({sm['ocupacao_pct']}%)\n"
-                f"• **Tarde**: {st['alocados']}/{st['capacidade_total']} vagas em {st['salas']} sala(s) ({st['ocupacao_pct']}%)\n"
-                f"• Lista de espera: **{s['total_espera']}** aluno(s)"
+                f"• **Manhã**: {sm['alocados']}/{sm['capacidade_total']} vagas em {sm['salas']} {termo_sala_m} ({sm['ocupacao_pct']}%)\n"
+                f"• **Tarde**: {st['alocados']}/{st['capacidade_total']} vagas em {st['salas']} {termo_sala_t} ({st['ocupacao_pct']}%)\n"
+                f"• Lista de espera: {termo_esp}"
             )
 
         # 4. Perguntas sobre gênero (meninos / meninas)
@@ -1351,8 +1399,9 @@ class AppBackend:
             esp = self.last_summary["total_espera"]
             if esp == 0:
                 return "Nenhum aluno válido ficou sem turma — **100% foram alocados**."
+            termo_esp = f"**{esp} aluno**" if esp == 1 else f"**{esp} alunos**"
             return (
-                f"Há **{esp} aluno(s)** na lista de espera por falta de vagas compatíveis. "
+                f"Há {termo_esp} na lista de espera por falta de vagas compatíveis. "
                 "Eles estão detalhados na aba **Inconsistências**."
             )
 
@@ -1390,7 +1439,8 @@ class AppBackend:
                     top = matches[:6]
                     bullets = "\n".join(f"• **{r[0]}** ({r[1]}) → **{r[3]}**" for r in top)
                     extra = f"\n*(+{len(matches) - 6} outros resultados)*" if len(matches) > 6 else ""
-                    return f"Encontrei **{len(matches)}** estudante(s) no ensalamento:\n{bullets}{extra}"
+                    termo_est = "estudante" if len(matches) == 1 else "estudantes"
+                    return f"Encontrei **{len(matches)}** {termo_est} no ensalamento:\n{bullets}{extra}"
 
             al_mat = self.sheets_data.get("Alunos", [])
             if len(al_mat) > 1:
