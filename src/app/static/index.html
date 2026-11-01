@@ -10,30 +10,32 @@
   <!-- Barra Superior Minimalista Estilo Planilha -->
   <header class="topbar">
     <div class="brand-area">
-      <div class="sheet-logo">XLS</div>
+      <div class="logo-box" title="ABC Aprendiz">
+        <img src="/logo_abc.webp" alt="ABC Aprendiz" class="abc-logo-img">
+      </div>
+      <button class="btn btn-top" onclick="openExcel()" title="Abrir arquivo Excel (.xlsx)">Abrir Excel</button>
+      <button class="btn btn-top" onclick="saveExcel(false)" title="Salvar alterações no Excel">Salvar</button>
       <div class="file-meta">
         <div class="file-title-row">
-          <span class="file-title" id="fileTitle">Carregando planilha...</span>
+          <span class="file-title" id="fileTitle">Planilha sem título</span>
           <span class="save-pill" id="savePill">Pronto</span>
         </div>
-        <span class="file-path" id="filePath">Abra um arquivo .xlsx ou edite os dados diretamente abaixo</span>
+        <span class="file-path" id="filePath">Nova planilha vazia — abra um arquivo .xlsx ou edite diretamente abaixo</span>
       </div>
     </div>
 
     <div class="toolbar-right">
       <div class="opt-toggles" title="Opções de flexibilização do ensalamento">
         <label>
-          <input type="checkbox" id="chkIntegral" checked>
+          <input type="checkbox" id="chkIntegral">
           Aceitar Integral
         </label>
         <label>
-          <input type="checkbox" id="chkUnalloc" checked>
+          <input type="checkbox" id="chkUnalloc">
           Permitir Lista de Espera
         </label>
       </div>
 
-      <button class="btn" onclick="openExcel()">Abrir Excel</button>
-      <button class="btn" onclick="saveExcel(false)">Salvar</button>
       <button class="btn btn-primary" onclick="runOptimization()">Otimizar Turmas</button>
       <button class="btn" onclick="exportStudentPdf()">PDF p/ Alunos</button>
     </div>
@@ -55,8 +57,10 @@
           oninput="onFormulaInput(event)"
           onkeydown="onFormulaKeyDown(event)"
         >
-        <button class="btn btn-sm" onclick="addRow()" title="Inserir nova linha no final da aba">+ Linha</button>
+        <button class="btn btn-sm" onclick="addRowBelow()" title="Inserir nova linha abaixo da seleção">+ Linha Abaixo</button>
+        <button class="btn btn-sm" onclick="addColumnRight()" title="Inserir nova coluna à direita da seleção">+ Coluna Direita</button>
         <button class="btn btn-sm" onclick="deleteSelectedRow()" title="Excluir linha selecionada">Excluir Linha</button>
+        <button class="btn btn-sm" onclick="resetSortOrder()" id="btnResetSort" style="display:none;" title="Restaurar ordem original das linhas">Restaurar Ordem</button>
         <input
           type="text"
           class="search-input"
@@ -175,6 +179,13 @@
       numCols: 3,
       header: [],
       rows: [],
+      rawUnsortedRows: null,
+      sortCol: null,
+      sortAsc: true,
+      colWidths: {},
+      rowHeights: {},
+      selectedRowNums: new Set(),
+      selectedColIndices: new Set(),
       page: 1,
       totalPages: 1,
       totalRows: 0,
@@ -246,6 +257,11 @@
       state.numCols = res.num_cols || 3;
       state.header = res.header || [];
       state.rows = res.rows || [];
+      state.rawUnsortedRows = null;
+      state.sortCol = null;
+      const rstBtn = document.getElementById("btnResetSort");
+      if (rstBtn) rstBtn.style.display = "none";
+
       state.page = res.page || 1;
       state.totalPages = res.total_pages || 1;
       state.totalRows = res.total_rows || 0;
@@ -287,16 +303,45 @@
       thead.innerHTML = "";
       tbody.innerHTML = "";
 
-      // Cabeçalho das colunas A, B, C...
+      // Cabeçalho das colunas A, B, C... com ordenação e redimensionamento
       const trAlpha = document.createElement("tr");
       const thCorner = document.createElement("th");
       thCorner.className = "corner";
+      thCorner.title = "Selecionar toda a planilha";
       thCorner.textContent = "";
+      thCorner.onclick = () => selectAllGrid();
       trAlpha.appendChild(thCorner);
 
       for (let c = 0; c < state.numCols; c++) {
         const th = document.createElement("th");
-        th.textContent = colLetter(c);
+        th.dataset.col = String(c);
+        if (state.selectedColIndices.has(c)) th.classList.add("header-selected");
+        if (state.colWidths[c]) th.style.width = `${state.colWidths[c]}px`;
+
+        const titleSpan = document.createElement("span");
+        titleSpan.className = "col-title";
+        let sortIcon = "";
+        if (state.sortCol === c) {
+          sortIcon = state.sortAsc ? " ▲" : " ▼";
+        }
+        titleSpan.textContent = colLetter(c) + sortIcon;
+        titleSpan.title = `Clique para ordenar por esta coluna (visualização) | Ctrl+Clique p/ selecionar coluna`;
+
+        titleSpan.onclick = (e) => {
+          if (e.ctrlKey || e.metaKey || e.shiftKey) {
+            toggleSelectColumn(c, e.shiftKey);
+          } else {
+            toggleSortByColumn(c);
+          }
+        };
+
+        const resizer = document.createElement("div");
+        resizer.className = "col-resizer";
+        resizer.title = "Arraste para ajustar largura da coluna";
+        initColResizer(resizer, c);
+
+        th.appendChild(titleSpan);
+        th.appendChild(resizer);
         trAlpha.appendChild(th);
       }
       thead.appendChild(trAlpha);
@@ -304,9 +349,13 @@
       // Linha 1 (cabeçalho da planilha)
       const trHeader = document.createElement("tr");
       trHeader.className = "sheet-header-row";
+      if (state.selectedRowNums.has(1)) trHeader.classList.add("row-selected");
       const thRow1 = document.createElement("th");
       thRow1.className = "row-num";
       thRow1.textContent = "1";
+      thRow1.title = "Clique para selecionar a linha 1";
+      thRow1.onclick = (e) => toggleSelectRow(1, e.shiftKey || e.ctrlKey);
+      initRowResizer(thRow1, 0);
       trHeader.appendChild(thRow1);
 
       for (let c = 0; c < state.numCols; c++) {
@@ -315,6 +364,8 @@
         td.dataset.matIdx = "0";
         td.dataset.excelRow = "1";
         td.dataset.col = String(c);
+        if (state.colWidths[c]) td.style.width = `${state.colWidths[c]}px`;
+        if (state.selectedColIndices.has(c) || state.selectedRowNums.has(1)) td.classList.add("multi-selected-cell");
         td.textContent = state.header[c] || "";
         bindCellEvents(td, 0, 1, c);
         trHeader.appendChild(td);
@@ -328,6 +379,10 @@
         if (rObj.flag === "IMPEDITIVA") tr.classList.add("flag-impeditiva");
         else if (rObj.flag === "ALERTA") tr.classList.add("flag-alerta");
 
+        if (state.selectedRowNums.has(rObj.excel_row)) {
+          tr.classList.add("row-selected");
+        }
+
         if (highlightExcelRow && rObj.excel_row === highlightExcelRow) {
           tr.classList.add("jump-highlight");
           rowToScroll = tr;
@@ -336,6 +391,9 @@
         const thNum = document.createElement("th");
         thNum.className = "row-num";
         thNum.textContent = String(rObj.excel_row);
+        thNum.title = `Clique para selecionar a linha ${rObj.excel_row}`;
+        thNum.onclick = (e) => toggleSelectRow(rObj.excel_row, e.shiftKey || e.ctrlKey);
+        initRowResizer(thNum, rObj.mat_idx);
         tr.appendChild(thNum);
 
         for (let c = 0; c < state.numCols; c++) {
@@ -344,6 +402,10 @@
           td.dataset.matIdx = String(rObj.mat_idx);
           td.dataset.excelRow = String(rObj.excel_row);
           td.dataset.col = String(c);
+          if (state.colWidths[c]) td.style.width = `${state.colWidths[c]}px`;
+          if (state.selectedColIndices.has(c) || state.selectedRowNums.has(rObj.excel_row)) {
+            td.classList.add("multi-selected-cell");
+          }
           td.textContent = rObj.cells[c] || "";
           bindCellEvents(td, rObj.mat_idx, rObj.excel_row, c);
           tr.appendChild(td);
@@ -357,13 +419,25 @@
         if (firstTd) firstTd.focus();
       } else {
         const firstDataTd = tbody.querySelector('tr:nth-child(2) td') || tbody.querySelector('td');
-        if (firstDataTd) setActiveCellElement(firstDataTd, false);
+        if (firstDataTd && !state.selectedRowNums.size && !state.selectedColIndices.size) {
+          setActiveCellElement(firstDataTd, false);
+        }
       }
     }
 
     function bindCellEvents(td, matIdx, excelRow, col) {
       td.addEventListener("focus", () => setActiveCellElement(td, true));
       td.addEventListener("blur", () => commitCellChange(matIdx, excelRow, col, td.textContent));
+
+      // Duplo clique seleciona todo o conteúdo da célula
+      td.addEventListener("dblclick", () => {
+        const range = document.createRange();
+        range.selectNodeContents(td);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      });
+
       td.addEventListener("keydown", (ev) => {
         if (ev.key === "Enter") {
           ev.preventDefault();
@@ -482,14 +556,176 @@
       }, 220);
     }
 
-    async function addRow() {
-      const res = await apiPost("/api/add_row", { sheet_name: state.activeSheet });
+    // Seleção Múltipla de Linhas e Colunas
+    function toggleSelectRow(excelRow, multi) {
+      if (!multi) {
+        state.selectedRowNums.clear();
+        state.selectedColIndices.clear();
+      }
+      if (state.selectedRowNums.has(excelRow)) {
+        state.selectedRowNums.delete(excelRow);
+      } else {
+        state.selectedRowNums.add(excelRow);
+      }
+      renderGrid();
+    }
+
+    function toggleSelectColumn(colIdx, multi) {
+      if (!multi) {
+        state.selectedColIndices.clear();
+        state.selectedRowNums.clear();
+      }
+      if (state.selectedColIndices.has(colIdx)) {
+        state.selectedColIndices.delete(colIdx);
+      } else {
+        state.selectedColIndices.add(colIdx);
+      }
+      renderGrid();
+    }
+
+    function selectAllGrid() {
+      state.selectedColIndices.clear();
+      state.selectedRowNums.clear();
+      state.selectedRowNums.add(1);
+      state.rows.forEach(r => state.selectedRowNums.add(r.excel_row));
+      renderGrid();
+      showToast("Toda a grade selecionada.");
+    }
+
+    // Ordenação Visual das Colunas A, B, C (não altera a planilha final salva)
+    function toggleSortByColumn(colIdx) {
+      if (!state.rawUnsortedRows) {
+        state.rawUnsortedRows = [...state.rows];
+      }
+      if (state.sortCol === colIdx) {
+        if (state.sortAsc) {
+          state.sortAsc = false;
+        } else {
+          // Terceiro clique: reseta a ordenação original
+          resetSortOrder();
+          return;
+        }
+      } else {
+        state.sortCol = colIdx;
+        state.sortAsc = true;
+      }
+
+      state.rows.sort((a, b) => {
+        const valA = (a.cells[colIdx] || "").toString().trim();
+        const valB = (b.cells[colIdx] || "").toString().trim();
+        const numA = parseFloat(valA.replace(",", "."));
+        const numB = parseFloat(valB.replace(",", "."));
+        let cmp = 0;
+        if (!isNaN(numA) && !isNaN(numB)) {
+          cmp = numA - numB;
+        } else {
+          cmp = valA.localeCompare(valB, "pt-BR", { sensitivity: "base" });
+        }
+        return state.sortAsc ? cmp : -cmp;
+      });
+
+      const rstBtn = document.getElementById("btnResetSort");
+      if (rstBtn) rstBtn.style.display = "inline-flex";
+
+      renderGrid();
+      showToast(`Visualização ordenada por Coluna ${colLetter(colIdx)} (${state.sortAsc ? "A-Z" : "Z-A"}). Arquivo final preservado.`);
+    }
+
+    function resetSortOrder() {
+      if (state.rawUnsortedRows) {
+        state.rows = [...state.rawUnsortedRows];
+        state.rawUnsortedRows = null;
+      }
+      state.sortCol = null;
+      state.sortAsc = true;
+      const rstBtn = document.getElementById("btnResetSort");
+      if (rstBtn) rstBtn.style.display = "none";
+      renderGrid();
+      showToast("Ordem original da visualização restaurada.");
+    }
+
+    // Redimensionamento de Colunas (Largura)
+    function initColResizer(handle, colIdx) {
+      handle.addEventListener("mousedown", (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const th = handle.parentElement;
+        const startX = e.clientX;
+        const startW = th.offsetWidth;
+
+        const onMouseMove = (moveEv) => {
+          const newW = Math.max(45, startW + (moveEv.clientX - startX));
+          state.colWidths[colIdx] = newW;
+          th.style.width = `${newW}px`;
+          document.querySelectorAll(`.sheet-grid td[data-col='${colIdx}']`).forEach(td => {
+            td.style.width = `${newW}px`;
+          });
+        };
+
+        const onMouseUp = () => {
+          window.removeEventListener("mousemove", onMouseMove);
+          window.removeEventListener("mouseup", onMouseUp);
+        };
+
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
+      });
+    }
+
+    // Redimensionamento de Linhas (Altura)
+    function initRowResizer(thNum, matIdx) {
+      thNum.addEventListener("mousedown", (e) => {
+        // Se clicar nos últimos 5 pixels da borda inferior, inicia resize da linha
+        const rect = thNum.getBoundingClientRect();
+        if (e.clientY < rect.bottom - 6) return;
+        e.stopPropagation();
+        e.preventDefault();
+        const tr = thNum.parentElement;
+        const startY = e.clientY;
+        const startH = tr.offsetHeight;
+
+        const onMouseMove = (moveEv) => {
+          const newH = Math.max(22, startH + (moveEv.clientY - startY));
+          tr.style.height = `${newH}px`;
+        };
+
+        const onMouseUp = () => {
+          window.removeEventListener("mousemove", onMouseMove);
+          window.removeEventListener("mouseup", onMouseUp);
+        };
+
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
+      });
+    }
+
+    async function addRowBelow() {
+      showBusy("Inserindo linha...");
+      const res = await apiPost("/api/add_row", {
+        sheet_name: state.activeSheet,
+        after_row: state.selectedExcelRow || 1
+      });
+      hideBusy();
       if (res.success) {
         document.getElementById("searchBox").value = "";
         state.searchQuery = "";
         applyPagePayload(res);
         if (res.summary) renderSummary(res.summary);
-        showToast("Nova linha adicionada ao final da aba.");
+        showToast(`Nova linha inserida abaixo da Linha ${state.selectedExcelRow}.`);
+      }
+    }
+
+    async function addColumnRight() {
+      showBusy("Inserindo coluna...");
+      const res = await apiPost("/api/add_column", {
+        sheet_name: state.activeSheet,
+        after_col: state.selectedCol
+      });
+      hideBusy();
+      if (res.success) {
+        applyPagePayload(res);
+        if (res.summary) renderSummary(res.summary);
+        showToast(`Nova coluna inserida à direita da Coluna ${colLetter(state.selectedCol)}.`);
       }
     }
 
@@ -680,9 +916,11 @@
           msgDiv.className = "issue-msg-text";
           msgDiv.innerHTML = `<b>${inc.nome}</b>: ${inc.mensagem}`;
 
-          // Clique no corpo navega para a linha
+          // Clique no corpo navega para a linha / aba correspondente
           card.onclick = () => {
-            if (isMulti) {
+            if (inc.target_sheet === "Turmas" || inc.categoria === "Capacidade Insuficiente") {
+              jumpToSheetAndRow("Turmas", inc.target_row || 2);
+            } else if (isMulti) {
               cycleDuplicateRow(inc.nome, rowsList);
             } else if (inc.linha) {
               jumpToStudentRow(inc.linha);
@@ -740,6 +978,18 @@
         showToast("Problema revisado e atualizado na planilha!");
       } else {
         showToast(res.error || "Não foi possível aplicar a ação.");
+      }
+    }
+
+    async function jumpToSheetAndRow(sheetName, excelRow) {
+      document.getElementById("searchBox").value = "";
+      state.searchQuery = "";
+      showBusy(`Abrindo aba ${sheetName}...`);
+      const res = await apiPost("/api/jump_row", { sheet_name: sheetName, excel_row: excelRow });
+      hideBusy();
+      if (res.success) {
+        applyPagePayload(res);
+        showToast(`Navegado para a aba '${sheetName}' (Linha ${excelRow}) para ajustar a capacidade.`);
       }
     }
 

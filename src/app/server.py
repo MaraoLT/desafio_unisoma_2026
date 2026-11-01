@@ -49,8 +49,23 @@ class AppBackend:
             for sname in wb.sheetnames:
                 ws = wb[sname]
                 rows: list[list[str]] = []
+                is_turmas = normalize_token(sname) == "turmas"
                 for row in ws.iter_rows(values_only=True):
-                    rows.append(["" if v is None else str(v) for v in row])
+                    row_strs: list[str] = []
+                    for c_i, v in enumerate(row):
+                        if v is None:
+                            row_strs.append("")
+                        elif is_turmas and c_i == 1 and isinstance(v, (int, float)):
+                            # Converte capacidades e turmas para inteiro sem vírgula/ponto flutuante
+                            try:
+                                row_strs.append(str(int(round(float(v)))))
+                            except Exception:
+                                row_strs.append(str(v))
+                        elif isinstance(v, float) and v.is_integer():
+                            row_strs.append(str(int(v)))
+                        else:
+                            row_strs.append(str(v))
+                    rows.append(row_strs)
                 while rows and all(c == "" for c in rows[-1]):
                     rows.pop()
                 loaded_sheets[sname] = rows if rows else [[""]]
@@ -238,6 +253,14 @@ class AppBackend:
                 else:
                     item["linhas"] = []
 
+                # Se for erro de capacidade insuficiente, marca target_sheet='Turmas' para navegação direta
+                if inc.categoria == "Capacidade Insuficiente":
+                    item["target_sheet"] = "Turmas"
+                    item["target_row"] = 2
+                else:
+                    item["target_sheet"] = "Alunos"
+                    item["target_row"] = inc.row_number
+
                 # Apenas erros com normalização automática aplicável (espaços, turno, sexo limpo)
                 if inc.severidade == "TRATADA":
                     item["can_review"] = True
@@ -246,6 +269,15 @@ class AppBackend:
                     item["can_review"] = False
 
                 incons_list.append(item)
+
+            # Ordena os erros pela ordem das linhas na planilha (menores linhas primeiro; erros globais no fim)
+            incons_list.sort(
+                key=lambda x: (
+                    0 if (x.get("linhas") or [None])[0] is not None else 1,
+                    (x.get("linhas") or [9999999])[0] if (x.get("linhas") or [None])[0] is not None else 9999999,
+                    0 if x.get("severidade") == "IMPEDITIVA" else 1,
+                )
+            )
 
             n_imped = sum(1 for i in incons_list if i["severidade"] == "IMPEDITIVA")
             n_alert = sum(1 for i in incons_list if i["severidade"] == "ALERTA")
@@ -303,17 +335,59 @@ class AppBackend:
             "summary": validation.get("summary") if validation.get("success") else None,
         }
 
-    def add_row(self, sheet_name: str, page_size: int = DEFAULT_PAGE_SIZE) -> dict[str, Any]:
-        """Adiciona uma nova linha editável ao final da aba atual e navega até ela."""
+    def add_row(
+        self,
+        sheet_name: str,
+        after_row: Optional[int] = None,
+        page_size: int = DEFAULT_PAGE_SIZE,
+    ) -> dict[str, Any]:
+        """Adiciona uma nova linha editável logo abaixo de after_row (ou ao final se None)."""
         if sheet_name not in self.sheets_data:
             return {"success": False, "error": "Aba não encontrada."}
 
         matrix = self.sheets_data[sheet_name]
         num_cols = len(matrix[0]) if matrix else 3
-        matrix.append([""] * num_cols)
+        new_row = [""] * num_cols
+
+        if after_row is not None and 1 <= after_row <= len(matrix):
+            # after_row é 1-based (ex.: linha 3). Inserir logo abaixo significa índice after_row
+            insert_idx = after_row
+            matrix.insert(insert_idx, new_row)
+            target_excel_row = insert_idx + 1
+        else:
+            matrix.append(new_row)
+            target_excel_row = len(matrix)
+
         self.dirty = True
-        new_excel_row = len(matrix)
-        res = self.jump_to_row(sheet_name, excel_row=new_excel_row, page_size=page_size)
+        res = self.jump_to_row(sheet_name, excel_row=target_excel_row, page_size=page_size)
+        validation = self.validate_data()
+        res["summary"] = validation.get("summary") if validation.get("success") else None
+        return res
+
+    def add_column(
+        self,
+        sheet_name: str,
+        after_col: Optional[int] = None,
+        page_size: int = DEFAULT_PAGE_SIZE,
+    ) -> dict[str, Any]:
+        """Adiciona uma nova coluna vazia à direita de after_col (ou ao final se None)."""
+        if sheet_name not in self.sheets_data:
+            return {"success": False, "error": "Aba não encontrada."}
+
+        matrix = self.sheets_data[sheet_name]
+        if not matrix:
+            matrix.append([""])
+
+        num_cols = len(matrix[0])
+        col_idx = (after_col + 1) if (after_col is not None and 0 <= after_col < num_cols) else num_cols
+
+        for r in matrix:
+            while len(r) < num_cols:
+                r.append("")
+            r.insert(col_idx, "")
+
+        self.dirty = True
+        res = self.get_sheet_page(sheet_name, page=1, page_size=page_size)
         validation = self.validate_data()
         res["summary"] = validation.get("summary") if validation.get("success") else None
         return res
@@ -787,6 +861,14 @@ class AppBackend:
                 else:
                     item["linhas"] = []
 
+                # Se for erro de capacidade insuficiente, marca target_sheet='Turmas' para navegação direta
+                if inc.categoria == "Capacidade Insuficiente":
+                    item["target_sheet"] = "Turmas"
+                    item["target_row"] = 2
+                else:
+                    item["target_sheet"] = "Alunos"
+                    item["target_row"] = inc.row_number
+
                 # Apenas erros com normalização automática aplicável (espaços, turno, sexo limpo)
                 if inc.severidade == "TRATADA":
                     item["can_review"] = True
@@ -795,6 +877,15 @@ class AppBackend:
                     item["can_review"] = False
 
                 incons_list.append(item)
+
+            # Ordena os erros pela ordem das linhas na planilha (menores linhas primeiro; erros globais no fim)
+            incons_list.sort(
+                key=lambda x: (
+                    0 if (x.get("linhas") or [None])[0] is not None else 1,
+                    (x.get("linhas") or [9999999])[0] if (x.get("linhas") or [None])[0] is not None else 9999999,
+                    0 if x.get("severidade") == "IMPEDITIVA" else 1,
+                )
+            )
 
             n_imped = sum(1 for i in incons_list if i["severidade"] == "IMPEDITIVA")
             n_alert = sum(1 for i in incons_list if i["severidade"] == "ALERTA")

@@ -153,8 +153,23 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
     @app.post("/api/add_row")
     def api_add_row():
         body = _read_json()
+        after_row = body.get("after_row")
         return _json_resp(
-            backend.add_row(sheet_name=str(body.get("sheet_name", backend.active_sheet)))
+            backend.add_row(
+                sheet_name=str(body.get("sheet_name", backend.active_sheet)),
+                after_row=int(after_row) if after_row is not None and str(after_row).isdigit() else None,
+            )
+        )
+
+    @app.post("/api/add_column")
+    def api_add_column():
+        body = _read_json()
+        after_col = body.get("after_col")
+        return _json_resp(
+            backend.add_column(
+                sheet_name=str(body.get("sheet_name", backend.active_sheet)),
+                after_col=int(after_col) if after_col is not None and str(after_col).isdigit() else None,
+            )
         )
 
     @app.post("/api/delete_row")
