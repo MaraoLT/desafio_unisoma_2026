@@ -1,6 +1,5 @@
 """Pacote principal do backend e aplicação — Desafio UniSoma 2026 (Equipe 10)."""
 
-from src.instance_generator import GeneratedInstanceSpec, generate_benchmark_suite
 from src.pre_process import Inconsistency, ProcessedInstance, Student, TurmaSpec, pre_process
 from src.read_instance import RawInstance, RawStudentRow, RawTurmasConfig, read_instance
 
@@ -14,6 +13,4 @@ __all__ = [
     "Inconsistency",
     "ProcessedInstance",
     "pre_process",
-    "GeneratedInstanceSpec",
-    "generate_benchmark_suite",
 ]

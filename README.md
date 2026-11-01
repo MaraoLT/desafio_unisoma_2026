@@ -122,8 +122,8 @@
    inputs              │               Posicional (*)               │ Caminho para um ou mais arquivos .xlsx, pastas ou padrões glob
                        │                                            │ (ex: instances/public/*.xlsx). Se omitido e sem --all,
                        │                                            │ processa por padrão todas as planilhas em instances/public/.
-   --all               │                  Booleano                  │ Processa em lote todas as instâncias contidas em
-                       │                                            │ instances/public/ e instances/generated/.
+   --all               │                  Booleano                  │ Processa em lote todas as instâncias públicas contidas em
+                       │                                            │ instances/public/.
    --summary-only      │                  Booleano                  │ Suprime os relatórios extensos no console e exibe apenas uma
                        │                                            │ tabela resumo consolidada com status, tempos e funções
                        │                                            │ objetivo.
@@ -310,36 +310,33 @@
 
     desafio_unisoma_2026/
     │
-    ├── UniSomaEnsalamento.spec    # Arquivo de especificação para compilação do PyInstaller
-    ├── requirements.txt            # Dependências centrais do projeto
-    ├── README.md                   # Documentação do projeto
-    ├── Validador.exe               # Validador oficial de soluções do desafio
+    ├── UniSomaEnsalamento.spec       # Arquivo de especificação para compilação do PyInstaller (.exe)
+    ├── requirements.txt               # Dependências centrais do projeto
+    ├── README.md                      # Documentação completa do projeto
+    ├── Tutorial_Uso_Ferramenta.pdf    # Manual e tutorial de uso oficial em PDF (2 páginas)
+    ├── Validador.exe                  # Validador oficial de soluções do desafio
     │
-    ├── src/                        # Código-fonte principal
-    │   ├── main.py                 # Ponto de entrada CLI (orquestrador de lote e flags)
-    │   ├── read_instance.py        # Leitor robusto de planilhas Excel (.xlsx)
-    │   ├── pre_process.py          # Higienização, detecção de R1/R2 e perfis demográficos
-    │   ├── pos_process.py          # Gravação das abas Ensalamento/Inconsistências e relatórios
+    ├── src/                           # Código-fonte principal
+    │   ├── main.py                    # Ponto de entrada CLI (orquestrador de lote e flags)
+    │   ├── read_instance.py           # Leitor robusto de planilhas Excel (.xlsx)
+    │   ├── pre_process.py             # Higienização, detecção de inconsistências e perfis
+    │   ├── pos_process.py             # Gravação das abas Ensalamento/Inconsistências e relatórios
     │   │
-    │   ├── models/                 # Modelagem matemática
-    │   │   ├── solver.py           # Solver MILP Lexicográfico em 2 Fases (PuLP/CBC)
-    │   │   └── benchmark_phase2.py # Scripts de validação e benchmark de desempenho
+    │   ├── models/                    # Modelagem matemática
+    │   │   └── solver.py              # Solver MILP Lexicográfico em 2 Fases (PuLP/CBC)
     │   │
-    │   └── app/                    # Aplicativo Desktop
-    │       ├── __main__.py         # Inicializador do app desktop (PyWebView + Bottle)
-    │       ├── server.py           # Backend do editor, assistente determinístico e solver
-    │       ├── pdf_lists.py        # Geração de listas de chamada em PDF com ReportLab
-    │       ├── images/             # Logotipos e recursos gráficos
-    │       └── static/             # Frontend HTML5, CSS3 e Tabulator.js
+    │   └── app/                       # Aplicativo Desktop Nativo
+    │       ├── __main__.py            # Inicializador da aplicação (PyWebView + Bottle)
+    │       ├── server.py              # Backend do editor, assistente determinístico e solver
+    │       ├── pdf_lists.py           # Geração de listas de chamada e relatórios em PDF
+    │       ├── tutorial_pdf.py        # Gerador do PDF do tutorial de uso
+    │       ├── images/                # Logotipos e recursos visuais institucionais
+    │       └── static/                # Frontend responsivo HTML5, CSS3 e Tabulator.js
     │
-    ├── instances/                  # Conjuntos de dados
-    │   ├── public/                 # Instâncias públicas oficiais de teste
-    │   ├── generated/              # Instâncias sintéticas de estresse (até 50.000 alunos)
-    │   └── experiments/            # Saída padrão das planilhas processadas
+    ├── instances/                     # Conjuntos de dados
+    │   └── public/                    # Instâncias públicas oficiais de teste
     │
-    ├── reports/                    # Relatórios diagnósticos em formato .txt
-    ├── tests/                      # Bateria de testes de estresse, robustez e regressão
-    └── dist/                       # Pasta onde o executável .exe é gerado
+    └── dist/                          # Pasta onde o executável .exe é gerado
   ──────
 
 ## 🏆 Créditos

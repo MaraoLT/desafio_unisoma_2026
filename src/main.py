@@ -87,7 +87,7 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     parser.add_argument(
         "--all",
         action="store_true",
-        help="Executa todas as instâncias de instances/public/ e instances/generated/.",
+        help="Executa todas as instâncias públicas de instances/public/.",
     )
     parser.add_argument(
         "--summary-only",
@@ -190,19 +190,9 @@ def _collect_xlsx_from_target(target: Path) -> list[Path]:
 def _resolve_input_paths(args: argparse.Namespace) -> list[Path]:
     """Resolve lista final de arquivos .xlsx a partir de --all, pastas, globs ou padrão."""
     collected: list[Path] = []
-    if args.all:
-        for folder in (PROJECT_ROOT / "instances" / "public", PROJECT_ROOT / "instances" / "generated"):
-            collected.extend(_collect_xlsx_from_target(folder))
-    elif args.inputs:
-        for raw_item in args.inputs:
-            p = Path(raw_item)
-            if p.exists():
-                collected.extend(_collect_xlsx_from_target(p))
-            else:
-                for matched in sorted(glob.glob(raw_item, recursive=True)):
-                    collected.extend(_collect_xlsx_from_target(Path(matched)))
-    else:
+    if args.all or not args.inputs:
         collected.extend(_collect_xlsx_from_target(PROJECT_ROOT / "instances" / "public"))
+    else:
 
     # Remove eventuais duplicatas mantendo a ordem
     seen: set[Path] = set()
