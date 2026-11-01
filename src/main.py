@@ -193,6 +193,13 @@ def _resolve_input_paths(args: argparse.Namespace) -> list[Path]:
     if args.all or not args.inputs:
         collected.extend(_collect_xlsx_from_target(PROJECT_ROOT / "instances" / "public"))
     else:
+        for raw_item in args.inputs:
+            p = Path(raw_item)
+            if p.exists():
+                collected.extend(_collect_xlsx_from_target(p))
+            else:
+                for matched in sorted(glob.glob(raw_item, recursive=True)):
+                    collected.extend(_collect_xlsx_from_target(Path(matched)))
 
     # Remove eventuais duplicatas mantendo a ordem
     seen: set[Path] = set()
