@@ -45,13 +45,17 @@ def _find_initial_excel() -> Optional[Path]:
     """Procura uma planilha inicial no diretório de execução ou no pacote de exemplo."""
     candidates: list[Path] = []
     cwd = Path.cwd().resolve()
+    candidates.append(cwd / "instances" / "public" / "instancia_2.xlsx")
     candidates.append(cwd / "instances" / "public" / "instancia_1.xlsx")
 
     if getattr(sys, "frozen", False):
         exe_dir = Path(sys.executable).resolve().parent
+        candidates.append(exe_dir / "instancia_2.xlsx")
         candidates.append(exe_dir / "instancia_1.xlsx")
+        candidates.append(exe_dir.parent.parent / "instances" / "public" / "instancia_2.xlsx")
         candidates.append(exe_dir.parent.parent / "instances" / "public" / "instancia_1.xlsx")
 
+    candidates.append(BUNDLE_ROOT / "instances" / "public" / "instancia_2.xlsx")
     candidates.append(BUNDLE_ROOT / "instances" / "public" / "instancia_1.xlsx")
 
     for cand in candidates:
@@ -284,6 +288,12 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
 
     @app.post("/api/export_pdf_dialog")
     def api_export_pdf_dialog():
+        body = _read_json()
+        allow_unallocated_param = body.get("allow_unallocated")
+        allow_unallocated: Optional[bool] = (
+            bool(allow_unallocated_param) if allow_unallocated_param is not None else None
+        )
+
         win = window_holder.get("win")
         if win is None:
             return _json_resp({"success": False, "error": "Janela não inicializada."})
@@ -305,7 +315,7 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
         if not pdf_target.lower().endswith(".pdf"):
             pdf_target += ".pdf"
 
-        return _json_resp(backend.export_pdf(pdf_target))
+        return _json_resp(backend.export_pdf(pdf_target, allow_unallocated=allow_unallocated))
 
     @app.post("/api/ask")
     def api_ask():
@@ -385,10 +395,11 @@ def _run_self_test(out_json_path: str) -> int:
         report["css_exists"] = (static_dir / "style.css").is_file()
         assert report["index_exists"] and report["css_exists"], f"Arquivos estáticos ausentes em {static_dir}"
 
-        # Verifica inicialização das DLLs nativas WinForms + WebView2 (EdgeChromium)
-        import webview.platforms.winforms  # noqa: F401
-        import webview.platforms.edgechromium  # noqa: F401
-        report["webview_edgechromium_ok"] = True
+        # Verifica inicialização das DLLs nativas WinForms + WebView2 (EdgeChromium) no Windows
+        if sys.platform == "win32":
+            import webview.platforms.winforms  # noqa: F401
+            import webview.platforms.edgechromium  # noqa: F401
+            report["webview_edgechromium_ok"] = True
 
         backend = AppBackend()
         wsgi_app = create_wsgi_app(backend, {})
@@ -470,10 +481,28 @@ def _run_self_test(out_json_path: str) -> int:
         ask_cls = _post("/api/ask", {"prompt": "Manhã - A"})
         assert "MANHÃ" in ask_cls.get("answer", "").upper(), f"Falha em busca de turma: {ask_cls}"
 
-        # 6. Testa exportação de PDF limpo p/ alunos e salvamento de Excel em diretório temporário
+        # 6. Testa validador de cabeçalhos (colunas obrigatórias iguais à instancia_2.xlsx)
+        bad_hdr_res = _post("/api/update_cell", {"sheet_name": "Alunos", "mat_idx": 0, "col": 0, "value": "ColunaErrada"})
+        assert bad_hdr_res.get("success") is True, f"Falha ao alterar cabeçalho: {bad_hdr_res}"
+        bad_opt_res = _post("/api/run_ensalamento", {"allow_integral": True, "allow_unallocated": True})
+        assert bad_opt_res.get("success") is False and "Nome" in bad_opt_res.get("error", ""), (
+            f"Validador de colunas não bloqueou cabeçalho incorreto: {bad_opt_res}"
+        )
+        fix_hdr_res = _post(
+            "/api/resolve_issue",
+            {"action": "fix_header", "issue_type": "header", "target_rows": [1], "extra": {"sheet": "Alunos"}},
+        )
+        assert fix_hdr_res.get("success") is True, f"Falha ao corrigir cabeçalho: {fix_hdr_res}"
+        report["column_validator_ok"] = True
+
+        # Reexecuta otimização após restaurar cabeçalho
+        opt_res2 = _post("/api/run_ensalamento", {"allow_integral": True, "allow_unallocated": True})
+        assert opt_res2.get("success") is True, f"Falha em /api/run_ensalamento pós-fix: {opt_res2}"
+
+        # 7. Testa exportação de PDF limpo p/ alunos (com e sem lista de espera) e salvamento de Excel
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp_pdf = str(Path(tmpdir) / "turmas_teste.pdf")
-            pdf_res = backend.export_pdf(tmp_pdf)
+            pdf_res = backend.export_pdf(tmp_pdf, allow_unallocated=True)
             assert pdf_res.get("success") is True and Path(tmp_pdf).stat().st_size > 1000, f"Falha PDF: {pdf_res}"
             report["pdf_bytes"] = Path(tmp_pdf).stat().st_size
 

@@ -277,7 +277,7 @@
       const row1 = {
         excel_row: 1,
         mat_idx: 0,
-        flag: ""
+        flag: res.header_flag || ""
       };
       for (let c = 0; c < numCols; c++) {
         row1["c" + c] = header[c] !== undefined ? String(header[c]) : "";
@@ -307,6 +307,9 @@
 
       if (d.excel_row === 1) {
         el.classList.add("sheet-header-row");
+        if (d.flag === "IMPEDITIVA") {
+          el.classList.add("flag-impeditiva");
+        }
       } else if (d.flag === "IMPEDITIVA") {
         el.classList.add("flag-impeditiva");
       } else if (d.flag === "ALERTA") {
@@ -366,11 +369,10 @@
     }
 
     function applyFlaggedRowsInPlace(flaggedMap) {
-      if (!table || !tableReady || state.activeSheet !== "Alunos") return;
+      if (!table || !tableReady || (state.activeSheet !== "Alunos" && state.activeSheet !== "Turmas")) return;
       const map = flaggedMap || {};
       table.getRows().forEach(row => {
         const d = row.getData();
-        if (d.excel_row === 1) return;
         const newFlag = map[String(d.excel_row)] || "";
         if (d.flag !== newFlag) {
           d.flag = newFlag;
@@ -922,7 +924,12 @@
         } else {
           resetSummaryCards();
         }
-        showToast(`Planilha '${res.filename}' carregada.`);
+        if (res.column_errors && res.column_errors.length > 0) {
+          setSideTab("report");
+          showToast(res.column_errors[0].mensagem || "Atenção: coluna obrigatória ausente no cabeçalho.");
+        } else {
+          showToast(`Planilha '${res.filename}' carregada.`);
+        }
       } else {
         showToast(res.error || "Erro ao abrir arquivo.");
       }
@@ -967,14 +974,21 @@
             : "Atenção: verifique os impedimentos indicados no painel."
         );
       } else {
+        if (res.summary) {
+          renderSummary(res.summary);
+          setSideTab("report");
+        }
         showToast(res.error || "Erro na otimização.");
       }
     }
 
     async function exportStudentPdf() {
       await flushPendingUpdates();
+      const allowUnallocated = document.getElementById("chkUnalloc").checked;
       showBusy("Gerando PDF das turmas...");
-      const res = await apiPost("/api/export_pdf_dialog");
+      const res = await apiPost("/api/export_pdf_dialog", {
+        allow_unallocated: allowUnallocated
+      });
       hideBusy();
       if (res.cancelled) return;
       if (res.success) {
@@ -1092,6 +1106,8 @@
           card.onclick = () => {
             if (inc.target_sheet === "Turmas" || inc.categoria === "Capacidade Insuficiente") {
               jumpToSheetAndRow("Turmas", inc.target_row || 2);
+            } else if (inc.target_sheet && inc.categoria === "Coluna Obrigatória Ausente") {
+              jumpToSheetAndRow(inc.target_sheet, inc.target_row || 1);
             } else if (isMulti) {
               cycleDuplicateRow(inc.nome, rowsList);
             } else if (inc.linha) {
@@ -1113,6 +1129,19 @@
             btnAccept.title = "Aplica na planilha a grafia padronizada (ex.: acentos, espaços extras, turno)";
             btnAccept.onclick = () => resolveIssue("accept_sanitize", "sanitize", rowsList);
             bar.appendChild(btnAccept);
+
+            card.appendChild(bar);
+          } else if (inc.can_review && inc.review_type === "fix_header") {
+            const bar = document.createElement("div");
+            bar.className = "issue-actions-bar";
+            bar.onclick = (e) => e.stopPropagation();
+
+            const btnFixHdr = document.createElement("button");
+            btnFixHdr.className = "btn-action-fix btn-action-accept";
+            btnFixHdr.innerHTML = "✓ Corrigir Cabeçalho";
+            btnFixHdr.title = "Restaura os nomes oficiais das colunas na Linha 1";
+            btnFixHdr.onclick = () => resolveIssue("fix_header", "header", [1], { sheet: inc.target_sheet || "Alunos" });
+            bar.appendChild(btnFixHdr);
 
             card.appendChild(bar);
           }

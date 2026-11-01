@@ -16,10 +16,15 @@ from src.models.solver import SolverParameters, solve_ensalamento
 from src.pos_process import write_excel_output
 from src.pre_process import GENERO_F, GENERO_M, TURNO_MANHA, TURNO_TARDE, pre_process
 from src.read_instance import (
+    EXPECTED_ALUNOS_COLUMNS,
+    EXPECTED_TURMAS_COLUMNS,
+    HeaderValidationError,
     RawInstance,
     RawStudentRow,
     RawTurmasConfig,
+    _detect_student_columns,
     normalize_token,
+    validate_instance_columns,
 )
 
 DEFAULT_PAGE_SIZE = 5000
@@ -36,6 +41,7 @@ class AppBackend:
         self.solver_result = None
         self.processed_instance = None
         self.last_summary: Optional[dict[str, Any]] = None
+        self.last_allow_unallocated: bool = False
         self.undo_stack: list[dict[str, list[list[str]]]] = []
         self.redo_stack: list[dict[str, list[list[str]]]] = []
 
@@ -117,6 +123,7 @@ class AppBackend:
         self.solver_result = None
         self.processed_instance = None
         self.last_summary = None
+        self.last_allow_unallocated = False
         self.undo_stack.clear()
         self.redo_stack.clear()
 
@@ -126,6 +133,8 @@ class AppBackend:
             self.active_sheet = next(iter(self.sheets_data.keys()), "Alunos")
 
         validation = self.validate_data()
+        summary_obj = validation.get("summary") if validation.get("success") else None
+        col_errs = summary_obj.get("column_errors", []) if summary_obj else []
         page_payload = self.get_sheet_page(self.active_sheet, page=1, search_query="")
         return {
             **page_payload,
@@ -134,14 +143,18 @@ class AppBackend:
             "dirty": self.dirty,
             "has_ensalamento": "Ensalamento" in self.sheets_data
             and len(self.sheets_data["Ensalamento"]) > 1,
-            "summary": validation.get("summary") if validation.get("success") else None,
+            "summary": summary_obj,
+            "column_errors": col_errs,
         }
 
     def _compute_flagged_rows(self, sheet_name: str) -> dict[int, str]:
         """Retorna mapa {excel_row: severidade} para destacar inconsistências na grade."""
         flagged_rows: dict[int, str] = {}
-        if sheet_name == "Alunos" and self.last_summary:
+        if self.last_summary:
             for inc in self.last_summary.get("inconsistencias", []):
+                inc_sheet = inc.get("target_sheet", "Alunos")
+                if inc_sheet != sheet_name:
+                    continue
                 sev = inc.get("severidade", "ALERTA")
                 all_rows = inc.get("linhas") or ([inc.get("linha")] if inc.get("linha") else [])
                 for rn in all_rows:
@@ -218,6 +231,7 @@ class AppBackend:
             "active_sheet": sheet_name,
             "num_cols": num_cols,
             "header": header_padded,
+            "header_flag": flagged_rows.get(1, ""),
             "rows": rows_out,
             "page": page,
             "page_size": page_size,
@@ -350,12 +364,18 @@ class AppBackend:
                 if inc.categoria == "Capacidade Insuficiente":
                     item["target_sheet"] = "Turmas"
                     item["target_row"] = 2
+                elif inc.categoria == "Coluna Obrigatória Ausente":
+                    item["target_sheet"] = "Turmas" if "Turmas" in inc.nome else "Alunos"
+                    item["target_row"] = 1
                 else:
                     item["target_sheet"] = "Alunos"
                     item["target_row"] = inc.row_number
 
-                # Apenas erros com normalização automática aplicável (espaços, turno, sexo limpo)
-                if inc.severidade == "TRATADA":
+                # Apenas erros com normalização automática aplicável ou correção de cabeçalho
+                if inc.categoria == "Coluna Obrigatória Ausente":
+                    item["can_review"] = True
+                    item["review_type"] = "fix_header"
+                elif inc.severidade == "TRATADA":
                     item["can_review"] = True
                     item["review_type"] = "sanitize"
                 else:
@@ -390,6 +410,7 @@ class AppBackend:
                 "turmas": turmas_summary,
                 "turmas_truncated": 0,
                 "inconsistencias": incons_list,  # Lista completa de erros/alertas
+                "column_errors": [e.message for e in getattr(raw, "header_errors", [])],
                 "incons_counts": {
                     "total": len(incons_list),
                     "impeditivas": n_imped,
@@ -630,6 +651,30 @@ class AppBackend:
                         r[col_disp] = new_val
                         modified = True
 
+        elif action == "fix_header":
+            # Restaura o cabeçalho padrão oficial igual ao de instancia_2.xlsx
+            target_sheet = str(extra.get("sheet", "Alunos"))
+            if target_sheet == "Turmas" and "Turmas" in self.sheets_data:
+                t_mat = self.sheets_data["Turmas"]
+                if not t_mat:
+                    t_mat.append(list(EXPECTED_TURMAS_COLUMNS))
+                else:
+                    while len(t_mat[0]) < len(EXPECTED_TURMAS_COLUMNS):
+                        t_mat[0].append("")
+                    for c_i, col_name in enumerate(EXPECTED_TURMAS_COLUMNS):
+                        t_mat[0][c_i] = col_name
+                modified = True
+            elif "Alunos" in self.sheets_data:
+                a_mat = self.sheets_data["Alunos"]
+                if not a_mat:
+                    a_mat.append(list(EXPECTED_ALUNOS_COLUMNS))
+                else:
+                    while len(a_mat[0]) < len(EXPECTED_ALUNOS_COLUMNS):
+                        a_mat[0].append("")
+                    for c_i, col_name in enumerate(EXPECTED_ALUNOS_COLUMNS):
+                        a_mat[0][c_i] = col_name
+                modified = True
+
         if modified:
             self.dirty = True
 
@@ -728,17 +773,32 @@ class AppBackend:
     def _build_raw_from_memory(self) -> RawInstance:
         """Constrói RawInstance a partir das matrizes editáveis em memória."""
         alunos_matrix = self.sheets_data.get("Alunos", [])
+        turmas_matrix = self.sheets_data.get("Turmas", [])
         raw_students: list[RawStudentRow] = []
 
+        alunos_header = alunos_matrix[0] if alunos_matrix else []
+        turmas_header = turmas_matrix[0] if turmas_matrix else []
+        header_errors = validate_instance_columns(
+            alunos_header=alunos_header,
+            turmas_header=turmas_header,
+            alunos_sheet_name="Alunos",
+            turmas_sheet_name="Turmas",
+        )
+
+        header_mapping: dict[str, str] = {
+            "nome": "Nome",
+            "sexo": "Sexo",
+            "disponibilidade": "Disponibilidade",
+        }
+        header_warnings: list[str] = []
+
         if len(alunos_matrix) >= 1:
-            headers = [normalize_token(c) for c in alunos_matrix[0]]
-            col_nome = headers.index("nome") if "nome" in headers else 0
-            col_sexo = headers.index("sexo") if "sexo" in headers else 1
-            col_disp = (
-                headers.index("disponibilidade")
-                if "disponibilidade" in headers
-                else (2 if len(headers) > 2 else 2)
+            col_indices, header_mapping, header_warnings, _ = _detect_student_columns(
+                alunos_header
             )
+            col_nome = col_indices.get("nome", 0)
+            col_sexo = col_indices.get("sexo", 1)
+            col_disp = col_indices.get("disponibilidade", 2)
 
             for r_idx, r in enumerate(alunos_matrix[1:], start=2):
                 nome = r[col_nome].strip() if col_nome < len(r) else ""
@@ -755,7 +815,6 @@ class AppBackend:
                     )
                 )
 
-        turmas_matrix = self.sheets_data.get("Turmas", [])
         raw_entries: dict[str, Any] = {}
         parse_errors: list[str] = []
         t_manha: Optional[int] = None
@@ -801,14 +860,11 @@ class AppBackend:
             sheet_names=list(self.sheets_data.keys()),
             alunos_sheet_name="Alunos",
             turmas_sheet_name="Turmas",
-            header_mapping={
-                "nome": "Nome",
-                "sexo": "Sexo",
-                "disponibilidade": "Disponibilidade",
-            },
-            header_warnings=[],
+            header_mapping=header_mapping,
+            header_warnings=header_warnings,
             students=raw_students,
             turmas=turmas_cfg,
+            header_errors=header_errors,
         )
 
     def run_ensalamento(
@@ -817,6 +873,7 @@ class AppBackend:
         allow_unallocated: bool = False,
     ) -> dict[str, Any]:
         """Executa higienização + solver MILP sobre os dados atuais da planilha."""
+        self.last_allow_unallocated = bool(allow_unallocated)
         if "Alunos" not in self.sheets_data or "Turmas" not in self.sheets_data:
             return {
                 "success": False,
@@ -825,6 +882,16 @@ class AppBackend:
 
         try:
             raw = self._build_raw_from_memory()
+            if raw.header_errors:
+                validation = self.validate_data(allow_integral=allow_integral)
+                err_msgs = " | ".join(e.message for e in raw.header_errors)
+                return {
+                    "success": False,
+                    "error": err_msgs,
+                    "column_errors": [e.message for e in raw.header_errors],
+                    "summary": validation.get("summary") if validation.get("success") else self.last_summary,
+                }
+
             proc = pre_process(raw, allow_integral=allow_integral)
             self.processed_instance = proc
 
@@ -998,12 +1065,18 @@ class AppBackend:
                 if inc.categoria == "Capacidade Insuficiente":
                     item["target_sheet"] = "Turmas"
                     item["target_row"] = 2
+                elif inc.categoria == "Coluna Obrigatória Ausente":
+                    item["target_sheet"] = "Turmas" if "Turmas" in inc.nome else "Alunos"
+                    item["target_row"] = 1
                 else:
                     item["target_sheet"] = "Alunos"
                     item["target_row"] = inc.row_number
 
-                # Apenas erros com normalização automática aplicável (espaços, turno, sexo limpo)
-                if inc.severidade == "TRATADA":
+                # Apenas erros com normalização automática aplicável ou correção de cabeçalho
+                if inc.categoria == "Coluna Obrigatória Ausente":
+                    item["can_review"] = True
+                    item["review_type"] = "fix_header"
+                elif inc.severidade == "TRATADA":
                     item["can_review"] = True
                     item["review_type"] = "sanitize"
                 else:
@@ -1038,6 +1111,7 @@ class AppBackend:
                 "turmas": turmas_summary,
                 "turmas_truncated": max(0, len(proc.turmas) - len(turmas_summary)),
                 "inconsistencias": incons_list[:80],
+                "column_errors": [e.message for e in getattr(raw, "header_errors", [])],
                 "incons_counts": {
                     "total": len(incons_list),
                     "impeditivas": n_imped,
@@ -1057,13 +1131,22 @@ class AppBackend:
             traceback.print_exc()
             return {"success": False, "error": f"Erro ao processar ensalamento: {exc}"}
 
-    def export_pdf(self, output_path: str) -> dict[str, Any]:
-        """Gera o PDF limpo apenas com os alunos de cada turma (para envio aos alunos)."""
+    def export_pdf(
+        self, output_path: str, allow_unallocated: Optional[bool] = None
+    ) -> dict[str, Any]:
+        """Gera o PDF limpo com os alunos de cada turma e, se ativo e não vazio, a lista de espera."""
+        effective_allow_unalloc = (
+            self.last_allow_unallocated
+            if allow_unallocated is None
+            else bool(allow_unallocated)
+        )
         if not self.solver_result or not self.solver_result.feasible or not self.processed_instance:
             # Caso a planilha aberta já possua aba 'Ensalamento' pronta, também permite gerar!
             ens_mat = self.sheets_data.get("Ensalamento", [])
             if len(ens_mat) > 1:
-                return self._export_pdf_from_ensalamento_sheet(output_path, ens_mat)
+                return self._export_pdf_from_ensalamento_sheet(
+                    output_path, ens_mat, allow_unallocated=effective_allow_unalloc
+                )
             return {
                 "success": False,
                 "error": "Execute o ensalamento primeiro para gerar a lista de turmas em PDF.",
@@ -1089,15 +1172,38 @@ class AppBackend:
                     }
                 )
 
+            waitlist_data: list[dict[str, str]] = []
+            if effective_allow_unalloc and self.solver_result.unallocated_students:
+                unalloc_set = set(self.solver_result.unallocated_students)
+                waitlist_raw = [
+                    {
+                        "nome": st.nome,
+                        "sexo": st.sexo,
+                        "disponibilidade": st.disponibilidade,
+                    }
+                    for st in self.processed_instance.students
+                    if st.id in unalloc_set
+                ]
+                waitlist_data = sorted(waitlist_raw, key=lambda a: normalize_token(a["nome"]))
+
             title = self.current_filepath.stem if self.current_filepath else "Ensalamento"
-            pdf_path = generate_class_lists_pdf(output_path, title, turmas_data)
+            pdf_path = generate_class_lists_pdf(
+                output_path,
+                title,
+                turmas_data,
+                waitlist_data=waitlist_data,
+                allow_unallocated=effective_allow_unalloc,
+            )
             return {"success": True, "pdf_path": str(pdf_path)}
         except Exception as exc:
             traceback.print_exc()
             return {"success": False, "error": f"Falha ao gerar PDF: {exc}"}
 
     def _export_pdf_from_ensalamento_sheet(
-        self, output_path: str, ens_mat: list[list[str]]
+        self,
+        output_path: str,
+        ens_mat: list[list[str]],
+        allow_unallocated: bool = False,
     ) -> dict[str, Any]:
         """Permite gerar o PDF diretamente de uma aba 'Ensalamento' já existente."""
         try:
@@ -1118,8 +1224,34 @@ class AppBackend:
                 }
                 for codigo, lst in grouped.items()
             ]
+
+            waitlist_data: list[dict[str, str]] = []
+            if allow_unallocated:
+                inc_mat = self.sheets_data.get("Inconsistências", [])
+                waitlist_raw: list[dict[str, str]] = []
+                for r in inc_mat[1:]:
+                    if len(r) >= 5:
+                        cat_norm = normalize_token(r[4])
+                        if "lista de espera" in cat_norm or "sem turma" in cat_norm:
+                            nome_w = r[1].strip()
+                            if nome_w and nome_w != "-":
+                                waitlist_raw.append(
+                                    {
+                                        "nome": nome_w,
+                                        "sexo": r[2].strip() if len(r) > 2 else "",
+                                        "disponibilidade": r[3].strip() if len(r) > 3 else "",
+                                    }
+                                )
+                waitlist_data = sorted(waitlist_raw, key=lambda a: normalize_token(a["nome"]))
+
             title = self.current_filepath.stem if self.current_filepath else "Ensalamento"
-            pdf_path = generate_class_lists_pdf(output_path, title, turmas_data)
+            pdf_path = generate_class_lists_pdf(
+                output_path,
+                title,
+                turmas_data,
+                waitlist_data=waitlist_data,
+                allow_unallocated=allow_unallocated,
+            )
             return {"success": True, "pdf_path": str(pdf_path)}
         except Exception as exc:
             return {"success": False, "error": f"Falha ao gerar PDF: {exc}"}

@@ -1442,7 +1442,7 @@ class EnsalamentoApp(ctk.CTk):
             instance=self.current_outcome.processed,
             result=self.current_outcome.solver_result,
             search_query=self.var_search_student.get(),
-            turma_filter=self.var_filter_turma.get(),
+                turma_filter=self.var_filter_turma.get(),
             genero_filter=self.var_filter_genero.get(),
             sort_by=self.var_sort_order.get(),
         )

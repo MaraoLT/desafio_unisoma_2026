@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass, field
+import hashlib
 import math
 import time
 from typing import Optional
@@ -28,12 +29,53 @@ from src.pre_process import (
     TURNO_MANHA,
     TURNO_TARDE,
     ProcessedInstance,
+    Student,
 )
+from src.read_instance import normalize_token
 
 
 def _ascii_turno(turno: str) -> str:
     """Converte nome do turno para identificador ASCII seguro para arquivos .lp do CBC."""
     return "MANHA" if turno == TURNO_MANHA else "TARDE"
+
+
+def _compute_instance_seed(students: list[Student]) -> bytes:
+    """Gera uma semente criptográfica determinística exclusiva para o conjunto de alunos da planilha.
+
+    Garante que a seleção para as turmas e para a lista de espera seja:
+    1. Aleatória para cada planilha (sem viés de posição/linha no Excel ou de ordem alfabética);
+    2. Reprodutível para a mesma planilha (impedindo que se fique gerando salas repetidamente
+       ou reordenando linhas na tentativa de escolher os alunos que serão selecionados).
+    """
+    canonical_entries = sorted(
+        f"{normalize_token(st.nome)}|{st.sexo}|{','.join(st.turnos_compativeis)}"
+        for st in students
+    )
+    return hashlib.sha256("\n".join(canonical_entries).encode("utf-8")).digest()
+
+
+def _order_students_for_spreadsheet(
+    students: list[Student], sheet_seed: bytes
+) -> list[Student]:
+    """Ordena os alunos de forma pseudoaleatória determinística atrelada à semente da planilha."""
+    canonical = sorted(
+        students,
+        key=lambda st: (
+            normalize_token(st.nome),
+            st.sexo,
+            st.turnos_compativeis,
+            st.row_number,
+        ),
+    )
+    keyed: list[tuple[bytes, int, Student]] = []
+    for occ_idx, st in enumerate(canonical):
+        token = (
+            f"{normalize_token(st.nome)}|{st.sexo}|{','.join(st.turnos_compativeis)}|{occ_idx}"
+        ).encode("utf-8")
+        draw_hash = hashlib.sha256(sheet_seed + b"|" + token).digest()
+        keyed.append((draw_hash, st.row_number, st))
+    keyed.sort(key=lambda item: (item[0], item[1]))
+    return [item[2] for item in keyed]
 
 
 @dataclass
@@ -329,7 +371,10 @@ def _solve_decomposed_aggregated(
             return _solve_monolithic(instance, params, t_total_start, min_unalloc_hall)
         buckets[(st.sexo, avail_s)].append(st)
 
+    sheet_seed = _compute_instance_seed(students)
     profile_keys = sorted(buckets.keys(), key=lambda pk: (pk[0], len(pk[1]), pk[1]))
+    for pk in profile_keys:
+        buckets[pk] = _order_students_for_spreadsheet(buckets[pk], sheet_seed)
     u_star = min_unalloc_hall if params.allow_unallocated else 0
 
     total_build_s = 0.0
@@ -933,6 +978,8 @@ def _solve_monolithic(
     prob = pulp.LpProblem("Desafio_UniSoma_2026_Ensalamento", pulp.LpMinimize)
 
     students = instance.students
+    sheet_seed = _compute_instance_seed(students)
+    students_shuffled = _order_students_for_spreadsheet(students, sheet_seed)
     turmas = instance.turmas
     K_ids = [t.id for t in turmas]
     S_active = [
@@ -949,14 +996,14 @@ def _solve_monolithic(
     # --- Variáveis de Decisão ---
     # x_{i,k} in {0, 1}: alocação do aluno i na turma compatível k
     x: dict[tuple[int, int], pulp.LpVariable] = {}
-    for st in students:
+    for st in students_shuffled:
         for k in K_i[st.id]:
             x[(st.id, k)] = pulp.LpVariable(f"x_{st.id}_{k}", cat=pulp.LpBinary)
 
     # u_i in {0, 1}: indicador de lista de espera (sem turma) quando allow_unallocated=True
     u: dict[int, pulp.LpVariable] = {}
     if params.allow_unallocated:
-        for st in students:
+        for st in students_shuffled:
             u[st.id] = pulp.LpVariable(f"u_{st.id}", cat=pulp.LpBinary)
 
     u_star = min_unalloc_hall if params.allow_unallocated else 0

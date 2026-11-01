@@ -223,20 +223,35 @@ def pre_process(raw: RawInstance, allow_integral: bool = False) -> ProcessedInst
     invalid_records: list[InvalidStudentRecord] = []
     ignored_summary_rows: list[int] = []
 
-    # 1. Avisos de cabeçalho (ex.: A1 = 'Recebi as instâncias ' na instancia_1)
-    for warn in raw.header_warnings:
-        inconsistencies.append(
-            Inconsistency(
-                row_number=1,
-                nome="-",
-                sexo_original="-",
-                disp_original="-",
-                categoria="Cabeçalho da Planilha",
-                severidade="TRATADA",
-                tratada=True,
-                mensagem=warn,
+    # 1. Validação prévia de cabeçalhos (colunas obrigatórias iguais às da instancia_2.xlsx)
+    if getattr(raw, "header_errors", None):
+        for herr in raw.header_errors:
+            inconsistencies.append(
+                Inconsistency(
+                    row_number=1,
+                    nome=f"Aba '{herr.sheet_name}'",
+                    sexo_original="-",
+                    disp_original="-",
+                    categoria="Coluna Obrigatória Ausente",
+                    severidade="IMPEDITIVA",
+                    tratada=False,
+                    mensagem=herr.message,
+                )
             )
-        )
+    else:
+        for warn in raw.header_warnings:
+            inconsistencies.append(
+                Inconsistency(
+                    row_number=1,
+                    nome="-",
+                    sexo_original="-",
+                    disp_original="-",
+                    categoria="Cabeçalho da Planilha",
+                    severidade="TRATADA",
+                    tratada=True,
+                    mensagem=warn,
+                )
+            )
 
     # 2. Validação da estrutura de Turmas
     for err in raw.turmas.parse_errors:
@@ -522,7 +537,11 @@ def pre_process(raw: RawInstance, allow_integral: bool = False) -> ProcessedInst
             )
         )
 
-    has_blocking_errors = len(invalid_records) > 0 or len(raw.turmas.parse_errors) > 0
+    has_blocking_errors = (
+        len(invalid_records) > 0
+        or len(raw.turmas.parse_errors) > 0
+        or len(getattr(raw, "header_errors", [])) > 0
+    )
 
     return ProcessedInstance(
         raw=raw,

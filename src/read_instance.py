@@ -36,6 +36,88 @@ class RawStudentRow:
     disponibilidade: Optional[str]
 
 
+EXPECTED_ALUNOS_COLUMNS: tuple[str, ...] = ("Nome", "Sexo", "Disponibilidade")
+EXPECTED_TURMAS_COLUMNS: tuple[str, ...] = ("Recursos", "Quantidade")
+
+
+@dataclass
+class HeaderValidationError:
+    """Representa um erro de validação de cabeçalho (coluna esperada ausente)."""
+
+    sheet_name: str
+    expected_columns: tuple[str, ...]
+    found_columns: list[str]
+    missing_columns: list[str]
+    message: str
+
+
+def validate_sheet_headers(
+    sheet_name: str,
+    header_cells: list[Any],
+    expected_columns: tuple[str, ...] = EXPECTED_ALUNOS_COLUMNS,
+) -> Optional[HeaderValidationError]:
+    """Valida se o cabeçalho de uma aba/DataFrame possui todas as colunas esperadas.
+
+    O nome das colunas deve corresponder exatamente ao padrão oficial de `instancia_2.xlsx`:
+    - Aba 'Alunos': ('Nome', 'Sexo', 'Disponibilidade')
+    - Aba 'Turmas': ('Recursos', 'Quantidade')
+    """
+    found_columns = [
+        str(c).strip() for c in (header_cells or []) if c is not None and str(c).strip() != ""
+    ]
+    missing_columns = [col for col in expected_columns if col not in found_columns]
+    if not missing_columns:
+        return None
+
+    esperadas_str = ", ".join(expected_columns)
+    faltantes_str = ", ".join(f"'{c}'" for c in missing_columns)
+    if not found_columns:
+        msg = (
+            f"Aba '{sheet_name}' (Linha 1): Cabeçalho vazio ou ausente. "
+            f"Falta(m) a(s) coluna(s) esperada(s): {faltantes_str}. "
+            f"As colunas obrigatórias são: {esperadas_str}."
+        )
+    else:
+        encontradas_str = ", ".join(f"'{c}'" for c in found_columns)
+        msg = (
+            f"Aba '{sheet_name}' (Linha 1): Falta(m) a(s) coluna(s) esperada(s): {faltantes_str} "
+            f"(cabeçalho encontrado: [{encontradas_str}]). "
+            f"O nome das colunas deve ser igual ao padrão oficial: {esperadas_str}."
+        )
+
+    return HeaderValidationError(
+        sheet_name=sheet_name,
+        expected_columns=expected_columns,
+        found_columns=found_columns,
+        missing_columns=missing_columns,
+        message=msg,
+    )
+
+
+def validate_instance_columns(
+    alunos_header: list[Any],
+    turmas_header: Optional[list[Any]] = None,
+    alunos_sheet_name: str = "Alunos",
+    turmas_sheet_name: str = "Turmas",
+) -> list[HeaderValidationError]:
+    """Executa a checagem prévia dos cabeçalhos das abas 'Alunos' e 'Turmas'."""
+    errors: list[HeaderValidationError] = []
+    err_alunos = validate_sheet_headers(
+        alunos_sheet_name, alunos_header, EXPECTED_ALUNOS_COLUMNS
+    )
+    if err_alunos is not None:
+        errors.append(err_alunos)
+
+    if turmas_header is not None:
+        err_turmas = validate_sheet_headers(
+            turmas_sheet_name, turmas_header, EXPECTED_TURMAS_COLUMNS
+        )
+        if err_turmas is not None:
+            errors.append(err_turmas)
+
+    return errors
+
+
 @dataclass
 class RawTurmasConfig:
     """Representa os parâmetros brutos lidos da aba Turmas."""
@@ -60,6 +142,7 @@ class RawInstance:
     header_warnings: list[str]
     students: list[RawStudentRow]
     turmas: RawTurmasConfig
+    header_errors: list[HeaderValidationError] = field(default_factory=list)
 
 
 def _find_sheet_name(sheet_names: list[str], candidates: tuple[str, ...]) -> Optional[str]:
@@ -219,9 +302,17 @@ def read_instance(filepath: str | Path) -> RawInstance:
         students: list[RawStudentRow] = []
         header_mapping: dict[str, str] = {}
         header_warnings: list[str] = []
+        header_errors: list[HeaderValidationError] = []
+
+        alunos_header_cells = list(rows_iter[header_row_idx]) if header_row_idx is not None else []
+        alunos_hdr_err = validate_sheet_headers(
+            alunos_sheet_name, alunos_header_cells, EXPECTED_ALUNOS_COLUMNS
+        )
+        if alunos_hdr_err is not None:
+            header_errors.append(alunos_hdr_err)
 
         if header_row_idx is not None:
-            header_cells = list(rows_iter[header_row_idx])
+            header_cells = alunos_header_cells
             col_indices, header_mapping, header_warnings, first_is_data = _detect_student_columns(
                 header_cells
             )
@@ -253,9 +344,17 @@ def read_instance(filepath: str | Path) -> RawInstance:
 
         # 2. Leitura da aba Turmas
         ws_turmas = wb[turmas_sheet_name]
+        turmas_rows = list(ws_turmas.iter_rows(values_only=True))
+        turmas_header_cells = list(turmas_rows[0]) if turmas_rows else []
+        turmas_hdr_err = validate_sheet_headers(
+            turmas_sheet_name, turmas_header_cells, EXPECTED_TURMAS_COLUMNS
+        )
+        if turmas_hdr_err is not None:
+            header_errors.append(turmas_hdr_err)
+
         turmas_cfg = RawTurmasConfig()
 
-        for r_idx, row in enumerate(ws_turmas.iter_rows(values_only=True), start=1):
+        for r_idx, row in enumerate(turmas_rows, start=1):
             if not row or len(row) < 2:
                 continue
             raw_key, raw_val = row[0], row[1]
@@ -263,8 +362,8 @@ def read_instance(filepath: str | Path) -> RawInstance:
                 continue
 
             key_tok = re.sub(r"[\s\-]+", "_", normalize_token(raw_key))
-            # Ignora linha de cabeçalho ("recursos" / "parametro")
-            if r_idx == 1 and key_tok in {"recursos", "recurso", "parametro", "parametros"}:
+            # Ignora linha 1 de cabeçalho quando não for diretamente um parâmetro de turma/vaga
+            if r_idx == 1 and not any(k in key_tok for k in ("turma", "vaga", "capacidade")):
                 continue
 
             turmas_cfg.raw_entries[str(raw_key).strip()] = raw_val
@@ -295,6 +394,7 @@ def read_instance(filepath: str | Path) -> RawInstance:
             header_warnings=header_warnings,
             students=students,
             turmas=turmas_cfg,
+            header_errors=header_errors,
         )
     finally:
         wb.close()

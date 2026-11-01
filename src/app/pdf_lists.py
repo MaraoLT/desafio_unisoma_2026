@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 from xml.sax.saxutils import escape
 
 from reportlab.lib import colors
@@ -31,8 +32,13 @@ def generate_class_lists_pdf(
     output_pdf_path: str | Path,
     instance_title: str,
     turmas_data: list[dict],
+    waitlist_data: Optional[list[dict]] = None,
+    allow_unallocated: bool = False,
 ) -> Path:
-    """Gera o PDF com a lista nominal de alunos de cada turma (1 turma por página)."""
+    """Gera o PDF com a lista nominal de alunos de cada turma (1 turma por página)
+    e, opcionalmente, a seção de Lista de Espera ao final caso `allow_unallocated=True`
+    e existam estudantes na lista de espera.
+    """
     out_path = Path(output_pdf_path).resolve()
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -185,6 +191,75 @@ def generate_class_lists_pdf(
             )
         )
         story.append(table)
+
+    if allow_unallocated and waitlist_data:
+        if story:
+            story.append(PageBreak())
+
+        story.append(Paragraph("Lista de Espera", header_title_style))
+        story.append(Spacer(1, 3))
+        story.append(
+            Paragraph(
+                f"Situação: <b>Aguardando Vaga</b> &nbsp;•&nbsp; "
+                f"Total de estudantes na lista de espera: <b>{len(waitlist_data)}</b> "
+                f"&nbsp;•&nbsp; Emitido em {stamp}",
+                subtitle_style,
+            )
+        )
+        story.append(Spacer(1, 6))
+        story.append(
+            HRFlowable(
+                width="100%",
+                thickness=1.2,
+                color=colors.HexColor("#107C41"),
+                spaceAfter=10,
+            )
+        )
+
+        waitlist_rows = [
+            [
+                Paragraph("Nº", th_center_style),
+                Paragraph("Nome do(a) Estudante", th_style),
+                Paragraph("Disponibilidade", th_center_style),
+            ]
+        ]
+
+        for pos, aluno in enumerate(waitlist_data, start=1):
+            nome_safe = escape(str(aluno.get("nome", "")).strip())
+            disp_raw = str(aluno.get("disponibilidade", "") or "Lista de Espera").strip()
+            disp_safe = escape(disp_raw)
+            waitlist_rows.append(
+                [
+                    Paragraph(str(pos), td_center_style),
+                    Paragraph(nome_safe, td_name_style),
+                    Paragraph(disp_safe, td_center_style),
+                ]
+            )
+
+        waitlist_table = Table(
+            waitlist_rows,
+            colWidths=[1.6 * cm, 11.8 * cm, 4.0 * cm],
+            repeatRows=1,
+        )
+        waitlist_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#107C41")),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#E5E7EB")),
+                    (
+                        "ROWBACKGROUNDS",
+                        (0, 1),
+                        (-1, -1),
+                        [colors.white, colors.HexColor("#F8FAFC")],
+                    ),
+                    ("TOPPADDING", (0, 0), (-1, -1), 5),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                    ("LEFTPADDING", (1, 0), (1, -1), 8),
+                ]
+            )
+        )
+        story.append(waitlist_table)
 
     doc.build(story)
     return out_path
