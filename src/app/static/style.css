@@ -87,7 +87,6 @@ body {
   min-width: 0;
   margin-left: 2px;
 }
-}
 
 .file-title-row {
   display: flex;
@@ -319,131 +318,161 @@ body {
   border-color: var(--blue-sel);
 }
 
-/* Grid de Células */
-.grid-scroll {
+/* Grade de Células com Tabulator (Estilo Excel / Sheets) */
+.grid-host {
   flex: 1;
-  overflow: auto;
+  min-height: 0;
+  width: 100%;
   background: #FFFFFF;
 }
 
-.sheet-grid {
-  border-collapse: collapse;
-  width: 100%;
+.tabulator.grid-host {
+  border: none;
+  background-color: #FFFFFF;
+  font-family: var(--font);
   font-size: 12.5px;
-  table-layout: auto;
 }
 
-.sheet-grid th,
-.sheet-grid td {
-  border: 1px solid var(--border-grid);
-  height: 27px;
-  padding: 3px 9px;
-  white-space: nowrap;
-}
-
-.sheet-grid thead th {
-  position: sticky;
-  top: 0;
-  background: #F1F5F9;
+.tabulator.grid-host .tabulator-header {
+  background-color: #F1F5F9;
+  border-bottom: 1px solid var(--border);
   color: #475569;
   font-weight: 600;
   font-size: 11.5px;
+}
+
+.tabulator.grid-host .tabulator-header .tabulator-col {
+  background-color: #F1F5F9;
+  border-right: 1px solid var(--border-grid);
+  min-height: 28px;
+}
+
+.tabulator.grid-host .tabulator-header .tabulator-col.tabulator-range-highlight {
+  background-color: #E2E8F0;
+  color: #1E293B;
+}
+
+.tabulator.grid-host .tabulator-header .tabulator-col.tabulator-range-selected {
+  background-color: #DBEAFE;
+  color: #1E3A8A;
+}
+
+.tabulator.grid-host .tabulator-header .tabulator-col .tabulator-col-content {
+  padding: 5px 24px 5px 8px;
   text-align: center;
-  z-index: 10;
-  user-select: none;
-  position: relative;
+}
+
+.tabulator.grid-host .tabulator-header .tabulator-col.excel-row-num .tabulator-col-content {
+  padding: 5px 4px;
+}
+
+.tabulator.grid-host .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-sorter {
+  right: 2px;
+  padding: 0 5px;
+  border-radius: 4px;
+}
+
+.tabulator.grid-host .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-sorter:hover {
+  background-color: rgba(15, 23, 42, 0.08);
   cursor: pointer;
 }
 
-.sheet-grid thead th.header-selected {
-  background: #E0E7FF !important;
-  color: #3730A3;
+.tabulator.grid-host .tabulator-header .tabulator-col.tabulator-sortable[aria-sort="ascending"] .tabulator-arrow {
+  border-bottom-color: var(--green) !important;
 }
 
-.sheet-grid thead th .col-title {
-  display: inline-block;
-  padding: 0 4px;
+.tabulator.grid-host .tabulator-header .tabulator-col.tabulator-sortable[aria-sort="descending"] .tabulator-arrow {
+  border-top-color: var(--green) !important;
 }
 
-.col-resizer {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 5px;
-  height: 100%;
-  cursor: col-resize;
-  user-select: none;
+.tabulator.grid-host .tabulator-row {
+  background-color: #FFFFFF;
+  border-bottom: 1px solid var(--border-grid);
+  min-height: 27px;
 }
 
-.col-resizer:hover {
-  background: var(--blue-sel);
+.tabulator.grid-host .tabulator-row.tabulator-row-even {
+  background-color: #FFFFFF;
 }
 
-.sheet-grid tbody th.row-num {
-  position: sticky;
-  left: 0;
-  background: #F8FAFC;
+.tabulator.grid-host .tabulator-row:hover {
+  background-color: #FFFFFF;
+}
+
+.tabulator.grid-host .tabulator-row .tabulator-cell {
+  border-right: 1px solid var(--border-grid);
+  padding: 4px 9px;
+  color: #0F172A;
+  min-height: 27px;
+}
+
+.tabulator.grid-host .tabulator-row .tabulator-cell.excel-row-num {
+  background-color: #F8FAFC;
   color: #64748B;
   font-weight: 500;
   font-size: 11.5px;
-  text-align: center;
-  width: 44px;
-  min-width: 44px;
-  z-index: 5;
-  user-select: none;
-  cursor: pointer;
+  padding: 4px 2px;
 }
 
-.sheet-grid tbody th.row-num:hover {
-  background: #E2E8F0;
-  cursor: row-resize;
+.tabulator.grid-host .tabulator-row.tabulator-range-highlight .tabulator-cell.tabulator-range-row-header {
+  background-color: #E2E8F0;
+  color: #1E293B;
 }
 
-.sheet-grid tr.row-selected th.row-num {
-  background: #E0E7FF !important;
-  color: #3730A3;
+.tabulator.grid-host .tabulator-row.tabulator-range-selected .tabulator-cell.tabulator-range-row-header {
+  background-color: #DBEAFE;
+  color: #1E3A8A;
+  font-weight: 700;
 }
 
-.sheet-grid tr.row-selected td,
-.sheet-grid td.multi-selected-cell {
-  background: #EEF2FF !important;
-}
-
-.sheet-grid tr.sheet-header-row td {
-  background: #F0FDF4;
+/* Cores de status da Linha 1 (cabeçalho da planilha) e Inconsistências */
+.tabulator.grid-host .tabulator-row.sheet-header-row .tabulator-cell:not(.tabulator-range-row-header):not(.tabulator-range-selected) {
+  background-color: #F0FDF4;
   color: #065F46;
   font-weight: 600;
 }
 
-.sheet-grid tr.flag-impeditiva td {
-  background: #FEF2F2 !important;
+.tabulator.grid-host .tabulator-row.flag-impeditiva .tabulator-cell:not(.tabulator-range-row-header):not(.tabulator-range-selected) {
+  background-color: #FEF2F2;
 }
 
-.sheet-grid tr.flag-alerta td {
-  background: #FFFBEB !important;
+.tabulator.grid-host .tabulator-row.flag-alerta .tabulator-cell:not(.tabulator-range-row-header):not(.tabulator-range-selected) {
+  background-color: #FFFBEB;
 }
 
-.sheet-grid tr.flag-tratada td {
-  background: #F0FDF4 !important;
+.tabulator.grid-host .tabulator-row.flag-tratada .tabulator-cell:not(.tabulator-range-row-header):not(.tabulator-range-selected) {
+  background-color: #F0FDF4;
 }
 
-.sheet-grid tr.jump-highlight td {
+.tabulator.grid-host .tabulator-row.jump-highlight .tabulator-cell:not(.tabulator-range-row-header) {
   background-color: #BFDBFE !important;
-  transition: background-color 1.5s ease;
+  transition: background-color 0.8s ease;
 }
 
-.sheet-grid td {
+/* Seleção de Múltiplas Células / Faixas no Tabulator */
+.tabulator.grid-host .tabulator-row .tabulator-cell.tabulator-range-selected:not(.tabulator-range-only-cell-selected):not(.tabulator-range-row-header) {
+  background-color: #DBEAFE;
   color: #0F172A;
-  cursor: cell;
-  outline: none;
-  max-width: 380px;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.sheet-grid td.selected-cell {
-  box-shadow: inset 0 0 0 2px var(--blue-sel);
-  background: #F8FBFF !important;
+.tabulator.grid-host .tabulator-tableholder .tabulator-range-overlay .tabulator-range {
+  border: 1.5px solid var(--blue-sel);
+}
+
+.tabulator.grid-host .tabulator-tableholder .tabulator-range-overlay .tabulator-range-cell-active {
+  border: 2px solid var(--blue-sel);
+}
+
+.tabulator.grid-host .tabulator-cell.tabulator-editing {
+  padding: 0;
+  background-color: #FFFFFF !important;
+}
+
+.tabulator.grid-host .tabulator-cell.tabulator-editing input {
+  padding: 3px 8px;
+  font-family: var(--font);
+  font-size: 12.5px;
+  color: #0F172A;
 }
 
 /* Barra Inferior de Abas Estilo Planilha */

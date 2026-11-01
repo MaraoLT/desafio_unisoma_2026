@@ -22,7 +22,7 @@ from src.read_instance import (
     normalize_token,
 )
 
-DEFAULT_PAGE_SIZE = 300
+DEFAULT_PAGE_SIZE = 5000
 
 
 class AppBackend:
@@ -36,6 +36,45 @@ class AppBackend:
         self.solver_result = None
         self.processed_instance = None
         self.last_summary: Optional[dict[str, Any]] = None
+        self.undo_stack: list[dict[str, list[list[str]]]] = []
+        self.redo_stack: list[dict[str, list[list[str]]]] = []
+
+    def _clone_sheets(self) -> dict[str, list[list[str]]]:
+        return {s: [list(r) for r in rows] for s, rows in self.sheets_data.items()}
+
+    def _push_undo(self) -> None:
+        self.undo_stack.append(self._clone_sheets())
+        if len(self.undo_stack) > 50:
+            self.undo_stack.pop(0)
+        self.redo_stack.clear()
+
+    def undo(self) -> dict[str, Any]:
+        if not self.undo_stack:
+            return {"success": False, "error": "Nada para desfazer (Ctrl+Z)."}
+        self.redo_stack.append(self._clone_sheets())
+        self.sheets_data = self.undo_stack.pop()
+        self.dirty = True
+        validation = self.validate_data()
+        page_payload = self.get_sheet_page(self.active_sheet, page=1, search_query="")
+        return {
+            **page_payload,
+            "dirty": self.dirty,
+            "summary": validation.get("summary") if validation.get("success") else None,
+        }
+
+    def redo(self) -> dict[str, Any]:
+        if not self.redo_stack:
+            return {"success": False, "error": "Nada para refazer (Ctrl+Y)."}
+        self.undo_stack.append(self._clone_sheets())
+        self.sheets_data = self.redo_stack.pop()
+        self.dirty = True
+        validation = self.validate_data()
+        page_payload = self.get_sheet_page(self.active_sheet, page=1, search_query="")
+        return {
+            **page_payload,
+            "dirty": self.dirty,
+            "summary": validation.get("summary") if validation.get("success") else None,
+        }
 
     def load_excel(self, file_path_str: str) -> dict[str, Any]:
         """Carrega todas as abas de um arquivo .xlsx para edição em memória."""
@@ -78,14 +117,16 @@ class AppBackend:
         self.solver_result = None
         self.processed_instance = None
         self.last_summary = None
+        self.undo_stack.clear()
+        self.redo_stack.clear()
 
         if "Alunos" in self.sheets_data:
             self.active_sheet = "Alunos"
         else:
             self.active_sheet = next(iter(self.sheets_data.keys()), "Alunos")
 
-        page_payload = self.get_sheet_page(self.active_sheet, page=1, search_query="")
         validation = self.validate_data()
+        page_payload = self.get_sheet_page(self.active_sheet, page=1, search_query="")
         return {
             **page_payload,
             "filename": p.name,
@@ -95,6 +136,20 @@ class AppBackend:
             and len(self.sheets_data["Ensalamento"]) > 1,
             "summary": validation.get("summary") if validation.get("success") else None,
         }
+
+    def _compute_flagged_rows(self, sheet_name: str) -> dict[int, str]:
+        """Retorna mapa {excel_row: severidade} para destacar inconsistências na grade."""
+        flagged_rows: dict[int, str] = {}
+        if sheet_name == "Alunos" and self.last_summary:
+            for inc in self.last_summary.get("inconsistencias", []):
+                sev = inc.get("severidade", "ALERTA")
+                all_rows = inc.get("linhas") or ([inc.get("linha")] if inc.get("linha") else [])
+                for rn in all_rows:
+                    if isinstance(rn, int):
+                        prev = flagged_rows.get(rn)
+                        if sev == "IMPEDITIVA" or prev is None or (prev == "TRATADA" and sev == "ALERTA"):
+                            flagged_rows[rn] = sev
+        return flagged_rows
 
     def get_sheet_page(
         self,
@@ -138,18 +193,7 @@ class AppBackend:
         end = start + page_size
         sliced = indexed_rows[start:end]
 
-        # Linhas sinalizadas com inconsistência (quando a aba ativa é Alunos)
-        flagged_rows: dict[int, str] = {}
-        if sheet_name == "Alunos" and self.last_summary:
-            for inc in self.last_summary.get("inconsistencias", []):
-                # Se for TRATADA e o usuário já revisou/rejeitou ou aceitou, reflete o estado
-                sev = inc.get("severidade", "ALERTA")
-                all_rows = inc.get("linhas") or ([inc.get("linha")] if inc.get("linha") else [])
-                for rn in all_rows:
-                    if isinstance(rn, int):
-                        prev = flagged_rows.get(rn)
-                        if sev == "IMPEDITIVA" or prev is None or (prev == "TRATADA" and sev == "ALERTA"):
-                            flagged_rows[rn] = sev
+        flagged_rows = self._compute_flagged_rows(sheet_name)
 
         rows_out = []
         for mat_idx, r_vals in sliced:
@@ -311,29 +355,55 @@ class AppBackend:
         except Exception as exc:
             return {"success": False, "error": f"Erro ao validar dados: {exc}"}
 
-    def update_cell(self, sheet_name: str, mat_idx: int, col: int, value: str) -> dict[str, Any]:
-        """Atualiza uma célula específica na matriz em memória."""
+    def update_cells(self, sheet_name: str, updates: list[dict[str, Any]]) -> dict[str, Any]:
+        """Atualiza uma ou mais células na matriz em memória com suporte a undo em lote."""
         if sheet_name not in self.sheets_data:
             return {"success": False, "error": "Aba não encontrada."}
 
         matrix = self.sheets_data[sheet_name]
-        while len(matrix) <= mat_idx:
-            matrix.append([])
-        while len(matrix[mat_idx]) <= col:
-            matrix[mat_idx].append("")
+        changed = False
+        snapshot_pushed = False
 
-        if matrix[mat_idx][col] != value:
-            matrix[mat_idx][col] = value
+        for u in updates:
+            mat_idx = int(u.get("mat_idx", 0))
+            col = int(u.get("col", 0))
+            val = "" if u.get("value") is None else str(u.get("value"))
+            if mat_idx < 0 or col < 0:
+                continue
+
+            cur_val = (
+                matrix[mat_idx][col]
+                if mat_idx < len(matrix) and col < len(matrix[mat_idx])
+                else ""
+            )
+            if cur_val != val:
+                if not snapshot_pushed:
+                    self._push_undo()
+                    snapshot_pushed = True
+                while len(matrix) <= mat_idx:
+                    matrix.append([])
+                while len(matrix[mat_idx]) <= col:
+                    matrix[mat_idx].append("")
+                matrix[mat_idx][col] = val
+                changed = True
+
+        if changed:
             self.dirty = True
 
         validation = self.validate_data()
-        page_payload = self.get_sheet_page(sheet_name, page=1, search_query="")
+        flagged = {str(k): v for k, v in self._compute_flagged_rows(sheet_name).items()}
         return {
             "success": True,
             "dirty": self.dirty,
-            "rows": page_payload.get("rows", []),
+            "flagged_rows": flagged,
             "summary": validation.get("summary") if validation.get("success") else None,
         }
+
+    def update_cell(self, sheet_name: str, mat_idx: int, col: int, value: str) -> dict[str, Any]:
+        """Atualiza uma célula específica na matriz em memória."""
+        return self.update_cells(
+            sheet_name, [{"mat_idx": mat_idx, "col": col, "value": value}]
+        )
 
     def add_row(
         self,
@@ -345,6 +415,7 @@ class AppBackend:
         if sheet_name not in self.sheets_data:
             return {"success": False, "error": "Aba não encontrada."}
 
+        self._push_undo()
         matrix = self.sheets_data[sheet_name]
         num_cols = len(matrix[0]) if matrix else 3
         new_row = [""] * num_cols
@@ -359,8 +430,8 @@ class AppBackend:
             target_excel_row = len(matrix)
 
         self.dirty = True
-        res = self.jump_to_row(sheet_name, excel_row=target_excel_row, page_size=page_size)
         validation = self.validate_data()
+        res = self.jump_to_row(sheet_name, excel_row=target_excel_row, page_size=page_size)
         res["summary"] = validation.get("summary") if validation.get("success") else None
         return res
 
@@ -374,6 +445,7 @@ class AppBackend:
         if sheet_name not in self.sheets_data:
             return {"success": False, "error": "Aba não encontrada."}
 
+        self._push_undo()
         matrix = self.sheets_data[sheet_name]
         if not matrix:
             matrix.append([""])
@@ -387,33 +459,42 @@ class AppBackend:
             r.insert(col_idx, "")
 
         self.dirty = True
-        res = self.get_sheet_page(sheet_name, page=1, page_size=page_size)
         validation = self.validate_data()
+        res = self.get_sheet_page(sheet_name, page=1, page_size=page_size)
         res["summary"] = validation.get("summary") if validation.get("success") else None
         return res
 
     def delete_row(
         self,
         sheet_name: str,
-        mat_idx: int,
+        mat_idx: int = -1,
+        mat_indices: Optional[list[int]] = None,
         page: int = 1,
         page_size: int = DEFAULT_PAGE_SIZE,
         search_query: str = "",
     ) -> dict[str, Any]:
-        """Exclui uma linha de dados (preservando a linha 1 de cabeçalho)."""
+        """Exclui uma ou mais linhas de dados (preservando a linha 1 de cabeçalho)."""
         if sheet_name not in self.sheets_data:
             return {"success": False, "error": "Aba não encontrada."}
 
         matrix = self.sheets_data[sheet_name]
-        if mat_idx <= 0 or mat_idx >= len(matrix):
+        indices_to_delete: list[int] = []
+        if mat_indices:
+            indices_to_delete = sorted([i for i in mat_indices if 0 < i < len(matrix)], reverse=True)
+        elif 0 < mat_idx < len(matrix):
+            indices_to_delete = [mat_idx]
+
+        if not indices_to_delete:
             return {"success": False, "error": "Selecione uma linha de dados válida para excluir."}
 
-        matrix.pop(mat_idx)
+        self._push_undo()
+        for idx in indices_to_delete:
+            matrix.pop(idx)
         self.dirty = True
+        validation = self.validate_data()
         res = self.get_sheet_page(
             sheet_name, page=page, page_size=page_size, search_query=search_query
         )
-        validation = self.validate_data()
         res["summary"] = validation.get("summary") if validation.get("success") else None
         return res
 
@@ -428,6 +509,7 @@ class AppBackend:
         if "Alunos" not in self.sheets_data:
             return {"success": False, "error": "Aba 'Alunos' não encontrada."}
 
+        self._push_undo()
         extra = extra or {}
         matrix = self.sheets_data["Alunos"]
         headers = [normalize_token(c) for c in matrix[0]] if matrix else []
