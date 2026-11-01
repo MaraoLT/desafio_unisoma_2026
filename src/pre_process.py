@@ -132,12 +132,12 @@ def _parse_sexo(raw_sexo: Optional[str]) -> tuple[Optional[str], list[str], Opti
         notes.append(f"Espaços extras removidos no campo Sexo ('{raw_sexo}' -> '{stripped}').")
 
     tok = normalize_token(stripped)
-    if tok in {"m", "masculino", "masc", "homem", "menino"}:
+    if tok in {"m", "masculino", "masc", "homem", "menino"} or (sorted(tok) == sorted("masculino") and len(tok) >= 5):
         if stripped != GENERO_M:
             notes.append(f"Sexo '{stripped}' padronizado automaticamente para 'M'.")
         return GENERO_M, notes, None
 
-    if tok in {"f", "feminino", "fem", "mulher", "menina"}:
+    if tok in {"f", "feminino", "fem", "mulher", "menina"} or (sorted(tok) == sorted("feminino") and len(tok) >= 5):
         if stripped != GENERO_F:
             notes.append(f"Sexo '{stripped}' padronizado automaticamente para 'F'.")
         return GENERO_F, notes, None
@@ -170,18 +170,24 @@ def _parse_disponibilidade(
 
     tok = normalize_token(stripped)
 
-    if tok in {"manha", "matutino", "periodo manha", "turno manha", "m"}:
-        # 'Manhã' e 'MANHÃ' são grafias canônicas com acento; 'manha'/'Manha' são erros tratados
+    # Permutações simples / anagramas de "manha" (ex.: mahna, mahan, manah, mnah, etc.)
+    sorted_tok = sorted(tok)
+    is_manha_perm = (sorted_tok == sorted("manha")) or tok in {"manha", "matutino", "periodo manha", "turno manha", "m"}
+    if is_manha_perm:
         if stripped not in {"Manhã", "MANHÃ"}:
             notes.append(f"Disponibilidade '{stripped}' corrigida e padronizada para 'MANHÃ'.")
         return TURNO_MANHA, (TURNO_MANHA,), notes, None
 
-    if tok in {"tarde", "vespertino", "periodo tarde", "turno tarde", "t"}:
+    # Permutações simples / anagramas de "tarde" (ex.: tadre, tader, trdae, etc.)
+    is_tarde_perm = (sorted_tok == sorted("tarde")) or tok in {"tarde", "vespertino", "periodo tarde", "turno tarde", "t"}
+    if is_tarde_perm:
         if stripped not in {"Tarde", "TARDE"}:
             notes.append(f"Disponibilidade '{stripped}' corrigida e padronizada para 'TARDE'.")
         return TURNO_TARDE, (TURNO_TARDE,), notes, None
 
-    if tok in {"integral", "ambos", "manha/tarde", "manha e tarde", "qualquer", "livre"}:
+    # Permutações de "integral" (ex.: itnegral, inetgral) ou sinônimos
+    is_integral_perm = (sorted_tok == sorted("integral")) or tok in {"integral", "ambos", "manha/tarde", "manha e tarde", "qualquer", "livre"}
+    if is_integral_perm:
         if allow_integral:
             if stripped not in {"Integral", "INTEGRAL"}:
                 notes.append(

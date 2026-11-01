@@ -422,6 +422,10 @@
       });
       if (res.success) {
         updateDirtyIndicator(res.dirty);
+        if (res.rows) {
+          state.rows = res.rows;
+          renderGrid();
+        }
         if (res.summary) renderSummary(res.summary);
       }
     }
@@ -638,16 +642,104 @@
       if (!s.inconsistencias || s.inconsistencias.length === 0) {
         ib.innerHTML = "<span style='font-size:12px; color:#107C41; font-weight:500;'>Nenhum erro ou inconsistência encontrado!</span>";
       } else {
-        s.inconsistencias.forEach(inc => {
+        s.inconsistencias.forEach((inc, idx) => {
           const card = document.createElement("div");
           card.className = `issue-item ${inc.severidade}`;
-          const linhaTxt = inc.linha ? `Linha ${inc.linha}` : "Geral";
-          card.innerHTML = `<b>[${inc.severidade}] ${linhaTxt} — ${inc.nome}</b><br>${inc.mensagem}`;
-          if (inc.linha) {
-            card.onclick = () => jumpToStudentRow(inc.linha);
+
+          const rowsList = inc.linhas && inc.linhas.length > 0 ? inc.linhas : (inc.linha ? [inc.linha] : []);
+          const isMulti = rowsList.length > 1;
+
+          // Header do Card
+          const headDiv = document.createElement("div");
+          headDiv.className = "issue-header-row";
+
+          const tagSpan = document.createElement("span");
+          tagSpan.className = "issue-badge-tag";
+          tagSpan.textContent = `[${inc.severidade}] ${inc.categoria || "Cadastro"}`;
+          headDiv.appendChild(tagSpan);
+
+          if (isMulti) {
+            const cyclePill = document.createElement("span");
+            cyclePill.className = "issue-cycle-pill";
+            cyclePill.title = "Clique para alternar entre as ocorrências duplicadas na planilha";
+            cyclePill.textContent = `${rowsList.length} ocorrências ⇄`;
+            cyclePill.onclick = (ev) => {
+              ev.stopPropagation();
+              cycleDuplicateRow(inc.nome, rowsList);
+            };
+            headDiv.appendChild(cyclePill);
+          } else if (inc.linha) {
+            const singlePill = document.createElement("span");
+            singlePill.className = "issue-cycle-pill";
+            singlePill.textContent = `Linha ${inc.linha}`;
+            headDiv.appendChild(singlePill);
           }
+
+          // Mensagem explicativa
+          const msgDiv = document.createElement("div");
+          msgDiv.className = "issue-msg-text";
+          msgDiv.innerHTML = `<b>${inc.nome}</b>: ${inc.mensagem}`;
+
+          // Clique no corpo navega para a linha
+          card.onclick = () => {
+            if (isMulti) {
+              cycleDuplicateRow(inc.nome, rowsList);
+            } else if (inc.linha) {
+              jumpToStudentRow(inc.linha);
+            }
+          };
+
+          card.appendChild(headDiv);
+          card.appendChild(msgDiv);
+
+          // Apenas o botão para aplicar correções de erros tratados (sanitização de texto/espaços/turno)
+          if (inc.can_review && inc.review_type === "sanitize") {
+            const bar = document.createElement("div");
+            bar.className = "issue-actions-bar";
+            bar.onclick = (e) => e.stopPropagation();
+
+            const btnAccept = document.createElement("button");
+            btnAccept.className = "btn-action-fix btn-action-accept";
+            btnAccept.innerHTML = "✓ Aplicar Correção";
+            btnAccept.title = "Aplica na planilha a grafia padronizada (ex.: acentos, espaços extras, turno)";
+            btnAccept.onclick = () => resolveIssue("accept_sanitize", "sanitize", rowsList);
+            bar.appendChild(btnAccept);
+
+            card.appendChild(bar);
+          }
+
           ib.appendChild(card);
         });
+      }
+    }
+
+    const duplicateCycleIndices = {};
+
+    function cycleDuplicateRow(studentName, rowsList) {
+      if (!rowsList || rowsList.length === 0) return;
+      const cur = duplicateCycleIndices[studentName] || 0;
+      const targetRow = rowsList[cur % rowsList.length];
+      duplicateCycleIndices[studentName] = (cur + 1) % rowsList.length;
+      const stepMsg = `Ocorrência ${(cur % rowsList.length) + 1} de ${rowsList.length} (Linha ${targetRow})`;
+      showToast(`Alternando '${studentName}': ${stepMsg}`);
+      jumpToStudentRow(targetRow);
+    }
+
+    async function resolveIssue(action, issueType, targetRows, extra = {}) {
+      showBusy("Processando revisão cadastral...");
+      const res = await apiPost("/api/resolve_issue", {
+        action: action,
+        issue_type: issueType,
+        target_rows: targetRows,
+        extra: extra
+      });
+      hideBusy();
+      if (res.success) {
+        applyPagePayload(res);
+        if (res.summary) renderSummary(res.summary);
+        showToast("Problema revisado e atualizado na planilha!");
+      } else {
+        showToast(res.error || "Não foi possível aplicar a ação.");
       }
     }
 

@@ -367,20 +367,20 @@ body {
 }
 
 .sheet-grid tr.flag-impeditiva td {
-  background: #FEF2F2;
+  background: #FEF2F2 !important;
 }
 
 .sheet-grid tr.flag-alerta td {
-  background: #FFFBEB;
+  background: #FFFBEB !important;
+}
+
+.sheet-grid tr.flag-tratada td {
+  background: #F0FDF4 !important;
 }
 
 .sheet-grid tr.jump-highlight td {
-  animation: pulseRow 1.8s ease;
-}
-
-@keyframes pulseRow {
-  0% { background-color: #BFDBFE; }
-  100% { background-color: transparent; }
+  background-color: #BFDBFE !important;
+  transition: background-color 1.5s ease;
 }
 
 .sheet-grid td {
@@ -583,17 +583,108 @@ body {
 }
 
 .issue-item {
-  padding: 8px 10px;
-  border-radius: 6px;
+  padding: 9px 11px;
+  border-radius: 8px;
   font-size: 11.5px;
   line-height: 1.4;
   border: 1px solid var(--border);
-  cursor: pointer;
-  transition: transform 0.08s;
+  transition: transform 0.08s, box-shadow 0.12s;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .issue-item:hover {
-  filter: brightness(0.97);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.issue-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.issue-badge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  font-size: 10.5px;
+  letter-spacing: 0.3px;
+}
+
+.issue-cycle-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+}
+
+.issue-cycle-pill:hover {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.issue-msg-text {
+  font-size: 11.5px;
+  cursor: pointer;
+}
+
+/* Barra de Ações Estilo VS Code Code Actions / Quick Fix */
+.issue-actions-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 2px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.btn-action-fix {
+  height: 23px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.12s;
+}
+
+.btn-action-accept {
+  background: #107C41;
+  color: #FFFFFF;
+}
+.btn-action-accept:hover {
+  background: #0C5E31;
+}
+
+.btn-action-dismiss {
+  background: #FFFFFF;
+  color: #475569;
+  border-color: #CBD5E1;
+}
+.btn-action-dismiss:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+.btn-action-danger {
+  background: #DC2626;
+  color: #FFFFFF;
+}
+.btn-action-danger:hover {
+  background: #B91C1C;
 }
 
 .issue-item.IMPEDITIVA {

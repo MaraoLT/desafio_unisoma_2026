@@ -127,13 +127,14 @@ class AppBackend:
         flagged_rows: dict[int, str] = {}
         if sheet_name == "Alunos" and self.last_summary:
             for inc in self.last_summary.get("inconsistencias", []):
-                rn = inc.get("linha")
-                if isinstance(rn, int):
-                    sev = inc.get("severidade", "ALERTA")
-                    # Prioriza IMPEDITIVA sobre ALERTA/TRATADA
-                    prev = flagged_rows.get(rn)
-                    if prev != "IMPEDITIVA":
-                        flagged_rows[rn] = sev
+                # Se for TRATADA e o usuário já revisou/rejeitou ou aceitou, reflete o estado
+                sev = inc.get("severidade", "ALERTA")
+                all_rows = inc.get("linhas") or ([inc.get("linha")] if inc.get("linha") else [])
+                for rn in all_rows:
+                    if isinstance(rn, int):
+                        prev = flagged_rows.get(rn)
+                        if sev == "IMPEDITIVA" or prev is None or (prev == "TRATADA" and sev == "ALERTA"):
+                            flagged_rows[rn] = sev
 
         rows_out = []
         for mat_idx, r_vals in sliced:
@@ -218,16 +219,33 @@ class AppBackend:
                     "ocupacao_pct": round(100.0 * aloc_t / tot_cap, 1) if tot_cap > 0 else 0.0,
                 }
 
-            incons_list = [
-                {
+            incons_list = []
+            for inc in proc.inconsistencies:
+                item: dict[str, Any] = {
                     "linha": inc.row_number,
                     "nome": inc.nome,
                     "severidade": inc.severidade,
                     "categoria": inc.categoria,
                     "mensagem": inc.mensagem,
+                    "sexo_original": inc.sexo_original,
+                    "disp_original": inc.disp_original,
                 }
-                for inc in proc.inconsistencies
-            ]
+                # Se for duplicidade de nome, mapeia todas as linhas do grupo para permitir ciclo n-plicado
+                if inc.categoria == "Duplicidade de Nome" and inc.nome in proc.duplicate_groups:
+                    item["linhas"] = proc.duplicate_groups[inc.nome]
+                elif inc.row_number:
+                    item["linhas"] = [inc.row_number]
+                else:
+                    item["linhas"] = []
+
+                # Apenas erros com normalização automática aplicável (espaços, turno, sexo limpo)
+                if inc.severidade == "TRATADA":
+                    item["can_review"] = True
+                    item["review_type"] = "sanitize"
+                else:
+                    item["can_review"] = False
+
+                incons_list.append(item)
 
             n_imped = sum(1 for i in incons_list if i["severidade"] == "IMPEDITIVA")
             n_alert = sum(1 for i in incons_list if i["severidade"] == "ALERTA")
@@ -277,9 +295,11 @@ class AppBackend:
             self.dirty = True
 
         validation = self.validate_data()
+        page_payload = self.get_sheet_page(sheet_name, page=1, search_query="")
         return {
             "success": True,
             "dirty": self.dirty,
+            "rows": page_payload.get("rows", []),
             "summary": validation.get("summary") if validation.get("success") else None,
         }
 
@@ -322,6 +342,100 @@ class AppBackend:
         validation = self.validate_data()
         res["summary"] = validation.get("summary") if validation.get("success") else None
         return res
+
+    def resolve_issue(
+        self,
+        action: str,
+        issue_type: str,
+        target_rows: list[int],
+        extra: Optional[dict[str, Any]] = None,
+    ) -> dict[str, Any]:
+        """Aplica ou rejeita resolução estilo VS Code (Accept / Reject / Quick Fix) diretamente na planilha."""
+        if "Alunos" not in self.sheets_data:
+            return {"success": False, "error": "Aba 'Alunos' não encontrada."}
+
+        extra = extra or {}
+        matrix = self.sheets_data["Alunos"]
+        headers = [normalize_token(c) for c in matrix[0]] if matrix else []
+        col_nome = headers.index("nome") if "nome" in headers else 0
+        col_sexo = headers.index("sexo") if "sexo" in headers else 1
+        col_disp = (
+            headers.index("disponibilidade")
+            if "disponibilidade" in headers
+            else (2 if len(headers) > 2 else 2)
+        )
+
+        modified = False
+
+        if action == "accept_sanitize":
+            # Aceita a higienização proposta (remover espaços, normalizar Sexo p/ M/F, turno)
+            for r_num in target_rows:
+                mat_idx = r_num - 1
+                if 1 <= mat_idx < len(matrix):
+                    r = matrix[mat_idx]
+                    nome_val = r[col_nome].strip() if col_nome < len(r) else ""
+                    sexo_val = r[col_sexo].strip() if col_sexo < len(r) else ""
+                    disp_val = r[col_disp].strip() if col_disp < len(r) else ""
+
+                    # Normaliza Sexo
+                    sexo_tok = normalize_token(sexo_val)
+                    if sexo_tok in {"m", "masculino", "masc", "homem", "menino"}:
+                        r[col_sexo] = "M"
+                    elif sexo_tok in {"f", "feminino", "fem", "mulher", "menina"}:
+                        r[col_sexo] = "F"
+
+                    # Normaliza Disponibilidade
+                    disp_tok = normalize_token(disp_val)
+                    if "manha" in disp_tok:
+                        r[col_disp] = "Manhã"
+                    elif "tarde" in disp_tok:
+                        r[col_disp] = "Tarde"
+                    elif "integral" in disp_tok:
+                        r[col_disp] = "Integral"
+
+                    # Remove espaços do nome
+                    import re
+
+                    r[col_nome] = re.sub(r"\s+", " ", nome_val)
+                    modified = True
+
+        elif action == "remove_duplicates":
+            # Remove as linhas excedentes do aluno n-plicado, mantendo apenas a primeira
+            if len(target_rows) > 1:
+                # Ordena decrescente para não deslocar índices durante o pop
+                rows_to_remove = sorted(target_rows[1:], reverse=True)
+                for r_num in rows_to_remove:
+                    mat_idx = r_num - 1
+                    if 1 <= mat_idx < len(matrix):
+                        matrix.pop(mat_idx)
+                        modified = True
+
+        elif action == "quick_fix_field":
+            # Aplica valor sugerido em campo específico
+            field_name = extra.get("field", "")
+            new_val = extra.get("value", "")
+            for r_num in target_rows:
+                mat_idx = r_num - 1
+                if 1 <= mat_idx < len(matrix):
+                    r = matrix[mat_idx]
+                    if field_name == "sexo" and col_sexo < len(r):
+                        r[col_sexo] = new_val
+                        modified = True
+                    elif field_name == "disponibilidade" and col_disp < len(r):
+                        r[col_disp] = new_val
+                        modified = True
+
+        if modified:
+            self.dirty = True
+
+        validation = self.validate_data()
+        page_payload = self.get_sheet_page(self.active_sheet, page=1, search_query="")
+        return {
+            **page_payload,
+            "dirty": self.dirty,
+            "summary": validation.get("summary") if validation.get("success") else None,
+            "modified": modified,
+        }
 
     def save_excel(self, save_as_path: Optional[str] = None) -> dict[str, Any]:
         """Salva todas as abas no arquivo Excel preservando formatação limpa e tipos numéricos."""
@@ -654,16 +768,33 @@ class AppBackend:
                     }
                 )
 
-            incons_list = [
-                {
+            incons_list = []
+            for inc in proc.inconsistencies:
+                item: dict[str, Any] = {
                     "linha": inc.row_number,
                     "nome": inc.nome,
                     "severidade": inc.severidade,
                     "categoria": inc.categoria,
                     "mensagem": inc.mensagem,
+                    "sexo_original": inc.sexo_original,
+                    "disp_original": inc.disp_original,
                 }
-                for inc in proc.inconsistencies
-            ]
+                # Se for duplicidade de nome, mapeia todas as linhas do grupo para permitir ciclo n-plicado
+                if inc.categoria == "Duplicidade de Nome" and inc.nome in proc.duplicate_groups:
+                    item["linhas"] = proc.duplicate_groups[inc.nome]
+                elif inc.row_number:
+                    item["linhas"] = [inc.row_number]
+                else:
+                    item["linhas"] = []
+
+                # Apenas erros com normalização automática aplicável (espaços, turno, sexo limpo)
+                if inc.severidade == "TRATADA":
+                    item["can_review"] = True
+                    item["review_type"] = "sanitize"
+                else:
+                    item["can_review"] = False
+
+                incons_list.append(item)
 
             n_imped = sum(1 for i in incons_list if i["severidade"] == "IMPEDITIVA")
             n_alert = sum(1 for i in incons_list if i["severidade"] == "ALERTA")

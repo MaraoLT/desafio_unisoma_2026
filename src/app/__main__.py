@@ -92,41 +92,29 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
                 res["filename"] = backend.current_filepath.name
                 res["filepath"] = str(backend.current_filepath)
             else:
-                res["filename"] = "Modelo Inicial (Novo)"
-                res["filepath"] = "Clique em 'Abrir Excel' ou 'Salvar' para gravar em disco"
+                res["filename"] = "Planilha sem título"
+                res["filepath"] = "Nova planilha — clique em 'Abrir Excel' ou 'Salvar'"
             return _json_resp(res)
 
-        init_xlsx = _find_initial_excel()
-        if init_xlsx is not None:
-            res = backend.load_excel(str(init_xlsx))
-            # Se carregou o exemplo embutido em _MEIPASS, limpa current_filepath p/ pedir local ao salvar
-            if getattr(sys, "frozen", False) and str(BUNDLE_ROOT) in str(init_xlsx):
-                backend.current_filepath = None
-                res["filename"] = f"{init_xlsx.name} (Exemplo)"
-                res["filepath"] = "Exemplo de demonstração — clique em 'Abrir Excel' para abrir sua planilha"
-            return _json_resp(res)
-
-        # Fallback: planilha modelo limpa em memória
+        # Inicia com planilha vazia estilo Excel/Sheets (linha de cabeçalho padrão + linhas em branco)
+        empty_rows = [["", "", ""] for _ in range(35)]
         backend.sheets_data = {
-            "Alunos": [
-                ["Nome", "Sexo", "Disponibilidade"],
-                ["Ana Beatriz Silva", "F", "Manhã"],
-                ["Carlos Eduardo Souza", "M", "Manhã"],
-                ["Mariana Oliveira", "F", "Tarde"],
-                ["Pedro Henrique Lima", "M", "Tarde"],
-            ],
+            "Alunos": [["Nome", "Sexo", "Disponibilidade"]] + empty_rows,
             "Turmas": [
                 ["Recursos", "Quantidade"],
-                ["turmas_manha", "2"],
-                ["turmas_tarde", "2"],
-                ["vagas_manha", "30"],
-                ["vagas_tarde", "30"],
-            ],
+                ["turmas_manha", ""],
+                ["turmas_tarde", ""],
+                ["vagas_manha", ""],
+                ["vagas_tarde", ""],
+            ] + [["", ""] for _ in range(25)],
         }
         backend.active_sheet = "Alunos"
+        backend.current_filepath = None
+        backend.dirty = False
+
         res = backend.get_sheet_page("Alunos", page=1, search_query="")
-        res["filename"] = "Nova Planilha"
-        res["filepath"] = "Planilha em memória — clique em 'Abrir Excel' ou 'Salvar'"
+        res["filename"] = "Planilha sem título"
+        res["filepath"] = "Nova planilha — clique em 'Abrir Excel' para carregar seus dados"
         return _json_resp(res)
 
     @app.post("/api/get_page")
@@ -178,6 +166,18 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
                 mat_idx=int(body.get("mat_idx", 1)),
                 page=int(body.get("page", 1)),
                 search_query=str(body.get("search_query", "")),
+            )
+        )
+
+    @app.post("/api/resolve_issue")
+    def api_resolve_issue():
+        body = _read_json()
+        return _json_resp(
+            backend.resolve_issue(
+                action=str(body.get("action", "")),
+                issue_type=str(body.get("issue_type", "")),
+                target_rows=[int(x) for x in body.get("target_rows", []) if str(x).isdigit()],
+                extra=body.get("extra", {}),
             )
         )
 
@@ -362,10 +362,15 @@ def _run_self_test(out_json_path: str) -> int:
             assert st.startswith("200"), f"HTTP {st} em {path}"
             return json.loads(raw.decode("utf-8"))
 
-        # 2. Inicializa planilha inicial
+        # 2. Inicializa planilha vazia
         init_res = _post("/api/init", {})
         assert init_res.get("success") is True, f"Falha em /api/init: {init_res}"
-        report["loaded_rows"] = init_res.get("total_rows")
+        report["initial_filename"] = init_res.get("filename")
+
+        # Carrega exemplo para testar solver e exportação no self-test
+        init_xlsx = _find_initial_excel()
+        if init_xlsx:
+            backend.load_excel(str(init_xlsx))
 
         # 3. Testa edição, adição, salto de linha e remoção na grade
         upd_res = _post("/api/update_cell", {"sheet_name": "Alunos", "mat_idx": 1, "col": 2, "value": "Manhã"})
