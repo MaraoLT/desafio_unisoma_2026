@@ -69,7 +69,7 @@ O projeto já inclui o arquivo de especificação [`UniSomaEnsalamento.spec`](Un
 pip install pyinstaller
 
 # 2. Execute a compilação:
-pyinstaller --clean UniSomaEnsalamento.spec
+pyinstaller --noconfirm UniSomaEnsalamento.spec
 ```
 
 O arquivo executável final será gerado em:
@@ -224,41 +224,6 @@ O aplicativo desktop nativo é construído com arquitetura moderna e 100% offlin
 5. **Emissão de Relatórios Oficiais em PDF:**
    - **Relatório de Turmas:** Listas de chamada por sala formatadas com logo da ABC Aprendiz e seção de lista de espera.
    - **Relatório do Dashboard:** Relatório analítico da distribuição de alunos e salas.
-
----
-
-### Diagrama de Fluxo do Usuário
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Usuario as Gestor Escolar
-    participant UI as Interface Desktop (WebView2)
-    participant Backend as Backend WSGI (AppBackend)
-    participant Solver as Solver MILP (PuLP/CBC)
-    participant PDF as Gerador PDF (ReportLab)
-
-    Usuario->>UI: Abre o arquivo .xlsx
-    UI->>Backend: load_excel(caminho)
-    Backend->>UI: Exibe dados em abas e destaca inconsistências
-
-    opt Correção Rápida
-        Usuario->>UI: Clica em "Resolver" ou "Aplicar Todas as Correções"
-        UI->>Backend: resolve_issue(tipo, id)
-        Backend-->>UI: Planilha atualizada e validada em memória
-    end
-
-    Usuario->>UI: Clica em "Organizar Turmas"
-    UI->>Backend: run_ensalamento(parametros)
-    Backend->>Solver: solve_ensalamento(instancia)
-    Solver-->>Backend: Solução Ótima (Alocação, Métricas, Z1*, Z2*)
-    Backend-->>UI: Cria aba 'Ensalamento' e exibe métricas no Dashboard
-
-    Usuario->>UI: Clica em "Exportar PDF"
-    UI->>Backend: export_pdf(caminho)
-    Backend->>PDF: generate_class_lists_pdf()
-    PDF-->>Usuario: Salva PDF oficial com listas de chamada por sala
-```
 
 ---
 
