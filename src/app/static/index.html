@@ -88,11 +88,11 @@
     <!-- Divisor Redimensionável (Splitter) -->
     <div class="pane-resizer" id="paneResizer" title="Arraste para redimensionar ou duplo-clique para resetar"></div>
 
-    <!-- Lado Direito: Relatório Enxuto + Assistente Local -->
+    <!-- Lado Direito: Relatório Enxuto + Dashboard do Ensalamento -->
     <aside class="side-pane" id="sidePane">
       <div class="side-header">
         <button class="side-tab active" id="btnSideReport" onclick="setSideTab('report')">Relatório &amp; Alertas</button>
-        <button class="side-tab" id="btnSideChat" onclick="setSideTab('chat')">Assistente</button>
+        <button class="side-tab" id="btnSideDashboard" onclick="setSideTab('dashboard')">Dashboard do Ensalamento</button>
       </div>
 
       <!-- Visão 1: Resumo Amigável e Erros Clicáveis -->
@@ -137,32 +137,29 @@
         </div>
       </div>
 
-      <!-- Visão 2: Chat Assistente Local (100% Offline, Zero Alucinação) -->
-      <div class="side-body" id="paneChat">
-        <div class="chat-wrap">
-          <div class="chat-messages" id="chatMessages">
-            <div class="msg bot">
-              Olá! Consulto diretamente os números exatos da sua planilha, <b>100% offline e sem erros</b>.<br><br>
-              Pergunte sobre vagas, erros cadastrais, turmas ou digite o <b>nome de um aluno</b> para achar a sala dele.
-            </div>
+      <!-- Visão 2: Dashboard do Ensalamento (Turmas e Barras de Alunos, Alunas e Vagas Vazias) -->
+      <div class="side-body" id="paneDashboard">
+        <div class="dash-kpi-row">
+          <div class="dash-kpi-card accent-navy">
+            <div class="dash-kpi-title">Total Alocados / Vagas</div>
+            <div class="dash-kpi-val" id="dashKpiTotalVal">—</div>
+            <div class="dash-kpi-sub" id="dashKpiTotalSub">Ocupação Global</div>
           </div>
-
-          <div class="quick-chips">
-            <button class="chip" onclick="askQuick('Resumo das vagas')">Resumo das vagas</button>
-            <button class="chip" onclick="askQuick('Quais erros tem na planilha?')">Ver erros</button>
-            <button class="chip" onclick="askQuick('Equilíbrio de gênero')">Meninos vs Meninas</button>
-            <button class="chip" onclick="askQuick('Quem ficou na Manhã - A?')">Turma Manhã - A</button>
-            <button class="chip" onclick="askQuick('Como gerar PDF para os alunos?')">PDF p/ Alunos</button>
+          <div class="dash-kpi-card accent-cyan">
+            <div class="dash-kpi-title">Turno MANHÃ</div>
+            <div class="dash-kpi-val" id="dashKpiManhaVal">—</div>
+            <div class="dash-kpi-sub" id="dashKpiManhaSub">Lotação e Gênero</div>
           </div>
+          <div class="dash-kpi-card accent-teal">
+            <div class="dash-kpi-title">Turno TARDE</div>
+            <div class="dash-kpi-val" id="dashKpiTardeVal">—</div>
+            <div class="dash-kpi-sub" id="dashKpiTardeSub">Lotação e Gênero</div>
+          </div>
+        </div>
 
-          <div class="chat-box">
-            <input
-              type="text"
-              id="chatInput"
-              placeholder="Pergunte ou digite o nome de um aluno..."
-              onkeydown="if(event.key==='Enter') sendChat()"
-            >
-            <button class="chat-send" onclick="sendChat()" title="Enviar">&#8593;</button>
+        <div class="dash-turmas-scroll" id="dashTurmasContainer">
+          <div class="dash-empty-state">
+            Clique em <b>Otimizar Turmas</b> na barra superior para visualizar os cartões de lotação e as barras de distribuição de meninos, meninas e vagas vazias por sala.
           </div>
         </div>
       </div>
@@ -799,7 +796,7 @@
         state.searchQuery = "";
         applyPagePayload(res);
         renderSummary(res.summary);
-        setSideTab("report");
+        setSideTab(res.summary && res.summary.feasible && res.summary.turmas && res.summary.turmas.length > 0 ? "dashboard" : "report");
         showToast(
           res.summary.feasible
             ? `Ensalamento concluído em ${res.summary.tempo_ms} ms!`
@@ -830,6 +827,18 @@
       document.getElementById("solverBadge").textContent = "";
       document.getElementById("shiftsBox").innerHTML = "Pré-visualização da capacidade por período.";
       document.getElementById("issuesBox").innerHTML = "<span style='font-size:12px; color:#64748B;'>Nenhum erro verificado ainda.</span>";
+
+      document.getElementById("dashKpiTotalVal").textContent = "—";
+      document.getElementById("dashKpiTotalSub").textContent = "Ocupação Global";
+      document.getElementById("dashKpiManhaVal").textContent = "—";
+      document.getElementById("dashKpiManhaSub").textContent = "Lotação e Gênero";
+      document.getElementById("dashKpiTardeVal").textContent = "—";
+      document.getElementById("dashKpiTardeSub").textContent = "Lotação e Gênero";
+      document.getElementById("dashTurmasContainer").innerHTML = `
+        <div class="dash-empty-state">
+          Clique em <b>Otimizar Turmas</b> na barra superior para visualizar os cartões de lotação e as barras de distribuição de meninos, meninas e vagas vazias por sala.
+        </div>
+      `;
     }
 
     function renderSummary(s) {
@@ -871,6 +880,9 @@
         `;
         sb.appendChild(div);
       });
+
+      // Atualiza também a aba Dashboard do Ensalamento
+      renderDashboard(s);
 
       // Alertas e Erros Clicáveis
       const ib = document.getElementById("issuesBox");
@@ -1005,45 +1017,147 @@
 
     function setSideTab(which) {
       document.getElementById("btnSideReport").classList.toggle("active", which === "report");
-      document.getElementById("btnSideChat").classList.toggle("active", which === "chat");
+      document.getElementById("btnSideDashboard").classList.toggle("active", which === "dashboard");
       document.getElementById("paneReport").classList.toggle("active", which === "report");
-      document.getElementById("paneChat").classList.toggle("active", which === "chat");
-      if (which === "chat") document.getElementById("chatInput").focus();
+      document.getElementById("paneDashboard").classList.toggle("active", which === "dashboard");
     }
 
-    function formatMd(text) {
-      return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
-        .replace(/\*(.*?)\*/g, "<i>$1</i>")
-        .replace(/\n/g, "<br>");
+    function createTurmaCardElement(t) {
+      const cap = Math.max(0, Number(t.capacidade) || 0);
+      const lot = Math.max(0, Number(t.lotacao) || 0);
+      const masc = Math.max(0, Number(t.masculino) || 0);
+      const fem = Math.max(0, Number(t.feminino) || 0);
+      const livres = Math.max(0, cap - lot);
+      const ocupPct = cap > 0 ? ((100.0 * lot) / cap).toFixed(1) : "0.0";
+
+      const pctM = cap > 0 ? Math.min(100, (100.0 * masc) / cap) : 0;
+      const pctF = cap > 0 ? Math.min(Math.max(0, 100 - pctM), (100.0 * fem) / cap) : 0;
+      const pctVazio = Math.max(0, 100 - pctM - pctF);
+
+      const isManha = (t.turno || "").toUpperCase().includes("MANH");
+      const accentClass = isManha ? "turma-code-manha" : "turma-code-tarde";
+
+      const card = document.createElement("div");
+      card.className = "dash-turma-card";
+      card.title = `Clique para filtrar os alunos da turma ${t.codigo} na planilha`;
+      card.onclick = () => filterSheetByTurma(t.codigo);
+
+      card.innerHTML = `
+        <div class="dash-turma-top">
+          <span class="dash-turma-code ${accentClass}">${t.codigo}</span>
+          <span class="dash-turma-lot">Lotação: ${lot}/${cap} (${ocupPct}%) • ${livres} livres</span>
+        </div>
+        <div class="dash-gender-bar">
+          <div class="dash-bar-seg-m" style="width: ${pctM.toFixed(2)}%;" title="Meninos (M): ${masc}"></div>
+          <div class="dash-bar-seg-f" style="width: ${pctF.toFixed(2)}%;" title="Meninas (F): ${fem}"></div>
+          <div class="dash-bar-seg-empty" style="width: ${pctVazio.toFixed(2)}%;" title="Vagas Vazias: ${livres}"></div>
+        </div>
+        <div class="dash-turma-legend">
+          <span class="legend-m">■ Meninos (M): ${masc}</span>
+          <span class="legend-f">■ Meninas (F): ${fem}</span>
+          <span class="legend-empty">■ Vagas Vazias: ${livres}</span>
+        </div>
+      `;
+      return card;
     }
 
-    function addChatMsg(role, text) {
-      const box = document.getElementById("chatMessages");
-      const div = document.createElement("div");
-      div.className = `msg ${role}`;
-      div.innerHTML = formatMd(text);
-      box.appendChild(div);
-      box.scrollTop = box.scrollHeight;
+    function renderDashboard(s) {
+      const container = document.getElementById("dashTurmasContainer");
+      if (!s || !s.stats_turnos) {
+        return;
+      }
+
+      const stM = s.stats_turnos["MANHÃ"] || { salas: 0, capacidade_total: 0, alocados: 0, masculino: 0, feminino: 0, ocupacao_pct: 0 };
+      const stT = s.stats_turnos["TARDE"] || { salas: 0, capacidade_total: 0, alocados: 0, masculino: 0, feminino: 0, ocupacao_pct: 0 };
+
+      const capTotal = (stM.capacidade_total || 0) + (stT.capacidade_total || 0);
+      const alocTotal = (stM.alocados || 0) + (stT.alocados || 0);
+      const livresTotal = Math.max(0, capTotal - alocTotal);
+      const ocupGlobal = capTotal > 0 ? ((100.0 * alocTotal) / capTotal).toFixed(1) : "0.0";
+
+      const livresM = Math.max(0, (stM.capacidade_total || 0) - (stM.alocados || 0));
+      const livresT = Math.max(0, (stT.capacidade_total || 0) - (stT.alocados || 0));
+
+      document.getElementById("dashKpiTotalVal").textContent = `${alocTotal} / ${capTotal} (${ocupGlobal}%)`;
+      document.getElementById("dashKpiTotalSub").textContent = `${s.total_salas || 0} turmas ativas • ${livresTotal} vagas livres`;
+
+      document.getElementById("dashKpiManhaVal").textContent = `${stM.alocados}/${stM.capacidade_total} alunos (${stM.masculino}M / ${stM.feminino}F)`;
+      document.getElementById("dashKpiManhaSub").textContent = `${stM.salas} turma(s) • Ocupação: ${Number(stM.ocupacao_pct || 0).toFixed(1)}% (${livresM} livres)`;
+
+      document.getElementById("dashKpiTardeVal").textContent = `${stT.alocados}/${stT.capacidade_total} alunos (${stT.masculino}M / ${stT.feminino}F)`;
+      document.getElementById("dashKpiTardeSub").textContent = `${stT.salas} turma(s) • Ocupação: ${Number(stT.ocupacao_pct || 0).toFixed(1)}% (${livresT} livres)`;
+
+      const turmas = s.turmas || [];
+      if (!turmas.length) {
+        container.innerHTML = `
+          <div class="dash-empty-state">
+            Clique em <b>Otimizar Turmas</b> na barra superior para visualizar os cartões de lotação e as barras de distribuição de meninos, meninas e vagas vazias por sala.
+          </div>
+        `;
+        return;
+      }
+
+      const turmasManha = turmas.filter(t => (t.turno || "").toUpperCase().includes("MANH"));
+      const turmasTarde = turmas.filter(t => !(t.turno || "").toUpperCase().includes("MANH"));
+
+      container.innerHTML = "";
+      const grid = document.createElement("div");
+      grid.className = "dash-columns-grid";
+
+      // Coluna Manhã
+      const colM = document.createElement("div");
+      colM.className = "dash-shift-col";
+      const hdrM = document.createElement("div");
+      hdrM.className = "dash-col-header header-manha";
+      hdrM.textContent = `Turmas da Manhã (${turmasManha.length} sala(s))`;
+      colM.appendChild(hdrM);
+
+      if (turmasManha.length === 0) {
+        const emptyM = document.createElement("div");
+        emptyM.className = "dash-col-empty";
+        emptyM.textContent = "Nenhuma turma configurada para a Manhã.";
+        colM.appendChild(emptyM);
+      } else {
+        turmasManha.forEach(t => colM.appendChild(createTurmaCardElement(t)));
+      }
+
+      // Coluna Tarde
+      const colT = document.createElement("div");
+      colT.className = "dash-shift-col";
+      const hdrT = document.createElement("div");
+      hdrT.className = "dash-col-header header-tarde";
+      hdrT.textContent = `Turmas da Tarde (${turmasTarde.length} sala(s))`;
+      colT.appendChild(hdrT);
+
+      if (turmasTarde.length === 0) {
+        const emptyT = document.createElement("div");
+        emptyT.className = "dash-col-empty";
+        emptyT.textContent = "Nenhuma turma configurada para a Tarde.";
+        colT.appendChild(emptyT);
+      } else {
+        turmasTarde.forEach(t => colT.appendChild(createTurmaCardElement(t)));
+      }
+
+      grid.appendChild(colM);
+      grid.appendChild(colT);
+      container.appendChild(grid);
     }
 
-    async function sendChat() {
-      const inp = document.getElementById("chatInput");
-      const q = inp.value.trim();
-      if (!q) return;
-      inp.value = "";
-      addChatMsg("user", q);
-      const res = await apiPost("/api/ask", { prompt: q });
-      addChatMsg("bot", res.answer || "Sem resposta.");
-    }
-
-    function askQuick(q) {
-      setSideTab("chat");
-      document.getElementById("chatInput").value = q;
-      sendChat();
+    async function filterSheetByTurma(turmaCodigo) {
+      if (!state.sheetNames.includes("Ensalamento")) return;
+      document.getElementById("searchBox").value = turmaCodigo;
+      state.searchQuery = turmaCodigo;
+      showBusy(`Filtrando ${turmaCodigo}...`);
+      const res = await apiPost("/api/get_page", {
+        sheet_name: "Ensalamento",
+        page: 1,
+        search_query: turmaCodigo
+      });
+      hideBusy();
+      if (res.success) {
+        applyPagePayload(res);
+        showToast(`Exibindo alunos alocados em '${turmaCodigo}'.`);
+      }
     }
 
     // Inicializa carregando a planilha padrão
@@ -1103,9 +1217,9 @@
       });
 
       resizer.addEventListener("dblclick", () => {
-        sidePane.style.width = "390px";
-        localStorage.setItem("unisoma_side_width", 390);
-        showToast("Proporção restaurada para o padrão (390px).");
+        sidePane.style.width = "520px";
+        localStorage.setItem("unisoma_side_width", 520);
+        showToast("Proporção restaurada para o padrão (520px).");
       });
     }
   </script>

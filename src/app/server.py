@@ -231,8 +231,57 @@ class AppBackend:
                     "alocados": aloc_t,
                     "masculino": m_t,
                     "feminino": f_t,
+                    "livres": max(0, tot_cap - aloc_t),
                     "ocupacao_pct": round(100.0 * aloc_t / tot_cap, 1) if tot_cap > 0 else 0.0,
                 }
+
+            turmas_summary = []
+            if self.solver_result and self.solver_result.feasible:
+                for t in proc.turmas:
+                    tot_s = self.solver_result.y_turma.get(t.id, 0) if self.solver_result.y_turma else 0
+                    m_s = self.solver_result.z_turma_gen.get((t.id, GENERO_M), 0) if self.solver_result.z_turma_gen else 0
+                    f_s = self.solver_result.z_turma_gen.get((t.id, GENERO_F), 0) if self.solver_result.z_turma_gen else 0
+                    turmas_summary.append(
+                        {
+                            "codigo": t.codigo,
+                            "turno": t.turno,
+                            "capacidade": t.capacidade,
+                            "lotacao": tot_s,
+                            "masculino": m_s,
+                            "feminino": f_s,
+                            "livres": max(0, t.capacidade - tot_s),
+                            "ocupacao_pct": round(100.0 * tot_s / t.capacidade, 1) if t.capacidade > 0 else 0.0,
+                        }
+                    )
+            elif "Ensalamento" in self.sheets_data and len(self.sheets_data["Ensalamento"]) > 1:
+                ens_mat = self.sheets_data["Ensalamento"]
+                counts_by_code: dict[str, dict[str, int]] = {}
+                for r in ens_mat[1:]:
+                    if len(r) < 4 or not r[3].strip():
+                        continue
+                    code = r[3].strip()
+                    sex = normalize_token(r[1]).upper()
+                    entry = counts_by_code.setdefault(code, {"tot": 0, "m": 0, "f": 0})
+                    entry["tot"] += 1
+                    if sex.startswith("M"):
+                        entry["m"] += 1
+                    elif sex.startswith("F"):
+                        entry["f"] += 1
+                for t in proc.turmas:
+                    c_info = counts_by_code.get(t.codigo, {"tot": 0, "m": 0, "f": 0})
+                    tot_s = c_info["tot"]
+                    turmas_summary.append(
+                        {
+                            "codigo": t.codigo,
+                            "turno": t.turno,
+                            "capacidade": t.capacidade,
+                            "lotacao": tot_s,
+                            "masculino": c_info["m"],
+                            "feminino": c_info["f"],
+                            "livres": max(0, t.capacidade - tot_s),
+                            "ocupacao_pct": round(100.0 * tot_s / t.capacidade, 1) if t.capacidade > 0 else 0.0,
+                        }
+                    )
 
             incons_list = []
             for inc in proc.inconsistencies:
@@ -294,7 +343,7 @@ class AppBackend:
                 "total_espera": (0 if self.solver_result is None else len(self.solver_result.unallocated_students)),
                 "total_salas": len(proc.turmas),
                 "stats_turnos": stats_turnos,
-                "turmas": [],
+                "turmas": turmas_summary,
                 "turmas_truncated": 0,
                 "inconsistencias": incons_list,  # Lista completa de erros/alertas
                 "incons_counts": {
@@ -827,7 +876,7 @@ class AppBackend:
                 }
 
             turmas_summary = []
-            for t in proc.turmas[:120]:
+            for t in proc.turmas:
                 tot_s = res.y_turma.get(t.id, 0) if res.y_turma else 0
                 m_s = res.z_turma_gen.get((t.id, GENERO_M), 0) if res.z_turma_gen else 0
                 f_s = res.z_turma_gen.get((t.id, GENERO_F), 0) if res.z_turma_gen else 0
@@ -839,6 +888,8 @@ class AppBackend:
                         "lotacao": tot_s,
                         "masculino": m_s,
                         "feminino": f_s,
+                        "livres": max(0, t.capacidade - tot_s),
+                        "ocupacao_pct": round(100.0 * tot_s / t.capacidade, 1) if t.capacidade > 0 else 0.0,
                     }
                 )
 
