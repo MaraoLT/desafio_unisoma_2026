@@ -84,6 +84,14 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
     def stylesheet():
         return bottle.static_file("style.css", root=str(static_dir))
 
+    @app.get("/tabulator.min.css")
+    def tabulator_css():
+        return bottle.static_file("tabulator.min.css", root=str(static_dir), mimetype="text/css")
+
+    @app.get("/tabulator.min.js")
+    def tabulator_js():
+        return bottle.static_file("tabulator.min.js", root=str(static_dir), mimetype="application/javascript")
+
     @app.post("/api/init")
     def api_init():
         if backend.sheets_data:
@@ -150,6 +158,17 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
             )
         )
 
+    @app.post("/api/update_cells")
+    def api_update_cells():
+        body = _read_json()
+        updates = body.get("updates", [])
+        return _json_resp(
+            backend.update_cells(
+                sheet_name=str(body.get("sheet_name", backend.active_sheet)),
+                updates=updates if isinstance(updates, list) else [],
+            )
+        )
+
     @app.post("/api/add_row")
     def api_add_row():
         body = _read_json()
@@ -172,13 +191,24 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
             )
         )
 
+    @app.post("/api/undo")
+    def api_undo():
+        return _json_resp(backend.undo())
+
+    @app.post("/api/redo")
+    def api_redo():
+        return _json_resp(backend.redo())
+
     @app.post("/api/delete_row")
     def api_delete_row():
         body = _read_json()
+        mat_indices_raw = body.get("mat_indices")
+        mat_indices = [int(x) for x in mat_indices_raw if str(x).isdigit()] if isinstance(mat_indices_raw, list) else None
         return _json_resp(
             backend.delete_row(
                 sheet_name=str(body.get("sheet_name", backend.active_sheet)),
-                mat_idx=int(body.get("mat_idx", 1)),
+                mat_idx=int(body.get("mat_idx", -1)),
+                mat_indices=mat_indices,
                 page=int(body.get("page", 1)),
                 search_query=str(body.get("search_query", "")),
             )
@@ -218,28 +248,27 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
     @app.post("/api/save_excel")
     def api_save_excel():
         body = _read_json()
-        save_as = bool(body.get("save_as", False))
         target_str: Optional[str] = None
 
-        if save_as or backend.current_filepath is None:
-            win = window_holder.get("win")
-            if win is None:
-                return _json_resp({"success": False, "error": "Janela não inicializada."})
-            start_dir = str(backend.current_filepath.parent) if backend.current_filepath else ""
-            default_name = (
-                backend.current_filepath.name if backend.current_filepath else "ensalamento.xlsx"
-            )
-            selected = win.create_file_dialog(
-                webview.FileDialog.SAVE,
-                directory=start_dir,
-                save_filename=default_name,
-                file_types=("Planilhas Excel (*.xlsx)",),
-            )
-            if not selected:
-                return _json_resp({"cancelled": True})
-            target_str = selected[0] if isinstance(selected, (list, tuple)) else str(selected)
-            if not target_str.lower().endswith(".xlsx"):
-                target_str += ".xlsx"
+        # Sempre abre a caixa de diálogo para perguntar o local e o nome do arquivo
+        win = window_holder.get("win")
+        if win is None:
+            return _json_resp({"success": False, "error": "Janela não inicializada."})
+        start_dir = str(backend.current_filepath.parent) if backend.current_filepath else ""
+        default_name = (
+            backend.current_filepath.name if backend.current_filepath else "ensalamento.xlsx"
+        )
+        selected = win.create_file_dialog(
+            webview.FileDialog.SAVE,
+            directory=start_dir,
+            save_filename=default_name,
+            file_types=("Planilhas Excel (*.xlsx)",),
+        )
+        if not selected:
+            return _json_resp({"cancelled": True})
+        target_str = selected[0] if isinstance(selected, (list, tuple)) else str(selected)
+        if not target_str.lower().endswith(".xlsx"):
+            target_str += ".xlsx"
 
         return _json_resp(backend.save_excel(save_as_path=target_str))
 
@@ -366,11 +395,16 @@ def _run_self_test(out_json_path: str) -> int:
         base_url, httpd = start_local_http_server(wsgi_app)
         report["base_url"] = base_url
 
-        # 1. Verifica rotas estáticas (index.html e style.css)
+        # 1. Verifica rotas estáticas (index.html, style.css e Tabulator)
         st_idx, body_idx = _wsgi_call(wsgi_app, "GET", "/")
         assert st_idx.startswith("200") and b"<!DOCTYPE html>" in body_idx, f"Falha em GET /: {st_idx}"
         st_css, body_css = _wsgi_call(wsgi_app, "GET", "/style.css")
         assert st_css.startswith("200") and b"--green" in body_css, f"Falha em GET /style.css: {st_css}"
+        st_tcss, body_tcss = _wsgi_call(wsgi_app, "GET", "/tabulator.min.css")
+        assert st_tcss.startswith("200") and b"tabulator" in body_tcss, f"Falha em GET /tabulator.min.css: {st_tcss}"
+        st_tjs, body_tjs = _wsgi_call(wsgi_app, "GET", "/tabulator.min.js")
+        assert st_tjs.startswith("200") and b"Tabulator" in body_tjs, f"Falha em GET /tabulator.min.js: {st_tjs}"
+        report["tabulator_bundled"] = True
 
         def _post(path: str, data: dict[str, Any]) -> dict[str, Any]:
             st, raw = _wsgi_call(wsgi_app, "POST", path, data)
@@ -387,9 +421,24 @@ def _run_self_test(out_json_path: str) -> int:
         if init_xlsx:
             backend.load_excel(str(init_xlsx))
 
-        # 3. Testa edição, adição, salto de linha e remoção na grade
+        # 3. Testa edição individual e em lote, adição de linha/coluna, exclusão e desfazer/refazer
         upd_res = _post("/api/update_cell", {"sheet_name": "Alunos", "mat_idx": 1, "col": 2, "value": "Manhã"})
         assert upd_res.get("success") is True, f"Falha em /api/update_cell: {upd_res}"
+        batch_res = _post(
+            "/api/update_cells",
+            {
+                "sheet_name": "Alunos",
+                "updates": [
+                    {"mat_idx": 1, "col": 2, "value": "Tarde"},
+                    {"mat_idx": 2, "col": 2, "value": "Manhã"},
+                ],
+            },
+        )
+        assert batch_res.get("success") is True and "flagged_rows" in batch_res, f"Falha em /api/update_cells: {batch_res}"
+        add_col_res = _post("/api/add_column", {"sheet_name": "Alunos", "after_col": 1})
+        assert add_col_res.get("success") is True, f"Falha em /api/add_column: {add_col_res}"
+        undo_col_res = _post("/api/undo", {})
+        assert undo_col_res.get("success") is True, f"Falha em undo de coluna: {undo_col_res}"
         add_res = _post("/api/add_row", {"sheet_name": "Alunos"})
         assert add_res.get("success") is True, f"Falha em /api/add_row: {add_res}"
         del_res = _post(
@@ -402,6 +451,10 @@ def _run_self_test(out_json_path: str) -> int:
             },
         )
         assert del_res.get("success") is True, f"Falha em /api/delete_row: {del_res}"
+        undo_res = _post("/api/undo", {})
+        assert undo_res.get("success") is True, f"Falha em /api/undo: {undo_res}"
+        redo_res = _post("/api/redo", {})
+        assert redo_res.get("success") is True, f"Falha em /api/redo: {redo_res}"
 
         # 4. Executa otimização MILP (testa PuLP + binário cbc.exe empacotado)
         opt_res = _post("/api/run_ensalamento", {"allow_integral": True, "allow_unallocated": True})
