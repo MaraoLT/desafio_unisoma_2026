@@ -1,1 +1,0 @@
-# chama o solver e resolve o problema de otimização

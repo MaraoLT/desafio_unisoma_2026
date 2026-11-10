@@ -1,0 +1,22 @@
+# Ambientes virtuais Python
+.venv/
+venv/
+env/
+
+# Cache e artefatos Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Empacotamento PyInstaller
+build/
+dist/
+*.spec
+!UniSomaEnsalamento.spec
+
+# Arquivos temporários do Excel
+~$*.xlsx
+
+.agents/
+.unisoma_settings.json
+

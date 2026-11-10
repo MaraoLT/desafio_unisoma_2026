@@ -1,0 +1,6 @@
+openpyxl>=3.1.2
+pulp>=2.8.0,<4.0.0
+pywebview>=4.0.0
+bottle>=0.12.25
+reportlab>=3.6.0
+pyinstaller
