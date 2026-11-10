@@ -48,7 +48,7 @@ Realizar esse planejamento manualmente em planilhas exigia horas de trabalho suj
 
 ---
 
-## 2. Funcionalidades dABC
+## 2. Funcionalidades do AlocaABC
 
 O **Aloca ABC** foi projetado para ser utilizado diretamente pela equipe administrativa e pedagógica, sem necessidade de conhecimentos em programação ou modelagem matemática:
 
