@@ -4,7 +4,7 @@ Fachada principal (Façade Pattern) que orquestra:
 1. Pré-checagem de viabilidade estrutural e Teorema de Hall (feasibility.py);
 2. Agregação por perfis demográficos e partição macro em 2 fases (macro_stage.py);
 3. Subproblemas intra-turno de configurações de sala e projeção nominal O(N) (micro_stage.py);
-4. Modo legado monolítico opcional (legacy_model.py).
+4. Modo legado opcional (legacy_model.py).
 """
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ from src.models.micro_stage import (
     solve_micro_stage,
 )
 from src.models.legacy_model import (
-    solve_legacy_monolithic,
+    solve_legacy_model,
 )
 
 __all__ = [
@@ -68,9 +68,9 @@ def solve_ensalamento(
     if infeas_res is not None:
         return infeas_res
 
-    # 2. Se o modo legado monolítico for solicitado explicitamente
+    # 2. Se o modo legado for solicitado explicitamente
     if (not params.use_decomposition) or (params.w_qtd <= 0) or (params.w_gen <= 0):
-        return solve_legacy_monolithic(instance, params, t_total_start, min_unalloc_hall)
+        return solve_legacy_model(instance, params, t_total_start, min_unalloc_hall)
 
     # 3. Resolução via Agregação por Perfis + Decomposição Hierárquica em 2 Etapas
     S_active = [
@@ -86,8 +86,8 @@ def solve_ensalamento(
     # Agregação O(N) dos alunos nos perfis demográficos
     buckets, profile_keys, is_valid = aggregate_profiles(instance, S_active, K_s_sets)
     if not is_valid:
-        # Fallback de segurança para o modelo monolítico se houver restrição atípica intra-turno
-        return solve_legacy_monolithic(instance, params, t_total_start, min_unalloc_hall)
+        # Fallback de segurança para o modelo legado se houver restrição atípica intra-turno
+        return solve_legacy_model(instance, params, t_total_start, min_unalloc_hall)
 
     # ETAPA 1: Partição Macro entre Turnos
     macro_out = solve_macro_stage(

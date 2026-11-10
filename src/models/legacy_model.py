@@ -1,6 +1,6 @@
-"""Modelo MILP monolítico clássico baseado em variáveis binárias individuais x_{i,k}.
+"""Modelo MILP legado baseado em variáveis binárias individuais x_{i,k}.
 
-Mantido como modelo legado de referência formal, testes comparativos de equivalência
+Mantido como modelo de referência formal, testes comparativos de equivalência
 e verificação analítica.
 """
 
@@ -29,13 +29,13 @@ from src.models.types import (
 )
 
 
-def solve_legacy_monolithic(
+def solve_legacy_model(
     instance: ProcessedInstance,
     params: SolverParameters,
     t_total_start: float,
     min_unalloc_hall: int,
 ) -> SolverResult:
-    """Resolve o ensalamento via modelo monolítico individual clássico."""
+    """Resolve o ensalamento via modelo legado individual clássico."""
     t_build_start = time.perf_counter()
     prob = pulp.LpProblem("Desafio_UniSoma_2026_Ensalamento_Legacy", pulp.LpMinimize)
 
@@ -286,7 +286,7 @@ def solve_legacy_monolithic(
             reason=f"Fase 1 encerrou sem solução inteira viável (Status: {status_p1_str}).",
             params=params,
             metrics=SolverMetrics(
-                solver_name="PULP_CBC_CMD (Legacy Monolithic)",
+                solver_name="PULP_CBC_CMD (Legacy Model)",
                 status_phase1=status_p1_str,
                 status_phase2="Skipped",
                 z1_objective=None,
@@ -407,7 +407,7 @@ def solve_legacy_monolithic(
             ),
             params=params,
             metrics=SolverMetrics(
-                solver_name="PULP_CBC_CMD (Legacy Monolithic)",
+                solver_name="PULP_CBC_CMD (Legacy Model)",
                 status_phase1=status_p1_str,
                 status_phase2=status_p2_str,
                 z1_objective=z1_star,
@@ -469,7 +469,7 @@ def solve_legacy_monolithic(
             reason=f"Fase 2 encerrou sem solução viável (Status: {status_p2_str}). Usando solução ótima da Fase 1.",
             params=params,
             metrics=SolverMetrics(
-                solver_name="PULP_CBC_CMD (Legacy Monolithic)",
+                solver_name="PULP_CBC_CMD (Legacy Model)",
                 status_phase1=status_p1_str,
                 status_phase2=status_p2_str,
                 z1_objective=z1_star,
@@ -528,7 +528,7 @@ def solve_legacy_monolithic(
         ),
         params=params,
         metrics=SolverMetrics(
-            solver_name="PULP_CBC_CMD (Legacy Monolithic)",
+            solver_name="PULP_CBC_CMD (Legacy Model)",
             status_phase1=status_p1_str,
             status_phase2=status_p2_str,
             z1_objective=z1_val,

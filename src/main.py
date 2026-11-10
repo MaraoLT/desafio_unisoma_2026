@@ -156,9 +156,9 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
-        "--legacy-monolithic",
+        "--legacy-model",
         action="store_true",
-        help="Usa o modelo monolítico antigo com variáveis individuais x_ik (para benchmark).",
+        help="Usa o modelo legado antigo com variáveis individuais x_ik (para benchmark).",
     )
     parser.add_argument(
         "--time-limit",
@@ -228,7 +228,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         enable_phase2=not args.no_phase2,
         auto_skip_phase2=args.auto_phase2,
         allow_unallocated=args.allow_unallocated,
-        use_decomposition=not args.legacy_monolithic,
+        use_decomposition=not args.legacy_model,
         time_limit_s=args.time_limit,
         msg=args.solver_verbose,
     )

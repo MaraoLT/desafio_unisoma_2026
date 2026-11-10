@@ -1,21 +1,21 @@
-"""Gerador do Manual e Tutorial em PDF — Desafio UniSoma 2026 (ABC Aprendiz).
+"""Gerador do Manual e Tutorial em PDF — Aloca ABC (Desafio UniSoma 2026 / ABC Aprendiz).
 
 Gera um PDF institucional completo, diagramado e com a logo oficial da ABC Aprendiz
-no canto superior esquerdo, explicando detalhadamente o fluxo de uso das funcionalidades:
-1. Adicionar uma planilha (com validação prévia de cabeçalhos)
-2. Corrigir erros (clicando na aba de erros e inconsistências)
-3. Modificar células na planilha (atalhos, edição em lote e undo/redo)
-4. Gerar ensalamento (otimização lexicográfica e lista de espera)
-5. Relatório de Turmas (PDF oficial para chamadas e mural)
-6. Relatório do Dashboard (PDF analítico com aviso de redução de turmas e equilíbrio)
+no canto superior esquerdo, explicando detalhadamente todas as funcionalidades e o fluxo
+de uso do aplicativo Aloca ABC, totalmente alinhado à documentação principal (README.md):
+1. Abrir Planilhas, Validação Estrutural de Cabeçalhos e Botão Salvar (AlocaABC.xlsx)
+2. Controles Operacionais: Aceitar Integral (Reativo em Tempo Real) e Permitir Lista de Espera
+3. Auditoria Cadastral: Cards de Erros e Alertas Ordenados por Prioridade (Navegação em 1 Clique)
+4. Editor de Planilha Integrado Estilo Excel (+ Linha Abaixo, + Coluna Direita, Excluir Linha, Ctrl+Z/Ctrl+Y)
+5. Organizar Turmas e Aviso de Salas Excedentes (Possibilidade de Redução de Turmas)
+6. Relatórios Oficiais em PDF (PDF p/ Alunos) e Dashboard Analítico (Gerar Relatório de Distribuição)
 """
 
 from __future__ import annotations
 
-from datetime import datetime
 import io
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -25,7 +25,6 @@ from reportlab.pdfgen import canvas
 from reportlab.platypus import (
     HRFlowable,
     Image as RLImage,
-    KeepTogether,
     PageBreak,
     Paragraph,
     SimpleDocTemplate,
@@ -36,7 +35,7 @@ from reportlab.platypus import (
 
 from src.app.pdf_lists import _get_abc_logo_png_info
 
-# Cores da Identidade Visual Oficial ABC Aprendiz / UniSoma
+# Cores da Identidade Visual Oficial ABC Aprendiz / Aloca ABC
 ABC_TEAL = colors.HexColor("#005C8A")        # Azul Petróleo Primário
 ABC_CYAN = colors.HexColor("#0E76BC")        # Azul Secundário / Meninos
 ABC_RED = colors.HexColor("#E11D48")         # Coral / Meninas
@@ -73,14 +72,12 @@ class NumberedCanvas(canvas.Canvas):
         self.setFont("Helvetica", 8.5)
         self.setFillColor(TEXT_MUTED)
 
-        # Linha fina de rodapé
         y_footer = 1.05 * cm
         self.setStrokeColor(BORDER_COLOR)
         self.setLineWidth(0.6)
         self.line(1.4 * cm, y_footer + 10, A4[0] - 1.4 * cm, y_footer + 10)
 
-        # Texto do rodapé
-        left_text = "ABC Aprendiz • Desafio UniSoma 2026 — Guia do Usuário e Tutorial do Sistema"
+        left_text = "Aloca ABC • ABC Aprendiz • Desafio UniSoma 2026 — Manual e Tutorial de Uso da Ferramenta"
         right_text = f"Página {self._pageNumber} de {total_pages}"
         self.drawString(1.4 * cm, y_footer, left_text)
         self.drawRightString(A4[0] - 1.4 * cm, y_footer, right_text)
@@ -89,7 +86,7 @@ class NumberedCanvas(canvas.Canvas):
 
 
 def build_tutorial_pdf(output_path: str | Path) -> Path:
-    """Gera o documento PDF do tutorial de uso do sistema."""
+    """Gera o documento PDF do tutorial de uso do sistema Aloca ABC."""
     out_file = Path(output_path).resolve()
     out_file.parent.mkdir(parents=True, exist_ok=True)
 
@@ -99,14 +96,13 @@ def build_tutorial_pdf(output_path: str | Path) -> Path:
         leftMargin=1.4 * cm,
         rightMargin=1.4 * cm,
         topMargin=1.0 * cm,
-        bottomMargin=1.1 * cm,
+        bottomMargin=1.4 * cm,
         pageCompression=0,
-        title="Manual e Tutorial de Uso — Sistema de Ensalamento Otimizado ABC Aprendiz",
+        title="Manual e Tutorial de Uso — Aloca ABC (ABC Aprendiz)",
     )
 
     styles = getSampleStyleSheet()
 
-    # Tipografia customizada
     doc_title_style = ParagraphStyle(
         "DocTitle",
         parent=styles["Normal"],
@@ -119,18 +115,18 @@ def build_tutorial_pdf(output_path: str | Path) -> Path:
         "DocSub",
         parent=styles["Normal"],
         fontName="Helvetica",
-        fontSize=8.5,
-        leading=11.2,
+        fontSize=8.6,
+        leading=11.5,
         textColor=TEXT_MUTED,
     )
     h1_style = ParagraphStyle(
         "H1Sec",
         parent=styles["Normal"],
         fontName="Helvetica-Bold",
-        fontSize=11.2,
+        fontSize=11.0,
         leading=14.2,
         textColor=ABC_TEAL,
-        spaceBefore=5,
+        spaceBefore=6,
         spaceAfter=2,
     )
     h2_style = ParagraphStyle(
@@ -138,7 +134,7 @@ def build_tutorial_pdf(output_path: str | Path) -> Path:
         parent=styles["Normal"],
         fontName="Helvetica-Bold",
         fontSize=9.2,
-        leading=11.8,
+        leading=12.0,
         textColor=ABC_CYAN,
         spaceBefore=3,
         spaceAfter=1,
@@ -147,10 +143,10 @@ def build_tutorial_pdf(output_path: str | Path) -> Path:
         "BodyTutorial",
         parent=styles["Normal"],
         fontName="Helvetica",
-        fontSize=8.9,
+        fontSize=8.8,
         leading=12.0,
         textColor=TEXT_DARK,
-        alignment=4,  # Justificado
+        alignment=4,
     )
     bullet_style = ParagraphStyle(
         "BulletTutorial",
@@ -160,20 +156,22 @@ def build_tutorial_pdf(output_path: str | Path) -> Path:
         leading=11.6,
         textColor=TEXT_DARK,
         leftIndent=11,
+        spaceBefore=1,
+        spaceAfter=1,
     )
     box_text_style = ParagraphStyle(
         "BoxText",
         parent=styles["Normal"],
         fontName="Helvetica",
-        fontSize=8.5,
-        leading=11.4,
+        fontSize=8.6,
+        leading=11.6,
         textColor=TEXT_DARK,
     )
 
     story: list[Any] = []
 
     # -------------------------------------------------------------------------
-    # Cabeçalho Oficial com a Logo da ABC Aprendiz no canto superior esquerdo
+    # Cabeçalho Oficial com a Logo da ABC Aprendiz (sem data de geração)
     # -------------------------------------------------------------------------
     logo_info = _get_abc_logo_png_info()
     col_logo_w = 3.2 * cm
@@ -191,11 +189,11 @@ def build_tutorial_pdf(output_path: str | Path) -> Path:
                 [
                     rl_img,
                     [
-                        Paragraph("<b>MANUAL DE INSTRUÇÕES E TUTORIAL DE USO</b>", doc_title_style),
+                        Paragraph("<b>ALOCA ABC — MANUAL E TUTORIAL DE USO</b>", doc_title_style),
                         Spacer(1, 2),
                         Paragraph(
-                            "<b>Sistema de Ensalamento Otimizado</b> &nbsp;•&nbsp; Desafio UniSoma 2026 &nbsp;•&nbsp; ABC Aprendiz<br/>"
-                            f"<i>Guia Prático de Operação da Aplicação Desktop e Web • Atualizado em {datetime.now().strftime('%d/%m/%Y')}</i>",
+                            "<b>Sistema Inteligente de Ensalamento e Balanceamento de Turmas</b><br/>"
+                            "1º Lugar no Desafio UniSoma 2026 — Equipe 10 / Grupo 20 (Ainaras Marão &amp; Douglas Henrique R. A. Pereira)",
                             doc_sub_style,
                         ),
                     ],
@@ -216,22 +214,25 @@ def build_tutorial_pdf(output_path: str | Path) -> Path:
         )
         story.append(header_table)
     else:
-        story.append(Paragraph("<b>MANUAL DE INSTRUÇÕES E TUTORIAL DE USO</b>", doc_title_style))
+        story.append(Paragraph("<b>ALOCA ABC — MANUAL E TUTORIAL DE USO</b>", doc_title_style))
         story.append(Spacer(1, 2))
         story.append(
-            Paragraph("Sistema de Ensalamento Otimizado — ABC Aprendiz • Desafio UniSoma 2026", doc_sub_style)
+            Paragraph(
+                "Sistema Inteligente de Ensalamento e Balanceamento de Turmas — 1º Lugar Desafio UniSoma 2026",
+                doc_sub_style,
+            )
         )
 
     story.append(Spacer(1, 4))
-    story.append(HRFlowable(width="100%", thickness=1.5, color=ABC_TEAL, spaceBefore=2, spaceAfter=8))
+    story.append(HRFlowable(width="100%", thickness=1.5, color=ABC_TEAL, spaceBefore=2, spaceAfter=7))
 
-    # Box introdutório de boas-vindas
+    # Box introdutório
     intro_p = Paragraph(
-        "<b>Visão Geral da Ferramenta:</b> Esta plataforma foi desenvolvida para apoiar a secretaria e a coordenação "
-        "da <b>ABC Aprendiz</b> na organização automatizada das turmas dos cursos de aprendizagem profissional. "
-        "A ferramenta reúne higienização de dados cadastrais, validação prévia de cabeçalhos, resolução de duplicidades, "
-        "editor interativo de planilhas e um motor matemático avançado de otimização "
-        "que garante turmas perfeitamente equilibradas em tamanho e equidade de gênero.",
+        "<b>Sobre o Aloca ABC:</b> O <b>Aloca ABC</b> foi desenvolvido para automatizar o planejamento e "
+        "o balanceamento das turmas de capacitação da <b>ABC Aprendiz</b>. A aplicação funciona de maneira "
+        "<b>100% offline</b> (via executável <code>AlocaABC.exe</code> ou ambiente Python) e reúne em uma única tela: "
+        "auditoria automática de planilhas Excel, tratamento guiado de inconsistências e homônimos, editor interativo "
+        "no estilo Excel, motor de otimização matemática em 2 estágios e emissão de relatórios oficiais em PDF.",
         box_text_style,
     )
     intro_table = Table([[intro_p]], colWidths=[18.2 * cm])
@@ -248,146 +249,241 @@ def build_tutorial_pdf(output_path: str | Path) -> Path:
         )
     )
     story.append(intro_table)
-    story.append(Spacer(1, 8))
+    story.append(Spacer(1, 5))
 
     # -------------------------------------------------------------------------
-    # 1. ADICIONAR UMA PLANILHA
+    # 1. ABRIR PLANILHAS, VALIDAÇÃO DE CABEÇALHOS E BOTÃO SALVAR
     # -------------------------------------------------------------------------
-    story.append(Paragraph("1. Adicionar uma Planilha", h1_style))
+    story.append(Paragraph("1. Abrir Planilhas, Validação de Cabeçalhos e Botão Salvar", h1_style))
     story.append(
         Paragraph(
-            "A ferramenta aceita planilhas oficiais no formato Microsoft Excel (<b>.xlsx</b>). "
-            "Para carregar uma nova base de alunos e turmas:",
+            "Na barra superior esquerda do <b>Aloca ABC</b> encontram-se os comandos de leitura e gravação de arquivos Excel (<code>.xlsx</code>):",
             body_style,
         )
     )
-    story.append(Spacer(1, 3))
-    story.append(Paragraph("• <b>Passo a Passo:</b> Na barra superior da tela, clique no botão azul <b>'Abrir Planilha'</b>. Uma janela nativa de seleção de arquivos se abrirá para escolher a planilha desejada.", bullet_style))
-    story.append(Paragraph("• <b>Estrutura Esperada:</b> A planilha deve conter duas abas principais:", bullet_style))
-    story.append(Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;<b>1. Aba 'Alunos':</b> Lista os estudantes cadastrados. Colunas esperadas: <code>Nome</code>, <code>Sexo</code> (M ou F) e <code>Disponibilidade</code> (Manhã, Tarde ou Integral).", bullet_style))
-    story.append(Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;<b>2. Aba 'Turmas':</b> Define as turmas ofertadas pela instituição. Colunas esperadas: <code>Turma</code> (código/identificador) e <code>Vagas</code> (capacidade física máxima da sala).", bullet_style))
-    story.append(Paragraph("• <b>Validador Automático de Cabeçalhos:</b> Ao selecionar o arquivo, a aplicação inspeciona imediatamente a primeira linha de cada aba. Caso o cabeçalho esteja vazio, fora da ordem ou com nomes diferentes do padrão oficial (ex.: faltar a coluna <code>Disponibilidade</code>), o sistema bloqueia o arquivo preventivamente e emite uma mensagem clara no painel lateral apontando exatamente quais colunas faltam para correção antes de qualquer processamento.", bullet_style))
-
-    story.append(Spacer(1, 8))
-
-    # -------------------------------------------------------------------------
-    # 2. CORRIGIR ERROS (CLICANDO NA ABA DE ERROS E INCONSISTÊNCIAS)
-    # -------------------------------------------------------------------------
-    story.append(Paragraph("2. Corrigir Erros (Aba de Erros e Alertas Cadastrais)", h1_style))
+    story.append(Spacer(1, 2))
     story.append(
         Paragraph(
-            "O painel lateral direito (aba <b>'Relatório &amp; Alertas'</b>) reúne o diagnóstico em tempo real "
-            "de todas as inconsistências identificadas na planilha na seção <b>'Erros e Alertas Cadastrais'</b>.",
-            body_style,
+            "• <b>Botão 'Abrir Planilha':</b> Abre o seletor nativo do sistema para carregar uma planilha <code>.xlsx</code> contendo as abas "
+            "<b>Alunos</b> (colunas obrigatórias: <code>Nome</code>, <code>Sexo</code> e <code>Disponibilidade</code>) e "
+            "<b>Turmas</b> (colunas obrigatórias: <code>Turma</code> e <code>Vagas</code>).",
+            bullet_style,
         )
     )
-    story.append(Spacer(1, 3))
-
-    story.append(Paragraph("<b>Ordem de Prioridade das Mensagens:</b>", h2_style))
     story.append(
         Paragraph(
-            "As inconsistências são organizadas de maneira hierárquica inteligente para facilitar a auditoria:",
-            body_style,
+            "• <b>Validação Estrutural de Cabeçalhos:</b> Assim que a planilha é carregada, o sistema verifica se todas as colunas obrigatórias "
+            "estão presentes na primeira linha de cada aba. Caso falte alguma coluna ou haja erro de digitação no título, um card de alerta "
+            "explica exatamente qual cabeçalho deve ser corrigido.",
+            bullet_style,
         )
     )
-    story.append(Paragraph("1. <font color='#DC2626'><b>Erros Impeditivos [IMPEDITIVA] no topo:</b></font> Aparecem com prioridade máxima no início da lista. Incluem alunos com campo Sexo ou Disponibilidade em branco, valores irreconhecíveis ou déficit de capacidade física. Esses erros <i>impedem</i> a geração de turmas e exigem correção.", bullet_style))
-    story.append(Paragraph("2. <font color='#D97706'><b>Alertas de Duplicidade [ALERTA]:</b></font> Listados logo após os erros impeditivos, ordenados estritamente pela <b>linha da planilha</b>. Indicam estudantes homônimos ou cadastros repetidos em múltiplos períodos.", bullet_style))
-    story.append(Paragraph("3. <font color='#107C41'><b>Erros Tratados Automaticamente [TRATADA]:</b></font> Também dispostos em ordem de linha, indicam pequenos ajustes já efetuados pelo sistema (ex.: 'feminino' normalizado para 'F', 'manha' para 'MANHÃ').", bullet_style))
-
-    story.append(Spacer(1, 3))
-    story.append(Paragraph("<b>Navegação com 1 Clique e Ferramentas de Correção:</b>", h2_style))
-    story.append(Paragraph("• <b>Pular para a Linha:</b> Clique em qualquer card de erro ou alerta no painel lateral para navegar automaticamente até a linha correspondente na tabela, com a célula destacada e pronta para edição.", bullet_style))
-    story.append(Paragraph("• <b>Alternar Homônimos:</b> Em alertas de duplicidade de nome, um botão especial (ex.: <code>3 ocorrências &lt;-&gt;</code>) permite alternar o foco da tabela ciclicamente entre todas as linhas onde aquele nome aparece.", bullet_style))
-    story.append(Paragraph("• <b>Botão 'Corrigir':</b> Em erros tratáveis (como acentuação ou minúsculas), basta clicar no botão azul <code>Corrigir</code> no card para aplicar a higienização recomendada com apenas um toque.", bullet_style))
-
-    story.append(Spacer(1, 8))
-
-    # -------------------------------------------------------------------------
-    # 3. MODIFICAR CÉLULAS NA PLANILHA
-    # -------------------------------------------------------------------------
-    story.append(Paragraph("3. Modificar Células na Planilha", h1_style))
     story.append(
         Paragraph(
-            "A ferramenta conta com um editor de dados de alta performance integrado à tela principal, "
-            "com a mesma facilidade de uso do Microsoft Excel:",
-            body_style,
+            "• <b>Botão 'Salvar' (Exportação Completa em Excel):</b> O botão <b>'Salvar'</b> na barra superior permite gravar o trabalho a qualquer momento "
+            "(sugerindo por padrão o nome <code>AlocaABC.xlsx</code>):",
+            bullet_style,
         )
     )
-    story.append(Spacer(1, 3))
-    story.append(Paragraph("• <b>Edição Direta:</b> Dê um duplo clique em qualquer célula para alterar o texto (Nome, Sexo ou Disponibilidade). Pressione <b>Enter</b> para confirmar ou clique fora da célula.", bullet_style))
-    story.append(Paragraph("• <b>Gerenciamento de Linhas:</b> Na barra de ferramentas superior, utilize o botão <b>'+ Nova Linha'</b> para cadastrar um novo estudante ou <b>'Excluir Linha'</b> para remover os registros selecionados.", bullet_style))
-    story.append(Paragraph("• <b>Navegação e Seleção:</b> Clique nas células ou arraste o mouse para selecionar linhas e colunas para inspeção direta dos dados.", bullet_style))
-    story.append(Paragraph("• <b>Revalidação Instantânea:</b> Ao alterar qualquer célula, o sistema reavalia imediatamente todas as regras de validação cadastral e atualiza os contadores de erros no painel lateral em tempo real.", bullet_style))
+    story.append(
+        Paragraph(
+            "&nbsp;&nbsp;&nbsp;&nbsp;1. <b>Durante a higienização cadastral:</b> Salva todas as edições feitas nas células, remoções de duplicatas e correções de erros.",
+            bullet_style,
+        )
+    )
+    story.append(
+        Paragraph(
+            "&nbsp;&nbsp;&nbsp;&nbsp;2. <b>Após clicar em 'Organizar Turmas':</b> Salva a planilha completa contendo as abas originais corrigidas mais a nova aba "
+            "<b>Ensalamento</b> (com a turma atribuída a cada jovem) e a aba <b>Inconsistências</b> (com o histórico de auditoria e a Lista de Espera, se houver).",
+            bullet_style,
+        )
+    )
 
     story.append(Spacer(1, 4))
+
+    # -------------------------------------------------------------------------
+    # 2. CONTROLES OPERACIONAIS: ACEITAR INTEGRAL E PERMITIR LISTA DE ESPERA
+    # -------------------------------------------------------------------------
+    story.append(Paragraph("2. Controles Operacionais: Aceitar Integral e Permitir Lista de Espera", h1_style))
+    story.append(
+        Paragraph(
+            "Na barra superior direita existem duas chaves de configuração que controlam as regras de negócio em tempo real:",
+            body_style,
+        )
+    )
+    story.append(Spacer(1, 2))
+    story.append(
+        Paragraph(
+            "• <b>Chave 'Aceitar Integral' (Validação Reativa Instantânea):</b> Define se a instituição aceita inscrições com disponibilidade "
+            "<code>Integral</code> (flexíveis entre Manhã e Tarde). Quando esta caixa está <b>desmarcada</b>, qualquer aluno com disponibilidade "
+            "<code>Integral</code> na planilha é sinalizado instantaneamente como erro bloqueante <font color='#DC2626'><b>[IMPEDITIVA]</b></font> "
+            "no painel lateral e destacado em vermelho na tabela. Ao <b>marcar</b> a caixa, os erros desaparecem imediatamente e o otimizador passa "
+            "a utilizar esses alunos como elo de equilíbrio entre os turnos.",
+            bullet_style,
+        )
+    )
+    story.append(
+        Paragraph(
+            "• <b>Chave 'Permitir Lista de Espera':</b> Caso o número de jovens inscritos supere a capacidade física máxima das salas "
+            "de um turno ou do total geral, ativar esta opção permite que o motor aloque o número máximo viável de estudantes nas salas e "
+            "posicione os demais em <b>Lista de Espera</b> (priorizando quem tem disponibilidade restrita a um único turno).",
+            bullet_style,
+        )
+    )
+
+    story.append(Spacer(1, 4))
+
+    # -------------------------------------------------------------------------
+    # 3. AUDITORIA CADASTRAL: ERROS, HOMÔNIMOS E NAVEGAÇÃO EM 1 CLIQUE
+    # -------------------------------------------------------------------------
+    story.append(Paragraph("3. Auditoria Cadastral e Tratamento de Erros e Homônimos", h1_style))
+    story.append(
+        Paragraph(
+            "Na aba <b>'Relatório &amp; Alertas'</b> do painel direito, todas as ocorrências da planilha são listadas por ordem de prioridade:",
+            body_style,
+        )
+    )
+    story.append(Spacer(1, 2))
+    story.append(
+        Paragraph(
+            "1. <font color='#DC2626'><b>Erros Impeditivos [IMPEDITIVA]:</b></font> Células em branco, valores desconhecidos de sexo/disponibilidade, "
+            "alunos <code>Integral</code> com a chave desativada ou excesso de demanda sem lista de espera. Impedem o ensalamento até serem resolvidos.",
+            bullet_style,
+        )
+    )
+    story.append(
+        Paragraph(
+            "2. <font color='#D97706'><b>Alertas de Homônimos / Duplicidade [ALERTA]:</b></font> Identificam linhas com o mesmo nome de estudante. "
+            "O card oferece botões rápidos para <b>alternar entre as linhas</b> na tabela, <b>Mesclar</b> registros duplicados, <b>Excluir</b> uma cópia "
+            "ou clicar em <b>Manter Ambos</b> caso sejam duas pessoas distintas com o mesmo nome.",
+            bullet_style,
+        )
+    )
+    story.append(
+        Paragraph(
+            "3. <font color='#107C41'><b>Padronizações Automáticas [TRATADA]:</b></font> Registram acentos, espaços extras e variações de grafia "
+            "(como <code>M/F</code> ou <code>Manha/Manhã</code>) que o sistema higienizou automaticamente ao abrir a planilha.",
+            bullet_style,
+        )
+    )
+    story.append(
+        Paragraph(
+            "• <b>Navegação em 1 Clique:</b> Clicar sobre qualquer card do painel lateral rola a planilha esquerda imediatamente até a linha "
+            "do problema e destaca a célula correspondente.",
+            bullet_style,
+        )
+    )
+
     story.append(PageBreak())
 
     # -------------------------------------------------------------------------
-    # 4. GERAR ENSALAMENTO
+    # 4. EDITOR DE PLANILHA INTEGRADO (ESTILO EXCEL)
     # -------------------------------------------------------------------------
-    story.append(Paragraph("4. Gerar Ensalamento Otimizado", h1_style))
+    story.append(Paragraph("4. Editor de Planilha Integrado (Estilo Excel)", h1_style))
     story.append(
         Paragraph(
-            "Após revisar e corrigir a planilha, o processo de ensalamento é disparado em poucos segundos:",
+            "O painel esquerdo disponibiliza uma grade interativa completa para editar dados sem precisar sair do aplicativo:",
             body_style,
         )
     )
-    story.append(Spacer(1, 3))
-    story.append(Paragraph("• <b>Execução:</b> Clique no botão verde <b>'Otimizar Turmas'</b> na barra superior para iniciar o ensalamento automático.", bullet_style))
-    story.append(Paragraph("• <b>Distribuição Equilibrada:</b> O sistema distribui os alunos respeitando rigorosamente a capacidade de cada sala e os turnos informados (Manhã, Tarde ou Integral), garantindo turmas equilibradas em quantidade e proporção entre meninos e meninas.", bullet_style))
-    story.append(Paragraph("• <b>Opção 'Permitir Lista de Espera':</b> Localizada na barra superior. Se o número de inscritos for superior à capacidade física das salas e essa opção estiver <i>marcada</i>, o sistema ensala o contingente máximo e organiza os alunos excedentes em lista de espera.", bullet_style))
-    story.append(Paragraph("• <b>Criação das Abas Oficiais:</b> Ao finalizar o cálculo, a ferramenta gera e exibe automaticamente duas novas abas na planilha:", bullet_style))
-    story.append(Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;• <b>Aba 'Ensalamento':</b> Tabela oficial com as colunas <code>Nome</code>, <code>Sexo</code>, <code>Disponibilidade</code> e <code>Turma</code> (ex.: MANHÃ - A).", bullet_style))
-    story.append(Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;• <b>Aba 'Inconsistências':</b> Registro completo de todas as ocorrências cadastrais e alunos na lista de espera para arquivamento oficial.", bullet_style))
-
-    story.append(Spacer(1, 8))
-
-    # -------------------------------------------------------------------------
-    # 5. RELATÓRIO DE TURMAS
-    # -------------------------------------------------------------------------
-    story.append(Paragraph("5. Relatório de Turmas (PDF Oficial de Chamada e Mural)", h1_style))
+    story.append(Spacer(1, 2))
     story.append(
         Paragraph(
-            "O <b>Relatório de Turmas</b> é o documento oficial destinado à impressão física para a secretaria, "
-            "portaria da instituição e listas de chamada dos educadores:",
+            "• <b>Edição Direta e Barra de Fórmulas (fx):</b> Dê um duplo clique sobre qualquer célula da tabela ou clique nela e digite "
+            "na barra superior <code>fx</code>, pressionando <b>Enter</b> para confirmar.",
+            bullet_style,
+        )
+    )
+    story.append(
+        Paragraph(
+            "• <b>Ferramentas Estruturais:</b> Use os botões da barra de ferramentas da planilha para adicionar registros (<b>'+ Linha Abaixo'</b>), "
+            "criar novas colunas (<b>'+ Coluna Direita'</b>), apagar linhas selecionadas (<b>'Excluir Linha'</b>) ou voltar à ordem original de leitura (<b>'Restaurar Ordem'</b>).",
+            bullet_style,
+        )
+    )
+    story.append(
+        Paragraph(
+            "• <b>Atalhos e Filtros Rápidos:</b> Utilize <b>Ctrl+Z</b> (Desfazer) e <b>Ctrl+Y</b> (Refazer) para reverter ou repetir alterações. "
+            "Use o campo <b>'Filtrar nome / turma...'</b> para localizar rapidamente qualquer aluno ou filtrar os integrantes de uma turma específica.",
+            bullet_style,
+        )
+    )
+
+    story.append(Spacer(1, 5))
+
+    # -------------------------------------------------------------------------
+    # 5. ORGANIZAR TURMAS E AVISO DE SALAS A MAIS (POSSIBILIDADE DE REDUÇÃO)
+    # -------------------------------------------------------------------------
+    story.append(Paragraph("5. Organizar Turmas e Aviso de Salas a Mais", h1_style))
+    story.append(
+        Paragraph(
+            "Quando não houver erros impeditivos pendentes, clique no botão azul <b>'Organizar Turmas'</b> na barra superior direita:",
             body_style,
         )
     )
-    story.append(Spacer(1, 3))
-    story.append(Paragraph("• <b>Como Emitir:</b> Após executar a otimização das turmas, clique no botão azul <b>'Exportar PDF'</b> na barra de ferramentas superior.", bullet_style))
-    story.append(Paragraph("• <b>Organização por Turma:</b> Cada turma possui sua própria seção formatada com tabela contendo:", bullet_style))
-    story.append(Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;• Código da sala, turno (Manhã ou Tarde) e capacidade total.", bullet_style))
-    story.append(Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;• Tabela com posição sequencial (Nº), Nome do Estudante em ordem alfabética e indicação de Sexo (M / F).", bullet_style))
-    story.append(Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;• Rodapé da sala com total de alunos ensalados e vagas livres remanescentes.", bullet_style))
-    story.append(Paragraph("• <b>Seção Integrada de Lista de Espera:</b> Caso haja alunos excedentes e a opção 'Permitir Lista de Espera' esteja ativa, o PDF incluirá automaticamente no final uma seção exclusiva de Lista de Espera, detalhando a posição de cada estudante, nome, gênero e turno solicitado.", bullet_style))
-
-    story.append(Spacer(1, 8))
-
-    # -------------------------------------------------------------------------
-    # 6. RELATÓRIO DO DASHBOARD
-    # -------------------------------------------------------------------------
-    story.append(Paragraph("6. Relatório do Dashboard de Ensalamento", h1_style))
+    story.append(Spacer(1, 2))
     story.append(
         Paragraph(
-            "O <b>Relatório do Dashboard</b> é um relatório analítico e executivo para a coordenação "
-            "avaliar a eficiência da distribuição das vagas e a viabilidade de economia de recursos:",
+            "• <b>Otimização em 2 Estágios:</b> O motor resolve primeiro a partição global entre Manhã e Tarde (Estágio 1 Macro) e, em seguida, "
+            "a composição exata de cada sala (Estágio 2 Micro), finalizando com um sorteio imparcial e reprodutível (via código <code>SHA-256</code> da planilha). "
+            "Assim, todas as salas ficam com quantidades de alunos e proporções entre meninos e meninas o mais próximas possível.",
+            bullet_style,
+        )
+    )
+    story.append(
+        Paragraph(
+            "• <b>Aviso sobre Salas a Mais (Possibilidade de Redução de Turmas):</b> Após distribuir os estudantes nas turmas cadastradas na aba "
+            "<code>Turmas</code>, o sistema verifica automaticamente em cada turno (Manhã e Tarde) se o total de vagas ociosas é maior ou igual "
+            "à capacidade inteira de uma ou mais salas daquele período. Quando detecta que todos os alunos alocados no turno caberiam em um número "
+            "menor de turmas respeitando o limite de vagas por sala, o aplicativo exibe um aviso no <b>Dashboard do Ensalamento</b> e no "
+            "<b>Relatório de Distribuição em PDF</b> informando quantas salas poderiam deixar de ser usadas naquele turno e qual seria a nova taxa de ocupação.",
+            bullet_style,
+        )
+    )
+
+    story.append(Spacer(1, 5))
+
+    # -------------------------------------------------------------------------
+    # 6. EXPORTAÇÃO DE LISTAS (PDF P/ ALUNOS) E DASHBOARD DO ENSALAMENTO
+    # -------------------------------------------------------------------------
+    story.append(Paragraph("6. Relatórios em PDF e Dashboard do Ensalamento", h1_style))
+    story.append(
+        Paragraph(
+            "Após organizar as turmas, além de gravar a planilha Excel pelo botão <b>'Salvar'</b>, você pode emitir dois relatórios oficiais em PDF:",
             body_style,
         )
     )
+    story.append(Spacer(1, 2))
+    story.append(Paragraph("<b>A) Botão 'PDF p/ Alunos' (Barra Superior):</b>", h2_style))
+    story.append(
+        Paragraph(
+            "• Gera um arquivo PDF pronto para impressão e fixação nos murais da <b>ABC Aprendiz</b>, contendo uma página por turma com os alunos "
+            "em ordem alfabética (preservando a privacidade de dados demográficos) e uma seção final caso haja estudantes na Lista de Espera.",
+            bullet_style,
+        )
+    )
     story.append(Spacer(1, 3))
-    story.append(Paragraph("• <b>Como Emitir:</b> No painel lateral direito, clique na aba <b>'Dashboard do Ensalamento'</b> e, em seguida, clique no botão <b>'Gerar Relatório de Distribuição'</b> localizado na parte inferior.", bullet_style))
-    story.append(Paragraph("• <b>Conteúdo do Documento:</b>", bullet_style))
-    story.append(Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;<b>1. Logo e Resumo Global:</b> Logomarca da ABC Aprendiz no canto superior esquerdo acompanhada dos KPIs consolidados de total alocados, salas ofertadas, vagas livres e ocupação global.", bullet_style))
-    story.append(Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;<b>2. Aviso de Possibilidade de Redução de Turmas:</b> Se o número de estudantes alocados em um turno couber com folga em menos salas do que o ofertado inicialmente, o PDF insere automaticamente um <b>quadro de aviso em destaque amarelo</b> no início do turno, recomendando fechar salas ociosas para economizar professores e custos sem deixar nenhum aluno de fora.", bullet_style))
-    story.append(Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;<b>3. Estatísticas Objetivas por Turno:</b> Quadros concisos informando a <i>Média de alunos por turma</i>, a <i>Faixa de lotação</i> (mínimo e máximo) e o quantitativo exato de <i>Meninos (M)</i> e <i>Meninas (F)</i> com percentuais.", bullet_style))
-    story.append(Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;<b>4. Tabela Analítica sem Quebras:</b> Apresenta cada turma com Lotação/Capacidade, Taxa de Ocupação %, Vagas Livres, Meninos, Meninas e uma <b>barra gráfica visual colorida</b> que ilustra a proporção entre meninos (azul), meninas (coral) e vagas ociosas (cinza).", bullet_style))
+    story.append(Paragraph("<b>B) Aba 'Dashboard do Ensalamento' e Botão 'Gerar Relatório de Distribuição':</b>", h2_style))
+    story.append(
+        Paragraph(
+            "• Ao clicar na aba <b>'Dashboard do Ensalamento'</b> no painel direito, você visualiza os indicadores gerais (Total de Alunos, Alocados, "
+            "Lista de Espera, Turmas Ativas), o aviso de possibilidade de redução de salas por turno e os gráficos de ocupação e proporção Masculino/Feminino de cada sala.",
+            bullet_style,
+        )
+    )
+    story.append(
+        Paragraph(
+            "• O botão <b>'Gerar Relatório de Distribuição'</b> fica <b>fixo no topo do Dashboard</b> (logo acima dos cards das turmas) e exporta "
+            "um relatório gerencial em PDF com todas as tabelas comparativas por turno, avisos de salas que podem ser economizadas e gráficos demográficos.",
+            bullet_style,
+        )
+    )
 
-    # Constrói o PDF utilizando o canvas numerado
     doc.build(story, canvasmaker=NumberedCanvas)
     return out_file
 
 
 if __name__ == "__main__":
-    target = Path("Tutorial_Uso_Ferramenta.pdf")
+    target = Path("docs/Tutorial_Uso_Ferramenta.pdf")
     build_tutorial_pdf(target)
     print(f"Tutorial gerado com sucesso em: {target.resolve()}")

@@ -2,7 +2,7 @@
 %“Œ‹ž ReportLab Generated PDF document (opensource)
 1 0 obj
 <<
-/F1 2 0 R /F2 4 0 R /F3 5 0 R
+/F1 2 0 R /F2 4 0 R
 >>
 endobj
 2 0 obj
@@ -25,12 +25,7 @@ endobj
 endobj
 5 0 obj
 <<
-/BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding /Name /F3 /Subtype /Type1 /Type /Font
->>
-endobj
-6 0 obj
-<<
-/Contents 11 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 10 0 R /Resources <<
+/Contents 10 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 9 0 R /Resources <<
 /Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ] /XObject <<
 /FormXob.a189f170ab02cd1b182ccb2f43c76250 3 0 R
 >>
@@ -40,9 +35,9 @@ endobj
   /Type /Page
 >>
 endobj
-7 0 obj
+6 0 obj
 <<
-/Contents 12 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 10 0 R /Resources <<
+/Contents 11 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 9 0 R /Resources <<
 /Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
 >> /Rotate 0 /Trans <<
 
@@ -50,25 +45,25 @@ endobj
   /Type /Page
 >>
 endobj
+7 0 obj
+<<
+/PageMode /UseNone /Pages 9 0 R /Type /Catalog
+>>
+endobj
 8 0 obj
 <<
-/PageMode /UseNone /Pages 10 0 R /Type /Catalog
+/Author (\(anonymous\)) /CreationDate (D:20261110125721-03'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20261110125721-03'00') /Producer (ReportLab PDF Library - \(opensource\)) 
+  /Subject (\(unspecified\)) /Title (Manual e Tutorial de Uso \204 Aloca ABC \(ABC Aprendiz\)) /Trapped /False
 >>
 endobj
 9 0 obj
 <<
-/Author (\(anonymous\)) /CreationDate (D:20261101111509-03'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20261101111509-03'00') /Producer (ReportLab PDF Library - \(opensource\)) 
-  /Subject (\(unspecified\)) /Title (Manual e Tutorial de Uso \204 Sistema de Ensalamento Otimizado ABC Aprendiz) /Trapped /False
+/Count 2 /Kids [ 5 0 R 6 0 R ] /Type /Pages
 >>
 endobj
 10 0 obj
 <<
-/Count 2 /Kids [ 6 0 R 7 0 R ] /Type /Pages
->>
-endobj
-11 0 obj
-<<
-/Length 10331
+/Length 9304
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -85,19 +80,19 @@ q
 Q
 Q
 q
-1 0 0 1 90.70866 35.03195 cm
+1 0 0 1 90.70866 35.33195 cm
 q
 0 .360784 .541176 rg
-BT 1 0 0 1 0 3.5 Tm /F2 14.5 Tf 18 TL (MANUAL DE INSTRU\307\325ES E TUTORIAL DE USO) Tj T* ET
+BT 1 0 0 1 0 3.5 Tm /F2 14.5 Tf 18 TL (ALOCA ABC \227 MANUAL E TUTORIAL DE USO) Tj T* ET
 Q
 Q
 q
-1 0 0 1 90.70866 33.03195 cm
+1 0 0 1 90.70866 33.33195 cm
 Q
 q
-1 0 0 1 90.70866 10.63195 cm
+1 0 0 1 90.70866 10.33195 cm
 q
-BT 1 0 0 1 0 13.9 Tm 11.2 TL /F2 8.5 Tf .278431 .333333 .411765 rg (Sistema de Ensalamento Otimizado) Tj /F1 8.5 Tf (  ) Tj (\177) Tj (  Desafio UniSoma 2026  ) Tj (\177) Tj (  ABC Aprendiz) Tj  T* /F3 8.5 Tf (Guia Pr\341tico de Opera\347\343o da Aplica\347\343o Desktop e Web \177 Atualizado em 01/11/2026) Tj T* ET
+BT 1 0 0 1 0 14.4 Tm 11.5 TL /F2 8.6 Tf .278431 .333333 .411765 rg (Sistema Inteligente de Ensalamento e Balanceamento de Turmas) Tj /F1 8.6 Tf  T* -0.000229 Tw (1\272 Lugar no Desafio UniSoma 2026 \227 Equipe 10 / Grupo 20 \(Ainaras Mar\343o & Douglas Henrique R. A. Pereira\)) Tj T* 0 Tw ET
 Q
 Q
 q
@@ -117,16 +112,16 @@ n 0 0 m 503.9055 0 l S
 Q
 Q
 q
-1 0 0 1 39.68504 672.7794 cm
+1 0 0 1 39.68504 672.9794 cm
 q
 .941176 .976471 1 rg
-n 0 57.6 515.9055 -57.6 re f*
+n 0 58.4 515.9055 -58.4 re f*
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
 1 0 0 1 8 6 cm
 q
-BT 1 0 0 1 0 37.1 Tm 11.4 TL /F2 8.5 Tf .058824 .090196 .164706 rg (Vis\343o Geral da Ferramenta:) Tj /F1 8.5 Tf ( Esta plataforma foi desenvolvida para apoiar a secretaria e a coordena\347\343o da ) Tj /F2 8.5 Tf (ABC Aprendiz) Tj /F1 8.5 Tf ( na) Tj T* (organiza\347\343o automatizada das turmas dos cursos de aprendizagem profissional. A ferramenta re\372ne higieniza\347\343o de dados) Tj T* (cadastrais, valida\347\343o pr\351via de cabe\347alhos, resolu\347\343o de duplicidades, editor interativo de planilhas e um motor matem\341tico) Tj T* (avan\347ado de otimiza\347\343o que garante turmas perfeitamente equilibradas em tamanho e equidade de g\352nero.) Tj T* ET
+BT 1 0 0 1 0 37.8 Tm 11.6 TL /F2 8.6 Tf .058824 .090196 .164706 rg (Sobre o Aloca ABC:) Tj /F1 8.6 Tf ( O ) Tj /F2 8.6 Tf (Aloca ABC) Tj /F1 8.6 Tf ( foi desenvolvido para automatizar o planejamento e o balanceamento das turmas de) Tj T* (capacita\347\343o da ) Tj /F2 8.6 Tf (ABC Aprendiz) Tj /F1 8.6 Tf (. A aplica\347\343o funciona de maneira ) Tj /F2 8.6 Tf (100% offline) Tj /F1 8.6 Tf ( \(via execut\341vel AlocaABC.exe ou ambiente Python\)) Tj T* (e re\372ne em uma \372nica tela: auditoria autom\341tica de planilhas Excel, tratamento guiado de inconsist\352ncias e hom\364nimos, editor) Tj T* (interativo no estilo Excel, motor de otimiza\347\343o matem\341tica em 2 est\341gios e emiss\343o de relat\363rios oficiais em PDF.) Tj T* ET
 Q
 Q
 q
@@ -134,187 +129,136 @@ q
 1 j
 .729412 .901961 .992157 RG
 .8 w
-n 0 57.6 m 515.9055 57.6 l S
+n 0 58.4 m 515.9055 58.4 l S
 n 0 0 m 515.9055 0 l S
-n 0 0 m 0 57.6 l S
-n 515.9055 0 m 515.9055 57.6 l S
+n 0 0 m 0 58.4 l S
+n 515.9055 0 m 515.9055 58.4 l S
 Q
 Q
 Q
 q
-1 0 0 1 45.68504 664.7794 cm
+1 0 0 1 45.68504 667.9794 cm
 Q
 q
-1 0 0 1 45.68504 645.5794 cm
-q
-0 .360784 .541176 rg
-BT 1 0 0 1 0 3 Tm /F2 11.2 Tf 14.2 TL (1. Adicionar uma Planilha) Tj T* ET
-Q
-Q
-q
-1 0 0 1 45.68504 631.5794 cm
-q
-BT 1 0 0 1 0 3.1 Tm 12 TL /F1 8.9 Tf .058824 .090196 .164706 rg (A ferramenta aceita planilhas oficiais no formato Microsoft Excel \() Tj /F2 8.9 Tf (.xlsx) Tj /F1 8.9 Tf (\). Para carregar uma nova base de alunos e turmas:) Tj T* ET
-Q
-Q
-q
-1 0 0 1 45.68504 628.5794 cm
-Q
-q
-1 0 0 1 45.68504 605.3794 cm
-q
-BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Passo a Passo:) Tj /F1 8.6 Tf ( Na barra superior da tela, clique no bot\343o azul ) Tj /F2 8.6 Tf ('Abrir Planilha') Tj /F1 8.6 Tf (. Uma janela nativa de sele\347\343o de arquivos se) Tj T* (abrir\341 para escolher a planilha desejada.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 45.68504 593.7794 cm
-q
-BT 1 0 0 1 11 3 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Estrutura Esperada:) Tj /F1 8.6 Tf ( A planilha deve conter duas abas principais:) Tj T* ET
-Q
-Q
-q
-1 0 0 1 45.68504 570.5794 cm
-q
-BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg ( ) Tj ( ) Tj ( ) Tj ( ) Tj /F2 8.6 Tf (1. Aba 'Alunos':) Tj /F1 8.6 Tf ( Lista os estudantes cadastrados. Colunas esperadas: Nome) Tj (, Sexo \(M ou F\) e Disponibilidade \(Manh\343, Tarde) Tj T* (ou Integral\).) Tj T* ET
-Q
-Q
-q
-1 0 0 1 45.68504 547.3794 cm
-q
-BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg ( ) Tj ( ) Tj ( ) Tj ( ) Tj /F2 8.6 Tf (2. Aba 'Turmas':) Tj /F1 8.6 Tf ( Define as turmas ofertadas pela institui\347\343o. Colunas esperadas: Turma \(c\363digo/identificador\) e Vagas) Tj T* (\(capacidade f\355sica m\341xima da sala\).) Tj T* ET
-Q
-Q
-q
-1 0 0 1 45.68504 500.9794 cm
-q
-BT 1 0 0 1 11 37.8 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Validador Autom\341tico de Cabe\347alhos:) Tj /F1 8.6 Tf ( Ao selecionar o arquivo, a aplica\347\343o inspeciona imediatamente a primeira linha de) Tj T* (cada aba. Caso o cabe\347alho esteja vazio, fora da ordem ou com nomes diferentes do padr\343o oficial \(ex.: faltar a coluna) Tj T* (Disponibilidade) Tj (\), o sistema bloqueia o arquivo preventivamente e emite uma mensagem clara no painel lateral apontando) Tj T* (exatamente quais colunas faltam para corre\347\343o antes de qualquer processamento.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 45.68504 492.9794 cm
-Q
-q
-1 0 0 1 45.68504 473.7794 cm
+1 0 0 1 45.68504 647.7794 cm
 q
 0 .360784 .541176 rg
-BT 1 0 0 1 0 3 Tm /F2 11.2 Tf 14.2 TL (2. Corrigir Erros \(Aba de Erros e Alertas Cadastrais\)) Tj T* ET
+BT 1 0 0 1 0 3.2 Tm /F2 11 Tf 14.2 TL (1. Abrir Planilhas, Valida\347\343o de Cabe\347alhos e Bot\343o Salvar) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 447.7794 cm
+1 0 0 1 45.68504 633.7794 cm
 q
-BT 1 0 0 1 0 15.1 Tm .251473 Tw 12 TL /F1 8.9 Tf .058824 .090196 .164706 rg (O painel lateral direito \(aba ) Tj /F2 8.9 Tf ('Relat\363rio & Alertas') Tj /F1 8.9 Tf (\) re\372ne o diagn\363stico em tempo real de todas as inconsist\352ncias identificadas) Tj T* 0 Tw (na planilha na se\347\343o ) Tj /F2 8.9 Tf ('Erros e Alertas Cadastrais') Tj /F1 8.9 Tf (.) Tj T* ET
+BT 1 0 0 1 0 3.2 Tm 12 TL /F1 8.8 Tf .058824 .090196 .164706 rg (Na barra superior esquerda do ) Tj /F2 8.8 Tf (Aloca ABC) Tj /F1 8.8 Tf ( encontram-se os comandos de leitura e grava\347\343o de arquivos Excel \() Tj (.xlsx) Tj (\):) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 444.7794 cm
+1 0 0 1 45.68504 631.7794 cm
 Q
 q
-1 0 0 1 45.68504 429.9794 cm
+1 0 0 1 45.68504 607.5794 cm
 q
-.054902 .462745 .737255 rg
-BT 1 0 0 1 0 2.6 Tm /F2 9.2 Tf 11.8 TL (Ordem de Prioridade das Mensagens:) Tj T* ET
+BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Bot\343o 'Abrir Planilha':) Tj /F1 8.6 Tf ( Abre o seletor nativo do sistema para carregar uma planilha .xlsx contendo as abas ) Tj /F2 8.6 Tf (Alunos) Tj /F1 8.6 Tf ( \(colunas) Tj T* (obrigat\363rias: Nome) Tj (, Sexo e Disponibilidade) Tj (\) e ) Tj /F2 8.6 Tf (Turmas) Tj /F1 8.6 Tf ( \(colunas obrigat\363rias: Turma e Vagas) Tj (\).) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 416.9794 cm
+1 0 0 1 45.68504 571.7794 cm
+q
+BT 1 0 0 1 11 26.2 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Valida\347\343o Estrutural de Cabe\347alhos:) Tj /F1 8.6 Tf ( Assim que a planilha \351 carregada, o sistema verifica se todas as colunas obrigat\363rias) Tj T* (est\343o presentes na primeira linha de cada aba. Caso falte alguma coluna ou haja erro de digita\347\343o no t\355tulo, um card de alerta) Tj T* (explica exatamente qual cabe\347alho deve ser corrigido.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 45.68504 547.5794 cm
+q
+BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Bot\343o 'Salvar' \(Exporta\347\343o Completa em Excel\):) Tj /F1 8.6 Tf ( O bot\343o ) Tj /F2 8.6 Tf ('Salvar') Tj /F1 8.6 Tf ( na barra superior permite gravar o trabalho a qualquer) Tj T* (momento \(sugerindo por padr\343o o nome AlocaABC.xlsx) Tj (\):) Tj T* ET
+Q
+Q
+q
+1 0 0 1 45.68504 534.9794 cm
+q
+BT 1 0 0 1 11 3 Tm -0.060359 Tw 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg ( ) Tj ( ) Tj ( ) Tj ( ) Tj (1. ) Tj /F2 8.6 Tf (Durante a higieniza\347\343o cadastral:) Tj /F1 8.6 Tf ( Salva todas as edi\347\365es feitas nas c\351lulas, remo\347\365es de duplicatas e corre\347\365es de erros.) Tj T* 0 Tw ET
+Q
+Q
+q
+1 0 0 1 45.68504 499.1794 cm
+q
+BT 1 0 0 1 11 26.2 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg ( ) Tj ( ) Tj ( ) Tj ( ) Tj (2. ) Tj /F2 8.6 Tf (Ap\363s clicar em 'Organizar Turmas':) Tj /F1 8.6 Tf ( Salva a planilha completa contendo as abas originais corrigidas mais a nova aba) Tj T* /F2 8.6 Tf (Ensalamento) Tj /F1 8.6 Tf ( \(com a turma atribu\355da a cada jovem\) e a aba ) Tj /F2 8.6 Tf (Inconsist\352ncias) Tj /F1 8.6 Tf ( \(com o hist\363rico de auditoria e a Lista de Espera,) Tj T* (se houver\).) Tj T* ET
+Q
+Q
+q
+1 0 0 1 45.68504 494.1794 cm
+Q
+q
+1 0 0 1 45.68504 473.9794 cm
+q
+0 .360784 .541176 rg
+BT 1 0 0 1 0 3.2 Tm /F2 11 Tf 14.2 TL (2. Controles Operacionais: Aceitar Integral e Permitir Lista de Espera) Tj T* ET
+Q
+Q
+q
+1 0 0 1 45.68504 459.9794 cm
 q
 .058824 .090196 .164706 rg
-BT 1 0 0 1 0 3.1 Tm /F1 8.9 Tf 12 TL (As inconsist\352ncias s\343o organizadas de maneira hier\341rquica inteligente para facilitar a auditoria:) Tj T* ET
+BT 1 0 0 1 0 3.2 Tm /F1 8.8 Tf 12 TL (Na barra superior direita existem duas chaves de configura\347\343o que controlam as regras de neg\363cio em tempo real:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 382.1794 cm
+1 0 0 1 45.68504 457.9794 cm
+Q
 q
-BT 1 0 0 1 11 26.2 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (1. ) Tj /F2 8.6 Tf .862745 .14902 .14902 rg (Erros Impeditivos [IMPEDITIVA] no topo:) Tj /F1 8.6 Tf .058824 .090196 .164706 rg ( Aparecem com prioridade m\341xima no in\355cio da lista. Incluem alunos com campo) Tj T* (Sexo ou Disponibilidade em branco, valores irreconhec\355veis ou d\351ficit de capacidade f\355sica. Esses erros ) Tj /F3 8.6 Tf (impedem) Tj /F1 8.6 Tf ( a gera\347\343o de) Tj T* (turmas e exigem corre\347\343o.) Tj T* ET
+1 0 0 1 45.68504 398.9794 cm
+q
+BT 1 0 0 1 11 49.4 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Chave 'Aceitar Integral' \(Valida\347\343o Reativa Instant\342nea\):) Tj /F1 8.6 Tf ( Define se a institui\347\343o aceita inscri\347\365es com disponibilidade) Tj T* (Integral \(flex\355veis entre Manh\343 e Tarde\). Quando esta caixa est\341 ) Tj /F2 8.6 Tf (desmarcada) Tj /F1 8.6 Tf (, qualquer aluno com disponibilidade Integral na) Tj T* (planilha \351 sinalizado instantaneamente como erro bloqueante ) Tj /F2 8.6 Tf .862745 .14902 .14902 rg ([IMPEDITIVA]) Tj /F1 8.6 Tf .058824 .090196 .164706 rg ( no painel lateral e destacado em vermelho na) Tj T* (tabela. Ao ) Tj /F2 8.6 Tf (marcar) Tj /F1 8.6 Tf ( a caixa, os erros desaparecem imediatamente e o otimizador passa a utilizar esses alunos como elo de) Tj T* (equil\355brio entre os turnos.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 358.9794 cm
+1 0 0 1 45.68504 363.1794 cm
 q
-BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (2. ) Tj /F2 8.6 Tf .85098 .466667 .023529 rg (Alertas de Duplicidade [ALERTA]:) Tj /F1 8.6 Tf .058824 .090196 .164706 rg ( Listados logo ap\363s os erros impeditivos, ordenados estritamente pela ) Tj /F2 8.6 Tf (linha da planilha) Tj /F1 8.6 Tf (.) Tj T* (Indicam estudantes hom\364nimos ou cadastros repetidos em m\372ltiplos per\355odos.) Tj T* ET
+BT 1 0 0 1 11 26.2 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Chave 'Permitir Lista de Espera':) Tj /F1 8.6 Tf ( Caso o n\372mero de jovens inscritos supere a capacidade f\355sica m\341xima das salas de um) Tj T* (turno ou do total geral, ativar esta op\347\343o permite que o motor aloque o n\372mero m\341ximo vi\341vel de estudantes nas salas e) Tj T* (posicione os demais em ) Tj /F2 8.6 Tf (Lista de Espera) Tj /F1 8.6 Tf ( \(priorizando quem tem disponibilidade restrita a um \372nico turno\).) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 335.7794 cm
-q
-BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (3. ) Tj /F2 8.6 Tf .062745 .486275 .254902 rg (Erros Tratados Automaticamente [TRATADA]:) Tj /F1 8.6 Tf .058824 .090196 .164706 rg ( Tamb\351m dispostos em ordem de linha, indicam pequenos ajustes j\341) Tj T* (efetuados pelo sistema \(ex.: 'feminino' normalizado para 'F', 'manha' para 'MANH\303'\).) Tj T* ET
-Q
+1 0 0 1 45.68504 358.1794 cm
 Q
 q
-1 0 0 1 45.68504 332.7794 cm
-Q
-q
-1 0 0 1 45.68504 317.9794 cm
-q
-.054902 .462745 .737255 rg
-BT 1 0 0 1 0 2.6 Tm /F2 9.2 Tf 11.8 TL (Navega\347\343o com 1 Clique e Ferramentas de Corre\347\343o:) Tj T* ET
-Q
-Q
-q
-1 0 0 1 45.68504 293.7794 cm
-q
-BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Pular para a Linha:) Tj /F1 8.6 Tf ( Clique em qualquer card de erro ou alerta no painel lateral para navegar automaticamente at\351 a linha) Tj T* (correspondente na tabela, com a c\351lula destacada e pronta para edi\347\343o.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 45.68504 270.5794 cm
-q
-BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Alternar Hom\364nimos:) Tj /F1 8.6 Tf ( Em alertas de duplicidade de nome, um bot\343o especial \(ex.: 3 ocorr\352ncias <) Tj (-) Tj (>) Tj (\) permite alternar o foco) Tj T* (da tabela ciclicamente entre todas as linhas onde aquele nome aparece.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 45.68504 247.3794 cm
-q
-BT 1 0 0 1 11 14.6 Tm -0.084454 Tw 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Bot\343o 'Corrigir':) Tj /F1 8.6 Tf ( Em erros trat\341veis \(como acentua\347\343o ou min\372sculas\), basta clicar no bot\343o azul Corrigir no card para aplicar a) Tj T* 0 Tw (higieniza\347\343o recomendada com apenas um toque.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 45.68504 239.3794 cm
-Q
-q
-1 0 0 1 45.68504 220.1794 cm
+1 0 0 1 45.68504 337.9794 cm
 q
 0 .360784 .541176 rg
-BT 1 0 0 1 0 3 Tm /F2 11.2 Tf 14.2 TL (3. Modificar C\351lulas na Planilha) Tj T* ET
+BT 1 0 0 1 0 3.2 Tm /F2 11 Tf 14.2 TL (3. Auditoria Cadastral e Tratamento de Erros e Hom\364nimos) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 194.1794 cm
+1 0 0 1 45.68504 323.9794 cm
 q
-.058824 .090196 .164706 rg
-BT 1 0 0 1 0 15.1 Tm /F1 8.9 Tf 12 TL .321924 Tw (A ferramenta conta com um editor de dados de alta performance integrado \340 tela principal, com a mesma facilidade de uso do) Tj T* 0 Tw (Microsoft Excel:) Tj T* ET
+BT 1 0 0 1 0 3.2 Tm 12 TL /F1 8.8 Tf .058824 .090196 .164706 rg (Na aba ) Tj /F2 8.8 Tf ('Relat\363rio & Alertas') Tj /F1 8.8 Tf ( do painel direito, todas as ocorr\352ncias da planilha s\343o listadas por ordem de prioridade:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 191.1794 cm
+1 0 0 1 45.68504 321.9794 cm
 Q
 q
-1 0 0 1 45.68504 167.9794 cm
+1 0 0 1 45.68504 297.7794 cm
 q
-BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Edi\347\343o Direta:) Tj /F1 8.6 Tf ( D\352 um duplo clique em qualquer c\351lula para alterar o texto \(Nome, Sexo ou Disponibilidade\). Pressione ) Tj /F2 8.6 Tf (Enter) Tj /F1 8.6 Tf  T* (para confirmar ou clique fora da c\351lula.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 45.68504 144.7794 cm
-q
-BT 1 0 0 1 11 14.6 Tm -0.078489 Tw 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Gerenciamento de Linhas:) Tj /F1 8.6 Tf ( Na barra de ferramentas superior, utilize o bot\343o ) Tj /F2 8.6 Tf ('+ Nova Linha') Tj /F1 8.6 Tf ( para cadastrar um novo estudante) Tj T* 0 Tw (ou ) Tj /F2 8.6 Tf ('Excluir Linha') Tj /F1 8.6 Tf ( para remover os registros selecionados.) Tj T* ET
+BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (1. ) Tj /F2 8.6 Tf .862745 .14902 .14902 rg (Erros Impeditivos [IMPEDITIVA]:) Tj /F1 8.6 Tf .058824 .090196 .164706 rg ( C\351lulas em branco, valores desconhecidos de sexo/disponibilidade, alunos Integral com a) Tj T* (chave desativada ou excesso de demanda sem lista de espera. Impedem o ensalamento at\351 serem resolvidos.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 133.1794 cm
+1 0 0 1 45.68504 261.9794 cm
 q
-BT 1 0 0 1 11 3 Tm -0.074564 Tw 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Navega\347\343o e Sele\347\343o:) Tj /F1 8.6 Tf ( Clique nas c\351lulas ou arraste o mouse para selecionar linhas e colunas para inspe\347\343o direta dos dados.) Tj T* 0 Tw ET
+BT 1 0 0 1 11 26.2 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (2. ) Tj /F2 8.6 Tf .85098 .466667 .023529 rg (Alertas de Hom\364nimos / Duplicidade [ALERTA]:) Tj /F1 8.6 Tf .058824 .090196 .164706 rg ( Identificam linhas com o mesmo nome de estudante. O card oferece) Tj T* (bot\365es r\341pidos para ) Tj /F2 8.6 Tf (alternar entre as linhas) Tj /F1 8.6 Tf ( na tabela, ) Tj /F2 8.6 Tf (Mesclar) Tj /F1 8.6 Tf ( registros duplicados, ) Tj /F2 8.6 Tf (Excluir) Tj /F1 8.6 Tf ( uma c\363pia ou clicar em ) Tj /F2 8.6 Tf (Manter) Tj T* (Ambos) Tj /F1 8.6 Tf ( caso sejam duas pessoas distintas com o mesmo nome.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 109.9794 cm
+1 0 0 1 45.68504 237.7794 cm
 q
-BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Revalida\347\343o Instant\342nea:) Tj /F1 8.6 Tf ( Ao alterar qualquer c\351lula, o sistema reavalia imediatamente todas as regras de valida\347\343o cadastral) Tj T* (e atualiza os contadores de erros no painel lateral em tempo real.) Tj T* ET
+BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (3. ) Tj /F2 8.6 Tf .062745 .486275 .254902 rg (Padroniza\347\365es Autom\341ticas [TRATADA]:) Tj /F1 8.6 Tf .058824 .090196 .164706 rg ( Registram acentos, espa\347os extras e varia\347\365es de grafia \(como M/F ou) Tj T* (Manha/Manh\343) Tj (\) que o sistema higienizou automaticamente ao abrir a planilha.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 105.9794 cm
+1 0 0 1 45.68504 213.5794 cm
+q
+BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Navega\347\343o em 1 Clique:) Tj /F1 8.6 Tf ( Clicar sobre qualquer card do painel lateral rola a planilha esquerda imediatamente at\351 a linha do) Tj T* (problema e destaca a c\351lula correspondente.) Tj T* ET
+Q
 Q
 q
 BT /F1 8.5 Tf 10.2 TL ET
@@ -322,15 +266,15 @@ BT /F1 8.5 Tf 10.2 TL ET
 .886275 .909804 .941176 RG
 .6 w
 n 39.68504 39.76378 m 555.5906 39.76378 l S
-BT 1 0 0 1 39.68504 29.76378 Tm (ABC Aprendiz \177 Desafio UniSoma 2026 \227 Guia do Usu\341rio e Tutorial do Sistema) Tj T* ET
+BT 1 0 0 1 39.68504 29.76378 Tm (Aloca ABC \177 ABC Aprendiz \177 Desafio UniSoma 2026 \227 Manual e Tutorial de Uso da Ferramenta) Tj T* ET
 BT 1 0 0 1 503.1371 29.76378 Tm (P\341gina 1 de 2) Tj T* ET
 Q
  
 endstream
 endobj
-12 0 obj
+11 0 obj
 <<
-/Length 8373
+/Length 6662
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -338,163 +282,120 @@ q
 1 0 0 1 45.68504 793.3433 cm
 q
 0 .360784 .541176 rg
-BT 1 0 0 1 0 3 Tm /F2 11.2 Tf 14.2 TL (4. Gerar Ensalamento Otimizado) Tj T* ET
+BT 1 0 0 1 0 3.2 Tm /F2 11 Tf 14.2 TL (4. Editor de Planilha Integrado \(Estilo Excel\)) Tj T* ET
 Q
 Q
 q
 1 0 0 1 45.68504 779.3433 cm
 q
 .058824 .090196 .164706 rg
-BT 1 0 0 1 0 3.1 Tm /F1 8.9 Tf 12 TL (Ap\363s revisar e corrigir a planilha, o processo de ensalamento \351 disparado em poucos segundos:) Tj T* ET
+BT 1 0 0 1 0 3.2 Tm /F1 8.8 Tf 12 TL (O painel esquerdo disponibiliza uma grade interativa completa para editar dados sem precisar sair do aplicativo:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 776.3433 cm
+1 0 0 1 45.68504 777.3433 cm
 Q
 q
-1 0 0 1 45.68504 764.7433 cm
+1 0 0 1 45.68504 753.1433 cm
 q
-BT 1 0 0 1 11 3 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Execu\347\343o:) Tj /F1 8.6 Tf ( Clique no bot\343o verde ) Tj /F2 8.6 Tf ('Otimizar Turmas') Tj /F1 8.6 Tf ( na barra superior para iniciar o ensalamento autom\341tico.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 45.68504 741.5433 cm
-q
-BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Distribui\347\343o Equilibrada:) Tj /F1 8.6 Tf ( O sistema distribui os alunos respeitando rigorosamente a capacidade de cada sala e os turnos) Tj T* (informados \(Manh\343, Tarde ou Integral\), garantindo turmas equilibradas em quantidade e propor\347\343o entre meninos e meninas.) Tj T* ET
+BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Edi\347\343o Direta e Barra de F\363rmulas \(fx\):) Tj /F1 8.6 Tf ( D\352 um duplo clique sobre qualquer c\351lula da tabela ou clique nela e digite na barra) Tj T* (superior fx) Tj (, pressionando ) Tj /F2 8.6 Tf (Enter) Tj /F1 8.6 Tf ( para confirmar.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 706.7433 cm
+1 0 0 1 45.68504 717.3433 cm
 q
-BT 1 0 0 1 11 26.2 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Op\347\343o 'Permitir Lista de Espera':) Tj /F1 8.6 Tf ( Localizada na barra superior. Se o n\372mero de inscritos for superior \340 capacidade f\355sica das) Tj T* (salas e essa op\347\343o estiver ) Tj /F3 8.6 Tf (marcada) Tj /F1 8.6 Tf (, o sistema ensala o contingente m\341ximo e organiza os alunos excedentes em lista de) Tj T* (espera.) Tj T* ET
+BT 1 0 0 1 11 26.2 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Ferramentas Estruturais:) Tj /F1 8.6 Tf ( Use os bot\365es da barra de ferramentas da planilha para adicionar registros \() Tj /F2 8.6 Tf ('+ Linha Abaixo') Tj /F1 8.6 Tf (\), criar) Tj T* (novas colunas \() Tj /F2 8.6 Tf ('+ Coluna Direita') Tj /F1 8.6 Tf (\), apagar linhas selecionadas \() Tj /F2 8.6 Tf ('Excluir Linha') Tj /F1 8.6 Tf (\) ou voltar \340 ordem original de leitura \() Tj /F2 8.6 Tf ('Restaurar) Tj T* (Ordem') Tj /F1 8.6 Tf (\).) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 695.1433 cm
+1 0 0 1 45.68504 693.1433 cm
 q
-BT 1 0 0 1 11 3 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Cria\347\343o das Abas Oficiais:) Tj /F1 8.6 Tf ( Ao finalizar o c\341lculo, a ferramenta gera e exibe automaticamente duas novas abas na planilha:) Tj T* ET
+BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Atalhos e Filtros R\341pidos:) Tj /F1 8.6 Tf ( Utilize ) Tj /F2 8.6 Tf (Ctrl+Z) Tj /F1 8.6 Tf ( \(Desfazer\) e ) Tj /F2 8.6 Tf (Ctrl+Y) Tj /F1 8.6 Tf ( \(Refazer\) para reverter ou repetir altera\347\365es. Use o campo) Tj T* /F2 8.6 Tf ('Filtrar nome / turma...') Tj /F1 8.6 Tf ( para localizar rapidamente qualquer aluno ou filtrar os integrantes de uma turma espec\355fica.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 683.5433 cm
-q
-BT 1 0 0 1 11 3 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg ( ) Tj ( ) Tj ( ) Tj ( ) Tj (\177 ) Tj /F2 8.6 Tf (Aba 'Ensalamento':) Tj /F1 8.6 Tf ( Tabela oficial com as colunas Nome) Tj (, Sexo) Tj (, Disponibilidade e Turma \(ex.: MANH\303 - A\).) Tj T* ET
-Q
+1 0 0 1 45.68504 687.1433 cm
 Q
 q
-1 0 0 1 45.68504 660.3433 cm
-q
-BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg ( ) Tj ( ) Tj ( ) Tj ( ) Tj (\177 ) Tj /F2 8.6 Tf (Aba 'Inconsist\352ncias':) Tj /F1 8.6 Tf ( Registro completo de todas as ocorr\352ncias cadastrais e alunos na lista de espera para arquivamento) Tj T* (oficial.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 45.68504 652.3433 cm
-Q
-q
-1 0 0 1 45.68504 633.1433 cm
+1 0 0 1 45.68504 666.9433 cm
 q
 0 .360784 .541176 rg
-BT 1 0 0 1 0 3 Tm /F2 11.2 Tf 14.2 TL (5. Relat\363rio de Turmas \(PDF Oficial de Chamada e Mural\)) Tj T* ET
+BT 1 0 0 1 0 3.2 Tm /F2 11 Tf 14.2 TL (5. Organizar Turmas e Aviso de Salas a Mais) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 607.1433 cm
+1 0 0 1 45.68504 652.9433 cm
 q
-BT 1 0 0 1 0 15.1 Tm .265041 Tw 12 TL /F1 8.9 Tf .058824 .090196 .164706 rg (O ) Tj /F2 8.9 Tf (Relat\363rio de Turmas) Tj /F1 8.9 Tf ( \351 o documento oficial destinado \340 impress\343o f\355sica para a secretaria, portaria da institui\347\343o e listas de) Tj T* 0 Tw (chamada dos educadores:) Tj T* ET
+BT 1 0 0 1 0 3.2 Tm 12 TL /F1 8.8 Tf .058824 .090196 .164706 rg (Quando n\343o houver erros impeditivos pendentes, clique no bot\343o azul ) Tj /F2 8.8 Tf ('Organizar Turmas') Tj /F1 8.8 Tf ( na barra superior direita:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 604.1433 cm
+1 0 0 1 45.68504 650.9433 cm
 Q
 q
-1 0 0 1 45.68504 592.5433 cm
+1 0 0 1 45.68504 603.5433 cm
 q
-BT 1 0 0 1 11 3 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Como Emitir:) Tj /F1 8.6 Tf ( Ap\363s executar a otimiza\347\343o das turmas, clique no bot\343o azul ) Tj /F2 8.6 Tf ('Exportar PDF') Tj /F1 8.6 Tf ( na barra de ferramentas superior.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 45.68504 580.9433 cm
-q
-BT 1 0 0 1 11 3 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Organiza\347\343o por Turma:) Tj /F1 8.6 Tf ( Cada turma possui sua pr\363pria se\347\343o formatada com tabela contendo:) Tj T* ET
+BT 1 0 0 1 11 37.8 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Otimiza\347\343o em 2 Est\341gios:) Tj /F1 8.6 Tf ( O motor resolve primeiro a parti\347\343o global entre Manh\343 e Tarde \(Est\341gio 1 Macro\) e, em seguida,) Tj T* (a composi\347\343o exata de cada sala \(Est\341gio 2 Micro\), finalizando com um sorteio imparcial e reprodut\355vel \(via c\363digo SHA-256 da) Tj T* (planilha\). Assim, todas as salas ficam com quantidades de alunos e propor\347\365es entre meninos e meninas o mais pr\363ximas) Tj T* (poss\355vel.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 569.3433 cm
+1 0 0 1 45.68504 532.9433 cm
 q
-BT 1 0 0 1 11 3 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg ( ) Tj ( ) Tj ( ) Tj ( ) Tj (\177 C\363digo da sala, turno \(Manh\343 ou Tarde\) e capacidade total.) Tj T* ET
+BT 1 0 0 1 11 61 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Aviso sobre Salas a Mais \(Possibilidade de Redu\347\343o de Turmas\):) Tj /F1 8.6 Tf ( Ap\363s distribuir os estudantes nas turmas cadastradas na) Tj T* (aba Turmas) Tj (, o sistema verifica automaticamente em cada turno \(Manh\343 e Tarde\) se o total de vagas ociosas \351 maior ou igual \340) Tj T* (capacidade inteira de uma ou mais salas daquele per\355odo. Quando detecta que todos os alunos alocados no turno caberiam em) Tj T* -0.041024 Tw (um n\372mero menor de turmas respeitando o limite de vagas por sala, o aplicativo exibe um aviso no ) Tj /F2 8.6 Tf (Dashboard do Ensalamento) Tj /F1 8.6 Tf  T* 0 Tw (e no ) Tj /F2 8.6 Tf (Relat\363rio de Distribui\347\343o em PDF) Tj /F1 8.6 Tf ( informando quantas salas poderiam deixar de ser usadas naquele turno e qual seria a) Tj T* (nova taxa de ocupa\347\343o.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 557.7433 cm
-q
-BT 1 0 0 1 11 3 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg ( ) Tj ( ) Tj ( ) Tj ( ) Tj (\177 Tabela com posi\347\343o sequencial \(N\272\), Nome do Estudante em ordem alfab\351tica e indica\347\343o de Sexo \(M / F\).) Tj T* ET
-Q
+1 0 0 1 45.68504 526.9433 cm
 Q
 q
-1 0 0 1 45.68504 546.1433 cm
-q
-BT 1 0 0 1 11 3 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg ( ) Tj ( ) Tj ( ) Tj ( ) Tj (\177 Rodap\351 da sala com total de alunos ensalados e vagas livres remanescentes.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 45.68504 511.3433 cm
-q
-BT 1 0 0 1 11 26.2 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Se\347\343o Integrada de Lista de Espera:) Tj /F1 8.6 Tf ( Caso haja alunos excedentes e a op\347\343o 'Permitir Lista de Espera' esteja ativa, o PDF) Tj T* (incluir\341 automaticamente no final uma se\347\343o exclusiva de Lista de Espera, detalhando a posi\347\343o de cada estudante, nome,) Tj T* (g\352nero e turno solicitado.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 45.68504 503.3433 cm
-Q
-q
-1 0 0 1 45.68504 484.1433 cm
+1 0 0 1 45.68504 506.7433 cm
 q
 0 .360784 .541176 rg
-BT 1 0 0 1 0 3 Tm /F2 11.2 Tf 14.2 TL (6. Relat\363rio do Dashboard de Ensalamento) Tj T* ET
+BT 1 0 0 1 0 3.2 Tm /F2 11 Tf 14.2 TL (6. Relat\363rios em PDF e Dashboard do Ensalamento) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 458.1433 cm
+1 0 0 1 45.68504 492.7433 cm
 q
-BT 1 0 0 1 0 15.1 Tm 1.092028 Tw 12 TL /F1 8.9 Tf .058824 .090196 .164706 rg (O ) Tj /F2 8.9 Tf (Relat\363rio do Dashboard) Tj /F1 8.9 Tf ( \351 um relat\363rio anal\355tico e executivo para a coordena\347\343o avaliar a efici\352ncia da distribui\347\343o das) Tj T* 0 Tw (vagas e a viabilidade de economia de recursos:) Tj T* ET
+BT 1 0 0 1 0 3.2 Tm 12 TL /F1 8.8 Tf .058824 .090196 .164706 rg (Ap\363s organizar as turmas, al\351m de gravar a planilha Excel pelo bot\343o ) Tj /F2 8.8 Tf ('Salvar') Tj /F1 8.8 Tf (, voc\352 pode emitir dois relat\363rios oficiais em PDF:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 455.1433 cm
+1 0 0 1 45.68504 490.7433 cm
 Q
 q
-1 0 0 1 45.68504 431.9433 cm
+1 0 0 1 45.68504 475.7433 cm
 q
-BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Como Emitir:) Tj /F1 8.6 Tf ( No painel lateral direito, clique na aba ) Tj /F2 8.6 Tf ('Dashboard do Ensalamento') Tj /F1 8.6 Tf ( e, em seguida, clique no bot\343o ) Tj /F2 8.6 Tf ('Gerar) Tj T* (Relat\363rio de Distribui\347\343o') Tj /F1 8.6 Tf ( localizado na parte inferior.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 45.68504 420.3433 cm
-q
-BT 1 0 0 1 11 3 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 ) Tj /F2 8.6 Tf (Conte\372do do Documento:) Tj T* ET
+.054902 .462745 .737255 rg
+BT 1 0 0 1 0 2.8 Tm /F2 9.2 Tf 12 TL (A\) Bot\343o 'PDF p/ Alunos' \(Barra Superior\):) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 397.1433 cm
+1 0 0 1 45.68504 439.9433 cm
 q
-BT 1 0 0 1 11 14.6 Tm -0.086576 Tw 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg ( ) Tj ( ) Tj ( ) Tj ( ) Tj /F2 8.6 Tf (1. Logo e Resumo Global:) Tj /F1 8.6 Tf ( Logomarca da ABC Aprendiz no canto superior esquerdo acompanhada dos KPIs consolidados de) Tj T* 0 Tw (total alocados, salas ofertadas, vagas livres e ocupa\347\343o global.) Tj T* ET
+BT 1 0 0 1 11 26.2 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 Gera um arquivo PDF pronto para impress\343o e fixa\347\343o nos murais da ) Tj /F2 8.6 Tf (ABC Aprendiz) Tj /F1 8.6 Tf (, contendo uma p\341gina por turma com os) Tj T* (alunos em ordem alfab\351tica \(preservando a privacidade de dados demogr\341ficos\) e uma se\347\343o final caso haja estudantes na Lista) Tj T* (de Espera.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 362.3433 cm
+1 0 0 1 45.68504 435.9433 cm
+Q
 q
-BT 1 0 0 1 11 26.2 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg ( ) Tj ( ) Tj ( ) Tj ( ) Tj /F2 8.6 Tf (2. Aviso de Possibilidade de Redu\347\343o de Turmas:) Tj /F1 8.6 Tf ( Se o n\372mero de estudantes alocados em um turno couber com folga em) Tj T* (menos salas do que o ofertado inicialmente, o PDF insere automaticamente um ) Tj /F2 8.6 Tf (quadro de aviso em destaque amarelo) Tj /F1 8.6 Tf ( no) Tj T* (in\355cio do turno, recomendando fechar salas ociosas para economizar professores e custos sem deixar nenhum aluno de fora.) Tj T* ET
+1 0 0 1 45.68504 420.9433 cm
+q
+.054902 .462745 .737255 rg
+BT 1 0 0 1 0 2.8 Tm /F2 9.2 Tf 12 TL (B\) Aba 'Dashboard do Ensalamento' e Bot\343o 'Gerar Relat\363rio de Distribui\347\343o':) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 339.1433 cm
+1 0 0 1 45.68504 385.1433 cm
 q
-BT 1 0 0 1 11 14.6 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg ( ) Tj ( ) Tj ( ) Tj ( ) Tj /F2 8.6 Tf (3. Estat\355sticas Objetivas por Turno:) Tj /F1 8.6 Tf ( Quadros concisos informando a ) Tj /F3 8.6 Tf (M\351dia de alunos por turma) Tj /F1 8.6 Tf (, a ) Tj /F3 8.6 Tf (Faixa de lota\347\343o) Tj /F1 8.6 Tf ( \(m\355nimo) Tj T* (e m\341ximo\) e o quantitativo exato de ) Tj /F3 8.6 Tf (Meninos \(M\)) Tj /F1 8.6 Tf ( e ) Tj /F3 8.6 Tf (Meninas \(F\)) Tj /F1 8.6 Tf ( com percentuais.) Tj T* ET
+BT 1 0 0 1 11 26.2 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 Ao clicar na aba ) Tj /F2 8.6 Tf ('Dashboard do Ensalamento') Tj /F1 8.6 Tf ( no painel direito, voc\352 visualiza os indicadores gerais \(Total de Alunos,) Tj T* (Alocados, Lista de Espera, Turmas Ativas\), o aviso de possibilidade de redu\347\343o de salas por turno e os gr\341ficos de ocupa\347\343o e) Tj T* (propor\347\343o Masculino/Feminino de cada sala.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 45.68504 304.3433 cm
+1 0 0 1 45.68504 349.3433 cm
 q
-BT 1 0 0 1 11 26.2 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg ( ) Tj ( ) Tj ( ) Tj ( ) Tj /F2 8.6 Tf (4. Tabela Anal\355tica sem Quebras:) Tj /F1 8.6 Tf ( Apresenta cada turma com Lota\347\343o/Capacidade, Taxa de Ocupa\347\343o %, Vagas Livres,) Tj T* (Meninos, Meninas e uma ) Tj /F2 8.6 Tf (barra gr\341fica visual colorida) Tj /F1 8.6 Tf ( que ilustra a propor\347\343o entre meninos \(azul\), meninas \(coral\) e vagas) Tj T* (ociosas \(cinza\).) Tj T* ET
+BT 1 0 0 1 11 26.2 Tm 11.6 TL /F1 8.6 Tf .058824 .090196 .164706 rg (\177 O bot\343o ) Tj /F2 8.6 Tf ('Gerar Relat\363rio de Distribui\347\343o') Tj /F1 8.6 Tf ( fica ) Tj /F2 8.6 Tf (fixo no topo do Dashboard) Tj /F1 8.6 Tf ( \(logo acima dos cards das turmas\) e exporta um) Tj T* (relat\363rio gerencial em PDF com todas as tabelas comparativas por turno, avisos de salas que podem ser economizadas e) Tj T* (gr\341ficos demogr\341ficos.) Tj T* ET
 Q
 Q
 q
@@ -503,37 +404,36 @@ BT /F1 8.5 Tf 10.2 TL ET
 .886275 .909804 .941176 RG
 .6 w
 n 39.68504 39.76378 m 555.5906 39.76378 l S
-BT 1 0 0 1 39.68504 29.76378 Tm (ABC Aprendiz \177 Desafio UniSoma 2026 \227 Guia do Usu\341rio e Tutorial do Sistema) Tj T* ET
+BT 1 0 0 1 39.68504 29.76378 Tm (Aloca ABC \177 ABC Aprendiz \177 Desafio UniSoma 2026 \227 Manual e Tutorial de Uso da Ferramenta) Tj T* ET
 BT 1 0 0 1 503.1371 29.76378 Tm (P\341gina 2 de 2) Tj T* ET
 Q
  
 endstream
 endobj
 xref
-0 13
+0 12
 0000000000 65535 f 
 0000000061 00000 n 
-0000000112 00000 n 
-0000000219 00000 n 
-0000134893 00000 n 
-0000135005 00000 n 
-0000135120 00000 n 
-0000135388 00000 n 
-0000135593 00000 n 
-0000135662 00000 n 
-0000136004 00000 n 
-0000136070 00000 n 
-0000146454 00000 n 
+0000000102 00000 n 
+0000000209 00000 n 
+0000134883 00000 n 
+0000134995 00000 n 
+0000135262 00000 n 
+0000135466 00000 n 
+0000135534 00000 n 
+0000135857 00000 n 
+0000135922 00000 n 
+0000145278 00000 n 
 trailer
 <<
 /ID 
-[<80d2a935ab896aa6e233c2f40e23903b><80d2a935ab896aa6e233c2f40e23903b>]
+[<b6a96cafa1d5a1cf2a4c07d9d947e846><b6a96cafa1d5a1cf2a4c07d9d947e846>]
 % ReportLab generated PDF document -- digest (opensource)
 
-/Info 9 0 R
-/Root 8 0 R
-/Size 13
+/Info 8 0 R
+/Root 7 0 R
+/Size 12
 >>
 startxref
-154879
+151992
 %%EOF
