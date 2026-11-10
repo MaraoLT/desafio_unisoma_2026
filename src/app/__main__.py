@@ -114,6 +114,10 @@ def create_wsgi_app(backend: AppBackend, window_holder: dict[str, Any]) -> bottl
     def favicon():
         return bottle.static_file("favicon.ico", root=str(static_dir), mimetype="image/x-icon")
 
+    @app.get("/js/<filepath:path>")
+    def js_static(filepath: str):
+        return bottle.static_file(filepath, root=str(static_dir / "js"), mimetype="application/javascript")
+
     @app.post("/api/init")
     def api_init():
         body = _read_json()
