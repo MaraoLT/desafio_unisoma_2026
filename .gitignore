@@ -10,7 +10,6 @@ __pycache__/
 
 # Empacotamento PyInstaller
 build/
-dist/
 *.spec
 !UniSomaEnsalamento.spec
 
