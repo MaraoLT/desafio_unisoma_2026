@@ -124,8 +124,7 @@ desafio_unisoma_2026/
 │   │   ├── types.py                         # Estruturas de dados (SolverConfig, AllocationResult, Stage1Targets)
 │   │   ├── feasibility.py                   # Agregacao nos 6 perfis, analise de capacidade e reducao de salas
 │   │   ├── macro_stage.py                   # Estagio 1 (Macro): Particao global entre Manha e Tarde
-│   │   ├── micro_stage.py                   # Estagio 2 (Micro): Configuracao das salas por turno e sorteio SHA-256
-│   │   ├── legacy_model.py                  # Modelo monolitico original preservado para comparacao
+│   │   ├── micro_stage.py                   # Estagio 2 (Micro): Configuracao das salas por turno e sorteio SHA-256 comparacao
 │   │   ├── legacy_model.py                  # Modelo legado original preservado para comparacao
 │   │   └── solver.py                        # Orquestrador principal do pipeline de otimizacao
 │   └── app/                                 # Aplicacao Desktop GUI (pywebview + Bottle + Tabulator)
@@ -262,7 +261,7 @@ Na abordagem clássica de ensalamento (preservada apenas para benchmark em [`src
 Essa modelagem sofre de **explosão de simetria combinatória**:
 
 1. Alunos com o mesmo gênero e mesma disponibilidade são matematicamente indistinguíveis para as funções de equilíbrio das turmas; permutá-los gera milhares de soluções com o mesmo valor objetivo.
-2. Permutar os índices das $m_{\text{Manhã}}$ salas da Manhã entre si gera $m_{\text{Manhã}}!$ soluções idênticas na árvore de *Branch-and-Bound*.
+2. Permutar os índices das $m_s$ salas de um mesmo turno $s$ entre si gera $m_s!$ soluções idênticas na árvore de *Branch-and-Bound*.
 
 Nossa arquitetura resolve ambos os problemas de forma **exata** por meio de três pilares:
 
@@ -274,23 +273,23 @@ Nossa arquitetura resolve ambos os problemas de forma **exata** por meio de trê
 
 ### 6.2. Conjuntos, Parâmetros e Capacidade Máxima Viável ($U^*$)
 
-- **Turnos:** $\mathcal{S} = \{\text{Manhã}, \text{Tarde}\}$, com número de salas planejadas $m_s \in \mathbb{Z}_{\ge 0}$ e total de turmas $M = m_{\text{Manhã}} + m_{\text{Tarde}}$.
-- **Gêneros:** $\mathcal{G} = \{\text{M}, \text{F}\}$.
-- **Perfis Demográficos:** $\mathcal{P} = \mathcal{G} \times \{\text{Manhã}, \text{Tarde}, \text{Integral}\}$ ($|\mathcal{P}| = 6$), onde $n_p$ é o total de inscritos no perfil $p = (g_p, S_p)$.
+- **Turnos:** $\mathcal{S} = \{\text{M}, \text{T}\}$ (representando Manhã e Tarde), com número de salas planejadas $m_s \in \mathbb{Z}_{\ge 0}$ e total de turmas $M = m_{\text{M}} + m_{\text{T}}$.
+- **Gêneros:** $\mathcal{G} = \{\text{M}, \text{F}\}$ (Masculino e Feminino).
+- **Perfis Demográficos:** $\mathcal{P}$ ($|\mathcal{P}| = 6$), onde $n_p$ é o total de inscritos no perfil $p = (g_p, S_p)$.
 - **Capacidade por Sala:** Limite máximo de vagas $C_s$ (ou $C_{\max}$) para cada sala do turno $s \in \mathcal{S}$.
 
-Pela condição de casamento em grafos bipartidos (**Teorema de Hall**), o número máximo de alunos que podem ser fisicamente alocados respeitando as disponibilidades de turno e o teto $C_{\max}$ de cada sala é calculado analiticamente em $O(1)$ antes de invocar o solver (em [`src/models/feasibility.py`](src/models/feasibility.py)):
+Pela condição de casamento em grafos bipartidos (**Teorema de Hall**), o número máximo de alunos que podem ser fisicamente alocados respeitando as disponibilidades de turno ($n_{\text{M}}$ exclusivos da Manhã, $n_{\text{T}}$ exclusivos da Tarde e $n_{\text{I}}$ do período Integral) e o teto $C_{\max}$ de cada sala é calculado analiticamente em $O(1)$ antes de invocar o solver (em [`src/models/feasibility.py`](src/models/feasibility.py)):
 
 $$
-U_{\text{Manhã}}^{\max} = \min\left(n_{\text{Manhã}} + n_{\text{Integral}}, \; m_{\text{Manhã}} C_{\max}\right)
-$$
-
-$$
-U_{\text{Tarde}}^{\max} = \min\left(n_{\text{Tarde}} + n_{\text{Integral}}, \; m_{\text{Tarde}} C_{\max}\right)
+U_{\text{M}}^{\max} = \min\left(n_{\text{M}} + n_{\text{I}}, \; m_{\text{M}} C_{\max}\right)
 $$
 
 $$
-U^* = \min\left(n_{\text{Manhã}} + n_{\text{Tarde}} + n_{\text{Integral}}, \; U_{\text{Manhã}}^{\max} + U_{\text{Tarde}}^{\max}\right)
+U_{\text{T}}^{\max} = \min\left(n_{\text{T}} + n_{\text{I}}, \; m_{\text{T}} C_{\max}\right)
+$$
+
+$$
+U^* = \min\left(n_{\text{M}} + n_{\text{T}} + n_{\text{I}}, \; U_{\text{M}}^{\max} + U_{\text{T}}^{\max}\right)
 $$
 
 ---
@@ -312,52 +311,55 @@ Implementado em [`src/models/macro_stage.py`](src/models/macro_stage.py), o Est�
 
 #### Restrições do Estágio 1
 
-1. **Conservação de Fluxo Demográfico e Meta Global $U^*$:**
+**1. Conservação de Fluxo Demográfico e Meta Global $U^*$ (modo padrão sem lista de espera):**
 
-   $$
-   \sum_{s \in S_p} y_{p, s} = n_p \quad \forall p \in \mathcal{P} \quad \text{(modo padrão sem lista de espera)}
-   $$
+$$
+\sum_{s \in S_p} y_{p, s} = n_p \qquad \forall p \in \mathcal{P}
+$$
 
-   No modo com Lista de Espera, $\sum_{s \in S_p} y_{p, s} \le n_p$ e $\sum_{p, s} y_{p, s} = U^*$, priorizando perfis de turno único.
-2. **Agregação por Turno e Gênero:**
+No modo com Lista de Espera, impõe-se $\sum_{s \in S_p} y_{p, s} \le n_p$ e $\sum_{p, s} y_{p, s} = U^*$, priorizando perfis de turno único.
 
-   $$
-   N_{s,g} = \sum_{p \in \mathcal{P} : g_p = g} y_{p, s}, \qquad N_s = N_{s,\text{M}} + N_{s,\text{F}} \qquad \forall s \in \mathcal{S}, g \in \mathcal{G}
-   $$
-3. **Divisão Euclidiana Linearizada (Total e por Gênero):**
+**2. Agregação por Turno e Gênero:**
 
-   $$
-   N_s = m_s q_s + r_s, \qquad d_s \le r_s \le (m_s - 1) d_s, \qquad q_s + d_s \le C_{\max}
-   $$
+$$
+N_{s,g} = \sum_{p \in \mathcal{P} : g_p = g} y_{p, s}, \qquad N_s = N_{s,\text{M}} + N_{s,\text{F}} \qquad \forall s \in \mathcal{S}, \; g \in \mathcal{G}
+$$
 
-   $$
-   N_{s,g} = m_s q_{s,g} + r_{s,g}, \qquad d_{s,g} \le r_{s,g} \le (m_s - 1) d_{s,g}
-   $$
+**3. Divisão Euclidiana Linearizada (Total e por Gênero):**
 
-   Como $d_s = 0 \iff r_s = 0$ e $d_s = 1 \iff r_s \ge 1$, o menor tamanho de turma no turno $s$ é exatamente $q_s$ e o maior tamanho de turma no turno $s$ é exatamente $q_s + d_s$.
-4. **Envelopes Globais Entre Turnos:**
+$$
+N_s = m_s q_s + r_s, \qquad d_s \le r_s \le (m_s - 1) d_s, \qquad q_s + d_s \le C_{\max}
+$$
 
-   $$
-   L_{\text{T}} \le q_s, \qquad U_{\text{T}} \ge q_s + d_s \qquad \forall s \in \mathcal{S}
-   $$
+$$
+N_{s,g} = m_s q_{s,g} + r_{s,g}, \qquad d_{s,g} \le r_{s,g} \le (m_s - 1) d_{s,g}
+$$
 
-   $$
-   L_g \le q_{s,g}, \qquad U_g \ge q_{s,g} + d_{s,g} \qquad \forall s \in \mathcal{S}, g \in \mathcal{G}
-   $$
+Como $d_s = 0 \iff r_s = 0$ e $d_s = 1 \iff r_s \ge 1$, o menor tamanho de turma no turno $s$ é exatamente $q_s$ e o maior tamanho de turma no turno $s$ é exatamente $q_s + d_s$.
+
+**4. Envelopes Globais Entre Turnos:**
+
+$$
+L_{\text{T}} \le q_s, \qquad U_{\text{T}} \ge q_s + d_s \qquad \forall s \in \mathcal{S}
+$$
+
+$$
+L_g \le q_{s,g}, \qquad U_g \ge q_{s,g} + d_{s,g} \qquad \forall s \in \mathcal{S}, \; g \in \mathcal{G}
+$$
 
 #### Otimização Lexicográfica em 2 Fases no Estágio 1
 
-- **Fase 1 (Equilíbrio Min-Max de Pior Caso Global):**
-  Minimiza a maior diferença máxima entre quaisquer duas turmas da instituição (em tamanho total e em cada gênero):
+**Fase 1 (Equilíbrio Min-Max de Pior Caso Global):**
+Minimiza a maior diferença máxima entre quaisquer duas turmas da instituição (em tamanho total e em cada gênero):
 
-  $$
-  \min \; Z_{\text{Macro, 1}} = P_{\text{tam}}(U_{\text{T}} - L_{\text{T}}) + P_{\text{gen}}\left[(U_{\text{M}} - L_{\text{M}}) + (U_{\text{F}} - L_{\text{F}})\right]
-  $$
+$$
+\min \; Z_{\text{Macro, 1}} = P_{\text{tam}}(U_{\text{T}} - L_{\text{T}}) + P_{\text{gen}}\left[(U_{\text{M}} - L_{\text{M}}) + (U_{\text{F}} - L_{\text{F}})\right]
+$$
 
-  Ao final da Fase 1, os valores ótimos das amplitudes globais $W_{\text{T}}^* = U_{\text{T}}^* - L_{\text{T}}^*$, $W_{\text{M}}^*$ e $W_{\text{F}}^*$ são fixados como restrições rígidas.
-- **Fase 2 (Refinamento Fino Par-a-Par $L_1$ e Paridade 50/50):**
-  Quando há múltiplas partições que empatam na mesma amplitude máxima de pior caso (por exemplo, $W_{\text{T}}^* = 1$), a Fase 2 escolhe a distribuição internamente mais harmônica.
-  Dentro de um turno $s$, existem $r_s$ turmas de tamanho $q_s + 1$ e $(m_s - r_s)$ turmas de tamanho $q_s$. A soma das diferenças absolutas entre todos os pares de turmas desse turno é exatamente $r_s(m_s - r_s)$. Como $r_s \in \{0, \dots, m_s - 1\}$ é um inteiro pequeno, linearizamos o termo quadrático $r_s(m_s - r_s)$ de forma **exata** por expansão binária $r_s = \sum_{v=1}^{m_s - 1} v \cdot \lambda_{s,v}$ com $\sum_v \lambda_{s,v} \le 1$, somada às diferenças cruzadas entre turnos e ao desempate de paridade 50/50 ($\delta_{s,g} \ge |N_{s,\text{M}} - N_{s,\text{F}}|$ com peso $\epsilon = 10^{-3}$).
+Ao final da Fase 1, os valores ótimos das amplitudes globais $W_{\text{T}}^* = U_{\text{T}}^* - L_{\text{T}}^*$, $W_{\text{M}}^*$ e $W_{\text{F}}^*$ são fixados como restrições rígidas.
+
+**Fase 2 (Refinamento Fino Par-a-Par $L_1$ e Paridade 50/50):**
+Quando há múltiplas partições que empatam na mesma amplitude máxima de pior caso (por exemplo, $W_{\text{T}}^* = 1$), a Fase 2 escolhe a distribuição internamente mais harmônica. Dentro de um turno $s$, existem $r_s$ turmas de tamanho $q_s + 1$ e $(m_s - r_s)$ turmas de tamanho $q_s$. A soma das diferenças absolutas entre todos os pares de turmas desse turno é exatamente $r_s(m_s - r_s)$. Como $r_s \in \{0, \dots, m_s - 1\}$ é um inteiro pequeno, linearizamos o termo quadrático $r_s(m_s - r_s)$ de forma **exata** por expansão binária $r_s = \sum_{v=1}^{m_s - 1} v \cdot \lambda_{s,v}$ com $\sum_v \lambda_{s,v} \le 1$, somada às diferenças cruzadas entre turnos e ao desempate de paridade 50/50 ($\delta_{s,g} \ge |N_{s,\text{M}} - N_{s,\text{F}}|$ com peso $\epsilon = 10^{-3}$).
 
 ---
 
@@ -380,28 +382,29 @@ Para manter o equilíbrio ótimo de cada gênero dentro do turno $s$, toda sala 
 
 #### Formulação Completa do Subproblema Micro (para cada turno $s$)
 
-Implementado em [`src/models/micro_stage.py`](src/models/micro_stage.py):
+Implementado em [`src/models/micro_stage.py`](src/models/micro_stage.py), o subproblema de cada turno $s$ resolve:
 
 $$
 \min \; u_{\text{low}} + u_{\text{high}}
 $$
 
 Sujeito a:
+- **Total de salas do turno $s$:**
 
 $$
-t_{00} + t_{10} + t_{01} + t_{11} = m_s \qquad \text{(Total de salas do turno } s\text{)}
+t_{00} + t_{10} + t_{01} + t_{11} = m_s
 $$
 
-$$
-t_{10} + t_{11} = r_{\text{M}} \qquad \text{(Salas que recebem +1 homem)}
-$$
+- **Salas que recebem $+1$ homem e salas que recebem $+1$ mulher:**
 
 $$
-t_{01} + t_{11} = r_{\text{F}} \qquad \text{(Salas que recebem +1 mulher)}
+t_{10} + t_{11} = r_{\text{M}}, \qquad t_{01} + t_{11} = r_{\text{F}}
 $$
 
+- **Ativação dos extremos de tamanho ($u_{\text{low}}, u_{\text{high}} \in \{0, 1\}$):**
+
 $$
-t_{00} \le m_s \cdot u_{\text{low}}, \qquad t_{11} \le m_s \cdot u_{\text{high}}, \qquad u_{\text{low}}, u_{\text{high}} \in \{0, 1\}
+t_{00} \le m_s \cdot u_{\text{low}}, \qquad t_{11} \le m_s \cdot u_{\text{high}}
 $$
 
 **Interpretação Geométrica:**
